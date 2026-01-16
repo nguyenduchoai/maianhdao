@@ -248,45 +248,121 @@ export default function MapTreePage() {
                         </div>
                     )}
 
-                    {/* Selected Tree Info Panel */}
+                    {/* Selected Tree Detail Modal */}
                     {selectedTree && (
-                        <div className="absolute bottom-4 left-4 right-4 bg-white rounded-xl shadow-xl p-4 max-w-lg mx-auto">
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className={`
-                                        w-16 h-16 rounded-xl flex items-center justify-center text-3xl
-                                        ${selectedTree.status === 'sponsored' ? 'bg-pink-100' : 'bg-gray-100'}
-                                    `}>
-                                        🌸
-                                    </div>
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 pointer-events-auto overflow-hidden">
+                                {/* Header with status */}
+                                <div className={`
+                                    px-5 py-4 flex items-center gap-3
+                                    ${selectedTree.status === 'sponsored' ? 'bg-gradient-to-r from-pink-500 to-pink-400' : 'bg-gray-400'}
+                                    text-white
+                                `}>
+                                    <span className="text-3xl">🌸</span>
                                     <div>
-                                        <h3 className="text-xl font-bold text-gray-800">Cây {selectedTree.code}</h3>
-                                        <p className="text-sm text-gray-500">
-                                            Khu {selectedTree.zone} • {selectedTree.lat.toFixed(6)}, {selectedTree.lng.toFixed(6)}
-                                        </p>
-                                        {selectedTree.donorName && (
-                                            <p className="text-pink-600 font-semibold mt-1">
-                                                {selectedTree.donorName}
-                                                {selectedTree.donorAmount && ` - ${formatCurrency(selectedTree.donorAmount)}`}
-                                            </p>
-                                        )}
+                                        <div className="font-bold text-xl">
+                                            {selectedTree.status === 'sponsored' ? 'Điểm có Hoa mai anh đào' : 'Cây còn trống'}
+                                        </div>
+                                        <div className="text-pink-100">{selectedTree.code} - Khu {selectedTree.zone}</div>
                                     </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <a
-                                        href={`https://www.google.com/maps/dir/?api=1&destination=${selectedTree.lat},${selectedTree.lng}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600"
-                                    >
-                                        📍 Chỉ đường
-                                    </a>
                                     <button
                                         onClick={() => setSelectedTree(null)}
-                                        className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200"
+                                        className="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
                                     >
-                                        Đóng
+                                        ✕
                                     </button>
+                                </div>
+
+                                {/* Content */}
+                                <div className="p-5">
+                                    {selectedTree.status === 'sponsored' && selectedTree.donorName ? (
+                                        <>
+                                            {/* Donor Name */}
+                                            <h3 className="text-xl font-bold text-gray-800 mb-4">{selectedTree.donorName}</h3>
+
+                                            {/* Info Grid */}
+                                            <div className="space-y-2 mb-4 text-sm">
+                                                <div className="flex items-center gap-2 text-gray-600">
+                                                    <span>📅</span>
+                                                    <span><strong>Thời gian nở hoa:</strong> 05/01/2026 - 31/01/2026</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-gray-600">
+                                                    <span>🌸</span>
+                                                    <span><strong>Số lượng cây:</strong> 1 tree</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-gray-600">
+                                                    <span>📍</span>
+                                                    <span>Đảo Mai Anh Đào, Hồ Xuân Hương, Đà Lạt</span>
+                                                </div>
+                                                {selectedTree.donorAmount && (
+                                                    <div className="flex items-center gap-2 text-pink-600 font-semibold">
+                                                        <span>💰</span>
+                                                        <span>{formatCurrency(selectedTree.donorAmount)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Images Gallery */}
+                                            <div className="mb-4">
+                                                <div className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh (2)</div>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <img
+                                                        src={selectedTree.images?.[0] || '/images/hero-bg.jpg'}
+                                                        alt={`Cây ${selectedTree.code}`}
+                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                                    />
+                                                    <img
+                                                        src={selectedTree.images?.[1] || '/images/og-image.jpg'}
+                                                        alt={`Cây ${selectedTree.code}`}
+                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Sponsor Logo/Banner */}
+                                            {selectedTree.donorLogo && (
+                                                <div className="mb-4 p-3 bg-pink-50 rounded-lg border border-pink-100">
+                                                    <img
+                                                        src={selectedTree.donorLogo}
+                                                        alt={selectedTree.donorName}
+                                                        className="h-16 object-contain mx-auto"
+                                                    />
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-6">
+                                            <div className="text-5xl mb-3">🌱</div>
+                                            <h4 className="font-bold text-gray-800 mb-2">Cây này đang chờ bạn!</h4>
+                                            <p className="text-gray-500 text-sm mb-4">
+                                                Đóng góp để sở hữu cây Mai Anh Đào<br />và để lại dấu ấn tại Đà Lạt
+                                            </p>
+                                            <a
+                                                href="/#donate"
+                                                className="inline-block bg-pink-500 text-white py-2 px-6 rounded-full font-medium hover:bg-pink-600"
+                                            >
+                                                💝 Đóng Góp Ngay
+                                            </a>
+                                        </div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <div className="flex gap-3">
+                                        <a
+                                            href={`https://www.google.com/maps/dir/?api=1&destination=${selectedTree.lat},${selectedTree.lng}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 text-center py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600"
+                                        >
+                                            📍 Chỉ đường
+                                        </a>
+                                        <button
+                                            onClick={() => setSelectedTree(null)}
+                                            className="py-3 px-6 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200"
+                                        >
+                                            Đóng
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
