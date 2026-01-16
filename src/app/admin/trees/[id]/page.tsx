@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { formatCurrency } from '@/lib/utils';
+
+const DraggableMap = dynamic(() => import('@/components/admin/DraggableMap'), { ssr: false });
 
 interface Tree {
     id: string;
@@ -60,9 +63,32 @@ export default function TreeDetailPage() {
     };
 
     const handleSave = async () => {
-        // TODO: Implement save API
-        alert('Chức năng lưu sẽ được implement sau!');
-        setIsEditing(false);
+        if (!tree) return;
+        try {
+            const res = await fetch('/api/admin/trees', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: tree.id,
+                    code: formData.code,
+                    zone: formData.zone,
+                    lat: parseFloat(formData.lat),
+                    lng: parseFloat(formData.lng),
+                    images: formData.images,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã lưu thành công!');
+                fetchTree();
+                setIsEditing(false);
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            console.error('Error saving tree:', error);
+            alert('Lỗi kết nối server');
+        }
     };
 
     if (isLoading) {
@@ -208,32 +234,49 @@ export default function TreeDetailPage() {
                             </div>
                         </div>
 
-                        <Link
-                            href={`/map/${tree.id}`}
-                            className="block w-full text-center py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
-                        >
-                            🗺️ Xem trên Bản đồ
-                        </Link>
-
-                        <a
-                            href={`https://www.google.com/maps?q=${tree.lat},${tree.lng}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block w-full text-center py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                        >
-                            📍 Xem trên Google Maps
-                        </a>
-
-                        {/* Mini Map Preview */}
-                        <div className="h-48 bg-gray-100 rounded-lg overflow-hidden">
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                style={{ border: 0 }}
-                                loading="lazy"
-                                src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${tree.lat},${tree.lng}&zoom=18`}
+                        {isEditing ? (
+                            /* Draggable Map for editing */
+                            <DraggableMap
+                                lat={parseFloat(formData.lat) || tree.lat}
+                                lng={parseFloat(formData.lng) || tree.lng}
+                                onLocationChange={(newLat, newLng) => {
+                                    setFormData({
+                                        ...formData,
+                                        lat: newLat.toFixed(6),
+                                        lng: newLng.toFixed(6),
+                                    });
+                                }}
                             />
-                        </div>
+                        ) : (
+                            <>
+                                <Link
+                                    href={`/map/${tree.id}`}
+                                    className="block w-full text-center py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+                                >
+                                    🗺️ Xem trên Bản đồ
+                                </Link>
+
+                                <a
+                                    href={`https://www.google.com/maps?q=${tree.lat},${tree.lng}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block w-full text-center py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                >
+                                    📍 Xem trên Google Maps
+                                </a>
+
+                                {/* Mini Map Preview */}
+                                <div className="h-48 bg-gray-100 rounded-lg overflow-hidden">
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        loading="lazy"
+                                        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${tree.lat},${tree.lng}&zoom=18`}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
