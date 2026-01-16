@@ -21,7 +21,22 @@ export async function POST(request: NextRequest) {
         // Find admin user
         const user = db.prepare(
             'SELECT * FROM admin_users WHERE username = ?'
-        ).get(username) as { id: string; username: string; password: string } | undefined;
+        ).get(username) as { id: string; username: string; password: string; role: string; is_active: number } | undefined;
+
+        if (!user) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid credentials' },
+                { status: 401 }
+            );
+        }
+
+        // Check if user is active
+        if (!user.is_active) {
+            return NextResponse.json(
+                { success: false, error: 'Tài khoản đã bị vô hiệu hóa' },
+                { status: 401 }
+            );
+        }
 
         if (!user) {
             return NextResponse.json(
@@ -41,7 +56,7 @@ export async function POST(request: NextRequest) {
 
         // Generate JWT token
         const token = jwt.sign(
-            { id: user.id, username: user.username },
+            { id: user.id, username: user.username, role: user.role },
             JWT_SECRET,
             { expiresIn: '24h' }
         );
@@ -50,7 +65,7 @@ export async function POST(request: NextRequest) {
             success: true,
             data: {
                 token,
-                user: { id: user.id, username: user.username },
+                user: { id: user.id, username: user.username, role: user.role },
             },
         });
 
@@ -85,12 +100,15 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const decoded = jwt.verify(token, JWT_SECRET) as { id: string; username: string };
+        const decoded = jwt.verify(token, JWT_SECRET) as { id: string; username: string; role?: string };
+
+        // Get fresh role from database
+        const user = db.prepare('SELECT role FROM admin_users WHERE id = ?').get(decoded.id) as { role: string } | undefined;
 
         return NextResponse.json({
             success: true,
             authenticated: true,
-            user: { id: decoded.id, username: decoded.username },
+            user: { id: decoded.id, username: decoded.username, role: user?.role || decoded.role || 'editor' },
         });
     } catch (error) {
         return NextResponse.json(

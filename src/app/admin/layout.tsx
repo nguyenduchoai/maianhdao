@@ -8,15 +8,27 @@ interface AdminLayoutProps {
     children: React.ReactNode;
 }
 
+interface AdminUser {
+    username: string;
+    role: string;
+}
+
 export default function AdminLayout({ children }: AdminLayoutProps) {
     const router = useRouter();
     const pathname = usePathname();
-    const [user, setUser] = useState<{ username: string } | null>(null);
+    const [user, setUser] = useState<AdminUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         checkAuth();
     }, []);
+
+    // Check access when pathname changes
+    useEffect(() => {
+        if (user && !isLoading) {
+            checkAccess();
+        }
+    }, [pathname, user, isLoading]);
 
     const checkAuth = async () => {
         try {
@@ -34,17 +46,34 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         }
     };
 
+    const checkAccess = () => {
+        // Admin-only pages
+        const adminOnlyPages = ['/admin/settings', '/admin/users'];
+        const isAdminOnlyPage = adminOnlyPages.some(page => pathname.startsWith(page));
+
+        if (isAdminOnlyPage && user?.role !== 'admin') {
+            alert('Bạn không có quyền truy cập trang này!');
+            router.push('/admin');
+        }
+    };
+
     const handleLogout = async () => {
         await fetch('/api/admin/login', { method: 'DELETE' });
         router.push('/admin/login');
     };
 
+    const isAdmin = user?.role === 'admin';
+
+    // Navigation items - some are admin-only
     const navItems = [
         { href: '/admin', label: 'Dashboard', icon: '📊', exact: true },
         { href: '/admin/trees', label: 'Quản Lý Cây', icon: '🌸' },
         { href: '/admin/donations', label: 'Đóng Góp', icon: '💰' },
         { href: '/admin/sponsors', label: 'Nhà Tài Trợ', icon: '🏢' },
-        { href: '/admin/settings', label: 'Cài Đặt', icon: '⚙️' },
+        ...(isAdmin ? [
+            { href: '/admin/users', label: 'Users', icon: '👥' },
+            { href: '/admin/settings', label: 'Cài Đặt', icon: '⚙️' },
+        ] : []),
     ];
 
     const isActive = (href: string, exact?: boolean) => {
@@ -63,6 +92,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         );
     }
 
+
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Header with horizontal nav */}
@@ -78,9 +108,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         </Link>
                         <div className="flex items-center gap-4">
                             {user && (
-                                <span className="text-sm text-gray-600">
-                                    👤 {user.username}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-600">
+                                        👤 {user.username}
+                                    </span>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full ${user.role === 'admin'
+                                            ? 'bg-red-100 text-red-700'
+                                            : 'bg-blue-100 text-blue-700'
+                                        }`}>
+                                        {user.role === 'admin' ? 'Admin' : 'Editor'}
+                                    </span>
+                                </div>
                             )}
                             <a
                                 href="/"
