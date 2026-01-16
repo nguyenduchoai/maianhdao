@@ -42,6 +42,7 @@ export default function DonationDetailPage() {
     const [treeSearch, setTreeSearch] = useState('');
     const [editForm, setEditForm] = useState<Partial<Donation>>({});
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         fetchDonation();
@@ -187,6 +188,7 @@ export default function DonationDetailPage() {
                     amount: editForm.amount,
                     message: editForm.message,
                     tier: editForm.tier,
+                    logo_url: editForm.logo_url || '',
                 }),
             });
             const data = await res.json();
@@ -496,6 +498,65 @@ export default function DonationDetailPage() {
                             <button onClick={() => setShowEditModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30">✕</button>
                         </div>
                         <div className="p-6 space-y-4">
+                            {/* Logo Upload */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Logo / Ảnh đại diện</label>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-20 h-20 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                                        {editForm.logo_url ? (
+                                            <img src={editForm.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-3xl text-gray-400">🖼️</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (!file) return;
+                                                setIsUploading(true);
+                                                const formData = new FormData();
+                                                formData.append('file', file);
+                                                formData.append('type', 'donors');
+                                                try {
+                                                    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                                                    const data = await res.json();
+                                                    if (data.success) {
+                                                        setEditForm({ ...editForm, logo_url: data.url });
+                                                    } else {
+                                                        alert(data.error || 'Lỗi upload');
+                                                    }
+                                                } catch (err) {
+                                                    alert('Lỗi upload file');
+                                                } finally {
+                                                    setIsUploading(false);
+                                                }
+                                            }}
+                                            className="hidden"
+                                            id="logo-upload"
+                                        />
+                                        <label
+                                            htmlFor="logo-upload"
+                                            className={`inline-block px-4 py-2 rounded-lg cursor-pointer transition-colors
+                                                ${isUploading ? 'bg-gray-300 text-gray-500' : 'bg-pink-100 text-pink-700 hover:bg-pink-200'}`}
+                                        >
+                                            {isUploading ? 'Đang tải lên...' : '📷 Chọn ảnh'}
+                                        </label>
+                                        {editForm.logo_url && (
+                                            <button
+                                                onClick={() => setEditForm({ ...editForm, logo_url: '' })}
+                                                className="ml-2 text-red-500 hover:text-red-700 text-sm"
+                                            >
+                                                Xóa
+                                            </button>
+                                        )}
+                                        <p className="text-xs text-gray-500 mt-1">Tối đa 5MB - JPG, PNG, WebP</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Tên người đóng góp</label>
                                 <input

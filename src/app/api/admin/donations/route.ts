@@ -8,6 +8,7 @@ interface Donation {
     email: string;
     amount: number;
     message: string;
+    logo_url: string | null;
     is_organization: number;
     status: string;
     tree_id: string | null;
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();
-        const { id, name, phone, email, amount, message, is_organization, status, tree_id, tier } = body;
+        const { id, name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tier } = body;
 
         if (!id) {
             return NextResponse.json({ error: 'ID là bắt buộc' }, { status: 400 });
@@ -65,6 +66,7 @@ export async function PUT(request: NextRequest) {
         if (email !== undefined) { updates.push('email = ?'); values.push(email); }
         if (amount !== undefined) { updates.push('amount = ?'); values.push(amount); }
         if (message !== undefined) { updates.push('message = ?'); values.push(message); }
+        if (logo_url !== undefined) { updates.push('logo_url = ?'); values.push(logo_url); }
         if (is_organization !== undefined) { updates.push('is_organization = ?'); values.push(is_organization); }
         if (status !== undefined) {
             updates.push('status = ?');
