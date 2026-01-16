@@ -68,10 +68,10 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="#donate" className="btn-primary text-lg">
+                    <a href="#donate" className="bg-white text-pink-600 px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all">
                         💝 Đóng Góp Ngay
                     </a>
-                    <a href="#map" className="btn-secondary bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-pink-600">
+                    <a href="#map" className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg backdrop-blur-sm hover:bg-white hover:text-pink-600 transition-all">
                         🗺️ Xem Bản Đồ Cây
                     </a>
                 </div>

@@ -240,16 +240,21 @@ body {
   border-radius: 0.75rem;
   padding: 0;
   overflow: hidden;
+  max-width: none !important;
 }
 
 .leaflet-popup-content {
-  margin: 0;
-  min-width: 420px;
-  max-width: 550px;
+  margin: 0 !important;
+  width: 480px !important;
+  max-width: 90vw !important;
 }
 
 .leaflet-popup {
-  max-width: 600px !important;
+  max-width: none !important;
+}
+
+.leaflet-popup-content>div {
+  width: 100% !important;
 }
 
 /* Custom Scrollbar */
