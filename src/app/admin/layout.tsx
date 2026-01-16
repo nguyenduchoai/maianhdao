@@ -120,7 +120,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </header>
 
             {/* Main Content */}
-            <main className="pt-28 max-w-7xl mx-auto px-4 py-6">
+            <main className="pt-32 max-w-7xl mx-auto px-4 py-8">
                 {children}
             </main>
         </div>

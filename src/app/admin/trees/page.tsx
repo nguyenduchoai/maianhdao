@@ -1,9 +1,40 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Tree } from '@/types';
 import { formatCurrency } from '@/lib/utils';
+
+// Dynamic import for map in modal
+const MapContainer = dynamic(
+    () => import('react-leaflet').then((mod) => mod.MapContainer),
+    { ssr: false }
+);
+const TileLayer = dynamic(
+    () => import('react-leaflet').then((mod) => mod.TileLayer),
+    { ssr: false }
+);
+const Marker = dynamic(
+    () => import('react-leaflet').then((mod) => mod.Marker),
+    { ssr: false }
+);
+
+// Map click handler component - dynamically loaded
+const LocationPicker = dynamic(
+    () => Promise.resolve(function LocationPickerInner({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
+        const { useMapEvents } = require('react-leaflet');
+
+        useMapEvents({
+            click: (e: any) => {
+                onLocationSelect(e.latlng.lat, e.latlng.lng);
+            },
+        });
+
+        return null;
+    }),
+    { ssr: false }
+);
 
 export default function AdminTreesPage() {
     const [trees, setTrees] = useState<Tree[]>([]);
@@ -11,6 +42,8 @@ export default function AdminTreesPage() {
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
+    const [isMapReady, setIsMapReady] = useState(false);
+    const [L, setL] = useState<typeof import('leaflet') | null>(null);
     const [newTree, setNewTree] = useState({
         code: '',
         zone: 'A',
@@ -21,6 +54,11 @@ export default function AdminTreesPage() {
 
     useEffect(() => {
         fetchTrees();
+        // Load Leaflet
+        import('leaflet').then((leaflet) => {
+            setL(leaflet.default);
+            setIsMapReady(true);
+        });
     }, []);
 
     const fetchTrees = async () => {
@@ -33,6 +71,20 @@ export default function AdminTreesPage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleLocationSelect = useCallback((lat: number, lng: number) => {
+        setNewTree(prev => ({ ...prev, lat, lng }));
+    }, []);
+
+    const createMarkerIcon = () => {
+        if (!L) return undefined;
+        return L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="width:32px;height:32px;background:#ec4899;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:3px solid white;">🌸</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+        });
     };
 
     const handleAddTree = async () => {
@@ -234,12 +286,12 @@ export default function AdminTreesPage() {
                 Hiển thị {filteredTrees.length} / {trees.length} cây
             </div>
 
-            {/* Add Tree Modal */}
+            {/* Add Tree Modal with Map */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden max-h-[90vh] flex flex-col">
                         {/* Modal Header */}
-                        <div className="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-4 flex items-center justify-between">
+                        <div className="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-4 flex items-center justify-between flex-shrink-0">
                             <h3 className="text-xl font-bold">🌸 Thêm cây mới</h3>
                             <button
                                 onClick={() => setShowAddModal(false)}
@@ -250,65 +302,112 @@ export default function AdminTreesPage() {
                         </div>
 
                         {/* Modal Body */}
-                        <div className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Mã cây <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={newTree.code}
-                                    onChange={(e) => setNewTree({ ...newTree, code: e.target.value })}
-                                    placeholder="VD: A1, B5, C10..."
-                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 uppercase"
-                                />
-                            </div>
+                        <div className="flex-1 overflow-y-auto">
+                            <div className="grid md:grid-cols-2 gap-0">
+                                {/* Form side */}
+                                <div className="p-6 space-y-4 border-r border-gray-200">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Mã cây <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newTree.code}
+                                            onChange={(e) => setNewTree({ ...newTree, code: e.target.value })}
+                                            placeholder="VD: A1, B5, C10..."
+                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 uppercase"
+                                        />
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Khu vực</label>
-                                <select
-                                    value={newTree.zone}
-                                    onChange={(e) => setNewTree({ ...newTree, zone: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
-                                >
-                                    <option value="A">Khu A</option>
-                                    <option value="B">Khu B</option>
-                                    <option value="C">Khu C</option>
-                                    <option value="D">Khu D</option>
-                                    <option value="E">Khu E</option>
-                                </select>
-                            </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Khu vực</label>
+                                        <select
+                                            value={newTree.zone}
+                                            onChange={(e) => setNewTree({ ...newTree, zone: e.target.value })}
+                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
+                                        >
+                                            <option value="A">Khu A</option>
+                                            <option value="B">Khu B</option>
+                                            <option value="C">Khu C</option>
+                                            <option value="D">Khu D</option>
+                                            <option value="E">Khu E</option>
+                                        </select>
+                                    </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Vĩ độ (Lat)</label>
-                                    <input
-                                        type="number"
-                                        step="0.000001"
-                                        value={newTree.lat}
-                                        onChange={(e) => setNewTree({ ...newTree, lat: parseFloat(e.target.value) || 0 })}
-                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
-                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Vĩ độ (Lat)</label>
+                                            <input
+                                                type="number"
+                                                step="0.000001"
+                                                value={newTree.lat}
+                                                onChange={(e) => setNewTree({ ...newTree, lat: parseFloat(e.target.value) || 0 })}
+                                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Kinh độ (Lng)</label>
+                                            <input
+                                                type="number"
+                                                step="0.000001"
+                                                value={newTree.lng}
+                                                onChange={(e) => setNewTree({ ...newTree, lng: parseFloat(e.target.value) || 0 })}
+                                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="text-xs text-pink-600 bg-pink-50 p-3 rounded-lg">
+                                        👆 <strong>Click vào bản đồ</strong> bên phải để chọn vị trí cây
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kinh độ (Lng)</label>
-                                    <input
-                                        type="number"
-                                        step="0.000001"
-                                        value={newTree.lng}
-                                        onChange={(e) => setNewTree({ ...newTree, lng: parseFloat(e.target.value) || 0 })}
-                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-                                💡 <strong>Mẹo:</strong> Bạn có thể lấy tọa độ từ Google Maps bằng cách click chuột phải vào vị trí và copy tọa độ.
+                                {/* Map side */}
+                                <div className="h-[400px] md:h-auto relative">
+                                    {isMapReady && L ? (
+                                        <MapContainer
+                                            center={[newTree.lat, newTree.lng]}
+                                            zoom={17}
+                                            style={{ height: '100%', width: '100%', minHeight: '400px' }}
+                                            scrollWheelZoom={true}
+                                        >
+                                            <TileLayer
+                                                attribution='&copy; OpenStreetMap'
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            />
+                                            <Marker
+                                                position={[newTree.lat, newTree.lng]}
+                                                icon={createMarkerIcon()}
+                                                draggable={true}
+                                                eventHandlers={{
+                                                    dragend: (e: any) => {
+                                                        const marker = e.target;
+                                                        const position = marker.getLatLng();
+                                                        handleLocationSelect(position.lat, position.lng);
+                                                    },
+                                                }}
+                                            />
+                                            <LocationPicker onLocationSelect={handleLocationSelect} />
+                                        </MapContainer>
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center bg-gray-100">
+                                            <div className="text-center">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-4 border-pink-500 border-t-transparent mx-auto mb-2" />
+                                                <p className="text-sm text-gray-500">Đang tải bản đồ...</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Map overlay info */}
+                                    <div className="absolute top-2 left-2 bg-white/90 px-3 py-2 rounded-lg shadow text-sm z-[1000]">
+                                        📍 {newTree.lat.toFixed(6)}, {newTree.lng.toFixed(6)}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
+                        <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end flex-shrink-0 border-t">
                             <button
                                 onClick={() => setShowAddModal(false)}
                                 className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
