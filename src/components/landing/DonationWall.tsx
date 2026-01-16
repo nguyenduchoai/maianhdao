@@ -42,7 +42,7 @@ export function DonationWall({ donations }: DonationWallProps) {
                                 🏆 KIẾN TẠO ({kientao.length})
                             </span>
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                             {kientao.map((donation) => (
                                 <div
                                     key={donation.id}
@@ -86,7 +86,7 @@ export function DonationWall({ donations }: DonationWallProps) {
                                 🌸 DẤU ẤN ({dauun.length})
                             </span>
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
                             {dauun.map((donation) => (
                                 <div
                                     key={donation.id}
@@ -126,7 +126,7 @@ export function DonationWall({ donations }: DonationWallProps) {
                             </span>
                         </h3>
                         <div className="glass-card p-6 max-w-5xl mx-auto">
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3">
                                 {guitrao.map((donation) => (
                                     <div
                                         key={donation.id}
@@ -154,7 +154,7 @@ export function DonationWall({ donations }: DonationWallProps) {
                         </h3>
 
                         <div className="glass-card p-6 max-w-4xl mx-auto">
-                            <div className="flex flex-wrap justify-center gap-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 gap-2">
                                 {filteredGieomam.map((d) => (
                                     <span
                                         key={d.id}

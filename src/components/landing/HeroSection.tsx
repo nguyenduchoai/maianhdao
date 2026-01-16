@@ -79,21 +79,21 @@ export function HeroSection({ stats }: HeroSectionProps) {
                 {/* Stats Cards */}
                 {stats && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
-                        <div className="glass-card bg-white/10 backdrop-blur-sm p-4 text-center">
-                            <div className="text-3xl font-bold text-white">{formatCurrency(stats.targetAmount)}</div>
-                            <div className="text-sm text-pink-100">Mục tiêu</div>
+                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-2xl md:text-3xl font-bold text-pink-600">{formatCurrency(stats.targetAmount)}</div>
+                            <div className="text-sm text-gray-600">Mục tiêu</div>
                         </div>
-                        <div className="glass-card bg-white/10 backdrop-blur-sm p-4 text-center">
-                            <div className="text-3xl font-bold text-white">200</div>
-                            <div className="text-sm text-pink-100">Cây Mai Anh Đào</div>
+                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-2xl md:text-3xl font-bold text-pink-600">200</div>
+                            <div className="text-sm text-gray-600">Cây Mai Anh Đào</div>
                         </div>
-                        <div className="glass-card bg-white/10 backdrop-blur-sm p-4 text-center">
-                            <div className="text-3xl font-bold text-white">10</div>
-                            <div className="text-sm text-pink-100">Ngày cao điểm</div>
+                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-2xl md:text-3xl font-bold text-pink-600">10</div>
+                            <div className="text-sm text-gray-600">Ngày cao điểm</div>
                         </div>
-                        <div className="glass-card bg-white/10 backdrop-blur-sm p-4 text-center">
-                            <div className="text-3xl font-bold text-white">{stats.treesAvailable}</div>
-                            <div className="text-sm text-pink-100">Cây chờ đóng góp</div>
+                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-2xl md:text-3xl font-bold text-pink-600">{stats.treesAvailable}</div>
+                            <div className="text-sm text-gray-600">Cây chờ đóng góp</div>
                         </div>
                     </div>
                 )}
