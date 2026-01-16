@@ -205,13 +205,20 @@ export default function TreeDetailPage() {
                             </div>
                         </div>
 
+                        <Link
+                            href={`/map/${tree.id}`}
+                            className="block w-full text-center py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+                        >
+                            🗺️ Xem trên Bản đồ
+                        </Link>
+
                         <a
                             href={`https://www.google.com/maps?q=${tree.lat},${tree.lng}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block w-full text-center py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                         >
-                            🗺️ Xem trên Google Maps
+                            📍 Xem trên Google Maps
                         </a>
 
                         {/* Mini Map Preview */}
