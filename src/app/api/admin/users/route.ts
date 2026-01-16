@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'maianhdao-secret-key-2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'maianhdao-secret-2026';
 
 interface AdminUser {
     id: string;
@@ -22,8 +22,8 @@ async function isAdmin(): Promise<boolean> {
     if (!token) return false;
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-        const user = db.prepare('SELECT role FROM admin_users WHERE id = ?').get(decoded.userId) as { role: string } | undefined;
+        const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+        const user = db.prepare('SELECT role FROM admin_users WHERE id = ?').get(decoded.id) as { role: string } | undefined;
         return user?.role === 'admin';
     } catch {
         return false;
