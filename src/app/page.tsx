@@ -1,6 +1,9 @@
 import { CherryBlossomPetals } from '@/components/landing/CherryBlossomPetals';
 import { Navbar } from '@/components/landing/Navbar';
 import { HeroSection } from '@/components/landing/HeroSection';
+import { AboutSection } from '@/components/landing/AboutSection';
+import { DonationTiersSection } from '@/components/landing/DonationTiersSection';
+import { EventSection } from '@/components/landing/EventSection';
 import { SponsorsSection } from '@/components/landing/SponsorsSection';
 import { DonationForm } from '@/components/landing/DonationForm';
 import { DonationWall } from '@/components/landing/DonationWall';
@@ -161,73 +164,13 @@ export default async function HomePage() {
       <HeroSection stats={stats} />
 
       {/* About Campaign Section */}
-      <section id="about" className="py-20 bg-white relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-                Về Chiến Dịch
-              </h2>
-              <p className="font-accent text-2xl text-pink-500">
-                "NGÀN CÂY ANH ĐÀO"
-              </p>
-            </div>
+      <AboutSection />
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Card 1 */}
-              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="text-4xl mb-4">🎯</div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Mục Tiêu Tài Chính</h3>
-                <p className="text-2xl font-bold text-pink-600 mb-2">500 Triệu VNĐ</p>
-                <p className="text-gray-600 text-sm">
-                  Từ 05/01 đến 15/01/2026<br />(10 ngày cao điểm)
-                </p>
-              </div>
+      {/* Donation Tiers */}
+      <DonationTiersSection />
 
-              {/* Card 2 */}
-              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="text-4xl mb-4">🌸</div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Ngàn Cây Anh Đào</h3>
-                <p className="text-2xl font-bold text-pink-600 mb-2">200+ Cây</p>
-                <p className="text-gray-600 text-sm">
-                  Quanh Hồ Xuân Hương<br />và khu vực Đà Lạt
-                </p>
-              </div>
-
-              {/* Card 3 */}
-              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="text-4xl mb-4">💚</div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Cam Kết Bền Vững</h3>
-                <p className="text-2xl font-bold text-green-600 mb-2">100%</p>
-                <p className="text-gray-600 text-sm">
-                  Ngân sách dư vào "Quỹ Bảo Dưỡng Xanh"<br />chăm sóc 2 năm
-                </p>
-              </div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="mt-12 glass-card p-6">
-              <h4 className="font-semibold text-gray-800 mb-3">📍 Vị Thế Địa Lý</h4>
-              <p className="text-gray-600 mb-4">
-                Hồ Xuân Hương là <strong>"trái tim"</strong> của Đà Lạt. Cảnh quan quanh hồ quyết định
-                trực tiếp đến ấn tượng của du khách và niềm tự hào của người dân địa phương.
-              </p>
-
-              <h4 className="font-semibold text-gray-800 mb-3">🎋 Thực Trạng</h4>
-              <p className="text-gray-600 mb-4">
-                Mật độ Mai Anh Đào quanh hồ hiện nay chưa đồng bộ, một số cây già cỗi hoặc bị sâu bệnh.
-                Việc bổ sung những cây Mai Anh Đào trưởng thành, tán đẹp là nhu cầu cấp thiết.
-              </p>
-
-              <h4 className="font-semibold text-gray-800 mb-3">✨ Cơ Hội</h4>
-              <p className="text-gray-600">
-                Người dân và doanh nghiệp sẵn lòng đóng góp nếu họ được <strong className="text-pink-600">"ghi danh"</strong> tại
-                địa điểm đánh giá nhất thành phố này. Đây là cơ sở để thực hiện chiến dịch xã hội hóa 100%.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Event & Financial Transparency */}
+      <EventSection />
 
       {/* Interactive Map */}
       <InteractiveMap trees={trees} />
