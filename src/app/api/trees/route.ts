@@ -9,7 +9,7 @@ export async function GET() {
       SELECT 
         t.id, t.code, t.zone, t.lat, t.lng, t.status, t.images,
         d.id as donor_id, d.name as donor_name, d.logo_url as donor_logo, 
-        d.amount as donor_amount, d.tier as donor_tier
+        d.amount as donor_amount, d.tier as donor_tier, d.message as donor_message
       FROM trees t
       LEFT JOIN donations d ON t.id = d.tree_id AND d.status = 'approved'
       ORDER BY t.zone, t.code
@@ -26,6 +26,7 @@ export async function GET() {
             donor_logo: string | null;
             donor_amount: number | null;
             donor_tier: string | null;
+            donor_message: string | null;
         }>;
 
         const formattedTrees: Tree[] = trees.map((t) => ({
@@ -40,6 +41,7 @@ export async function GET() {
             donorName: t.donor_name || undefined,
             donorLogo: t.donor_logo || undefined,
             donorAmount: t.donor_amount || undefined,
+            donorMessage: t.donor_message || undefined,
             createdAt: '',
             updatedAt: '',
         }));

@@ -242,29 +242,55 @@ function TreePopup({ tree }: { tree: Tree }) {
             </div>
 
             {/* Content */}
-            <div className="p-4 bg-white">
+            <div className="p-5 bg-white">
                 {tree.status === 'sponsored' && tree.donorName ? (
                     <>
-                        {/* Location & Info */}
-                        <div className="space-y-2 mb-4 text-sm">
-                            <div className="flex items-center gap-2 text-gray-700">
-                                <span className="text-pink-500">🏢</span>
-                                <span className="font-semibold">{tree.donorName}</span>
+                        {/* Sponsor Logo/Banner - shown first */}
+                        <div className="flex items-center gap-4 mb-4 p-4 bg-gradient-to-r from-pink-50 to-white rounded-xl border border-pink-100">
+                            {tree.donorLogo ? (
+                                <div className="w-16 h-16 rounded-xl bg-white border-2 border-pink-200 flex items-center justify-center overflow-hidden shadow-sm">
+                                    <img
+                                        src={tree.donorLogo}
+                                        alt={tree.donorName}
+                                        className="w-14 h-14 object-contain"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center text-3xl border-2 border-pink-200">
+                                    🏢
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <h3 className="text-lg font-bold text-gray-800">{tree.donorName}</h3>
+                                {tree.donorAmount && (
+                                    <p className="text-pink-600 font-semibold">{formatCurrency(tree.donorAmount)}</p>
+                                )}
                             </div>
+                        </div>
+
+                        {/* Donor Message / Ghi chú */}
+                        {tree.donorMessage && (
+                            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <div className="flex items-start gap-2">
+                                    <span className="text-lg">💬</span>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-medium mb-1">Ghi chú:</p>
+                                        <p className="text-gray-700 text-sm">{tree.donorMessage}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Info Grid */}
+                        <div className="space-y-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg">
                             <div className="flex items-center gap-2 text-gray-600">
                                 <span>📅</span>
-                                <span>Thời gian: 05/01/2026 - 15/01/2026</span>
+                                <span>Thời gian trồng: 18/01/2026</span>
                             </div>
                             <div className="flex items-center gap-2 text-gray-600">
                                 <span>📍</span>
                                 <span>Đảo Mai Anh Đào, Hồ Xuân Hương</span>
                             </div>
-                            {tree.donorAmount && (
-                                <div className="flex items-center gap-2 text-pink-600 font-medium">
-                                    <span>💰</span>
-                                    <span>{formatCurrency(tree.donorAmount)}</span>
-                                </div>
-                            )}
                         </div>
 
                         {/* Images Gallery */}
@@ -279,27 +305,6 @@ function TreePopup({ tree }: { tree: Tree }) {
                                         className="w-full h-20 object-cover rounded-lg border border-gray-200 hover:opacity-90 cursor-pointer"
                                     />
                                 ))}
-                            </div>
-                        </div>
-
-                        {/* Sponsor Logo/Name Plate */}
-                        <div className="bg-gradient-to-r from-pink-50 to-white p-3 rounded-lg border border-pink-100 mb-4">
-                            <div className="flex items-center gap-3">
-                                {tree.donorLogo ? (
-                                    <img
-                                        src={tree.donorLogo}
-                                        alt={tree.donorName}
-                                        className="w-14 h-14 rounded-lg object-cover border-2 border-pink-200"
-                                    />
-                                ) : (
-                                    <div className="w-14 h-14 rounded-lg bg-pink-100 flex items-center justify-center text-2xl border-2 border-pink-200">
-                                        🌸
-                                    </div>
-                                )}
-                                <div>
-                                    <p className="font-bold text-gray-800">{tree.donorName}</p>
-                                    <p className="text-xs text-pink-600">Nhà tài trợ cây {tree.code}</p>
-                                </div>
                             </div>
                         </div>
                     </>

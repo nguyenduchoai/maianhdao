@@ -17,6 +17,7 @@ export interface Tree {
     donorName?: string;
     donorLogo?: string;
     donorAmount?: number;
+    donorMessage?: string;
     createdAt?: string;
     updatedAt?: string;
 }

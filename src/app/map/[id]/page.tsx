@@ -304,33 +304,46 @@ export default function MapTreePage() {
                                     {selectedTree.status === 'sponsored' && selectedTree.donorName ? (
                                         <>
                                             {/* Sponsor Logo/Banner - shown first */}
-                                            <div className="flex items-center gap-4 mb-4">
+                                            <div className="flex items-center gap-4 mb-4 p-4 bg-gradient-to-r from-pink-50 to-white rounded-xl border border-pink-100">
                                                 {selectedTree.donorLogo ? (
-                                                    <div className="w-16 h-16 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center overflow-hidden">
+                                                    <div className="w-20 h-20 rounded-xl bg-white border-2 border-pink-200 flex items-center justify-center overflow-hidden shadow-sm">
                                                         <img
                                                             src={selectedTree.donorLogo}
                                                             alt={selectedTree.donorName}
-                                                            className="w-14 h-14 object-contain"
+                                                            className="w-16 h-16 object-contain"
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center text-3xl">
+                                                    <div className="w-20 h-20 rounded-xl bg-pink-100 flex items-center justify-center text-4xl border-2 border-pink-200">
                                                         🏢
                                                     </div>
                                                 )}
-                                                <div>
+                                                <div className="flex-1">
                                                     <h3 className="text-xl font-bold text-gray-800">{selectedTree.donorName}</h3>
                                                     {selectedTree.donorAmount && (
-                                                        <p className="text-pink-600 font-semibold">{formatCurrency(selectedTree.donorAmount)}</p>
+                                                        <p className="text-pink-600 font-semibold text-lg">{formatCurrency(selectedTree.donorAmount)}</p>
                                                     )}
                                                 </div>
                                             </div>
+
+                                            {/* Donor Message / Ghi chú */}
+                                            {selectedTree.donorMessage && (
+                                                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-lg">💬</span>
+                                                        <div>
+                                                            <p className="text-sm text-gray-500 font-medium mb-1">Ghi chú:</p>
+                                                            <p className="text-gray-700">{selectedTree.donorMessage}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* Info Grid */}
                                             <div className="space-y-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg">
                                                 <div className="flex items-center gap-2 text-gray-600">
                                                     <span>📅</span>
-                                                    <span><strong>Thời gian trồng:</strong> 05/01/2026 - 15/01/2026</span>
+                                                    <span><strong>Thời gian trồng:</strong> 18/01/2026</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-gray-600">
                                                     <span>🌸</span>
@@ -349,12 +362,12 @@ export default function MapTreePage() {
                                                     <img
                                                         src={selectedTree.images?.[0] || '/images/hero-bg.jpg'}
                                                         alt={`Cây ${selectedTree.code}`}
-                                                        className="w-full h-20 object-cover rounded-lg border border-gray-200"
+                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
                                                     />
                                                     <img
                                                         src={selectedTree.images?.[1] || '/images/og-image.jpg'}
                                                         alt={`Cây ${selectedTree.code}`}
-                                                        className="w-full h-20 object-cover rounded-lg border border-gray-200"
+                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
                                                     />
                                                 </div>
                                             </div>
