@@ -60,11 +60,32 @@ export default function EditSponsorPage() {
 
     const handleSave = async () => {
         setIsSaving(true);
-        // TODO: Implement save API
-        setTimeout(() => {
-            alert('Chức năng lưu sẽ được implement sau!');
+        try {
+            const res = await fetch('/api/admin/sponsors', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: sponsorId,
+                    name: formData.name,
+                    logo_url: formData.logoUrl,
+                    website: formData.website,
+                    tier: formData.tier,
+                    display_order: formData.displayOrder,
+                    is_active: formData.isActive,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã lưu thành công!');
+                router.push('/admin/sponsors');
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
             setIsSaving(false);
-        }, 500);
+        }
     };
 
     if (isLoading) {

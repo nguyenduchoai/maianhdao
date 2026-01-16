@@ -16,6 +16,7 @@ interface Sponsor {
 export default function AdminSponsorsPage() {
     const [sponsors, setSponsors] = useState<Sponsor[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     useEffect(() => {
         fetchSponsors();
@@ -30,6 +31,24 @@ export default function AdminSponsorsPage() {
             console.error('Error fetching sponsors:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Bạn có chắc muốn xóa nhà tài trợ "${name}"?`)) return;
+        setIsDeleting(id);
+        try {
+            const res = await fetch(`/api/admin/sponsors?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchSponsors();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsDeleting(null);
         }
     };
 
@@ -88,6 +107,13 @@ export default function AdminSponsorsPage() {
                             >
                                 Sửa
                             </Link>
+                            <button
+                                onClick={() => handleDelete(s.id, s.name)}
+                                disabled={isDeleting === s.id}
+                                className="flex-1 py-2 text-sm bg-red-50 text-red-600 rounded text-center hover:bg-red-100 disabled:opacity-50"
+                            >
+                                {isDeleting === s.id ? '...' : 'Xóa'}
+                            </button>
                         </div>
                     </div>
                 ))}
