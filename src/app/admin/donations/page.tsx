@@ -62,10 +62,13 @@ export default function AdminDonationsPage() {
 
     const filteredDonations = donations.filter(d => {
         const matchesFilter = filter === 'all' || d.status === filter;
+        const searchLower = search.toLowerCase();
         const matchesSearch = search === '' ||
-            d.name.toLowerCase().includes(search.toLowerCase()) ||
+            d.name.toLowerCase().includes(searchLower) ||
             (d.phone && d.phone.includes(search)) ||
-            (d.email && d.email.toLowerCase().includes(search.toLowerCase()));
+            (d.email && d.email.toLowerCase().includes(searchLower)) ||
+            (d.tree_code && d.tree_code.toLowerCase().includes(searchLower)) ||
+            (d.message && d.message.toLowerCase().includes(searchLower));
         return matchesFilter && matchesSearch;
     });
 
