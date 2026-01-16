@@ -65,69 +65,64 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            {/* Header */}
+            {/* Header with horizontal nav */}
             <header className="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                <div className="max-w-7xl mx-auto px-4">
+                    {/* Top row: Logo + User */}
+                    <div className="flex items-center justify-between py-3 border-b border-gray-100">
                         <Link href="/admin" className="flex items-center gap-2">
                             <span className="text-2xl">🌸</span>
                             <h1 className="text-xl font-bold text-gray-800">
                                 Admin - Ngàn Cây Anh Đào
                             </h1>
                         </Link>
+                        <div className="flex items-center gap-4">
+                            {user && (
+                                <span className="text-sm text-gray-600">
+                                    👤 {user.username}
+                                </span>
+                            )}
+                            <a
+                                href="/"
+                                target="_blank"
+                                className="text-sm text-pink-600 hover:underline"
+                            >
+                                ← Trang chủ
+                            </a>
+                            <button
+                                onClick={handleLogout}
+                                className="text-sm text-red-600 hover:underline"
+                            >
+                                Đăng xuất
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        {user && (
-                            <span className="text-sm text-gray-600">
-                                👤 {user.username}
-                            </span>
-                        )}
-                        <a
-                            href="/"
-                            target="_blank"
-                            className="text-sm text-pink-600 hover:underline"
-                        >
-                            ← Trang chủ
-                        </a>
-                        <button
-                            onClick={handleLogout}
-                            className="text-sm text-red-600 hover:underline"
-                        >
-                            Đăng xuất
-                        </button>
-                    </div>
+
+                    {/* Navigation row */}
+                    <nav className="flex items-center gap-1 py-2 overflow-x-auto">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`
+                                    px-4 py-2 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap
+                                    ${isActive(item.href, item.exact)
+                                        ? 'bg-pink-500 text-white font-medium'
+                                        : 'text-gray-600 hover:bg-gray-100'}
+                                `}
+                            >
+                                <span>{item.icon}</span>
+                                <span>{item.label}</span>
+                            </Link>
+                        ))}
+                    </nav>
                 </div>
             </header>
 
-            <div className="pt-16 max-w-7xl mx-auto px-4 py-6">
-                <div className="flex gap-6">
-                    {/* Sidebar */}
-                    <aside className="w-64 flex-shrink-0">
-                        <nav className="bg-white rounded-lg shadow-sm p-4 sticky top-20">
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={`
-                                        w-full text-left px-4 py-3 rounded-lg mb-1 transition-colors flex items-center gap-3 block
-                                        ${isActive(item.href, item.exact)
-                                            ? 'bg-pink-50 text-pink-700 font-medium'
-                                            : 'text-gray-600 hover:bg-gray-50'}
-                                    `}
-                                >
-                                    <span>{item.icon}</span>
-                                    <span>{item.label}</span>
-                                </Link>
-                            ))}
-                        </nav>
-                    </aside>
-
-                    {/* Main Content */}
-                    <main className="flex-1">
-                        {children}
-                    </main>
-                </div>
-            </div>
+            {/* Main Content */}
+            <main className="pt-28 max-w-7xl mx-auto px-4 py-6">
+                {children}
+            </main>
         </div>
     );
 }
