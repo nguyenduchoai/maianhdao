@@ -256,8 +256,8 @@ export default function MapTreePage() {
 
                     {/* Selected Tree Detail Modal */}
                     {selectedTree && showPopup && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 pointer-events-auto overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[9999]">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 pointer-events-auto overflow-hidden animate-fadeIn">
                                 {/* Header with status */}
                                 <div className={`
                                     px-5 py-4 flex items-center gap-3
