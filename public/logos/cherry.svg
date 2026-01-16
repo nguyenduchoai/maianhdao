@@ -1,0 +1,5 @@
+<svg width="140" height="60" xmlns="http://www.w3.org/2000/svg">
+  <rect width="140" height="60" fill="#dc2626" rx="8"/>
+  <text x="70" y="30" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="14" fill="white">CHERRY</text>
+  <text x="70" y="45" text-anchor="middle" font-family="Arial" font-size="10" fill="#fecaca">HOTEL</text>
+</svg>

@@ -1,0 +1,39 @@
+{
+    "name": "dao-mai-anh-dao",
+    "displayName": "Đảo Mai Anh Đào - Landing & Admin",
+    "type": "web-fullstack",
+    "language": "typescript",
+    "framework": "next.js",
+    "version": "1.0.0",
+    "description": "Landing Page + Admin cho chiến dịch gây quỹ cộng đồng Đảo Mai Anh Đào tại Hồ Xuân Hương, Đà Lạt",
+    "commands": {
+        "dev": "npm run dev",
+        "build": "npm run build",
+        "start": "npm run start",
+        "lint": "npm run lint",
+        "test": "npm run test"
+    },
+    "features": [
+        "landing-page",
+        "interactive-map",
+        "qr-payment",
+        "admin-panel",
+        "donation-management",
+        "tree-tracking"
+    ],
+    "techStack": {
+        "frontend": "Next.js 15 + Tailwind CSS + shadcn/ui",
+        "map": "React-Leaflet / Mapbox",
+        "database": "SQLite / PostgreSQL",
+        "payment": "SePay + VietQR",
+        "auth": "NextAuth.js"
+    },
+    "autoRun": {
+        "dev": true,
+        "lint": true,
+        "build": false,
+        "deploy": false
+    },
+    "domain": "maianhdao.lamdong.vn",
+    "initialized": "2026-01-16T12:38:28+07:00"
+}
