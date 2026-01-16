@@ -30,6 +30,7 @@ export default function MapTreePage() {
     const [organizers, setOrganizers] = useState<{ id: string, name: string, logoUrl: string }[]>([]);
     const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
     const [showPopup, setShowPopup] = useState(false);
+    const [lightboxImage, setLightboxImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isMapReady, setIsMapReady] = useState(false);
     const [L, setL] = useState<typeof import('leaflet') | null>(null);
@@ -357,17 +358,19 @@ export default function MapTreePage() {
 
                                             {/* Images Gallery */}
                                             <div className="mb-4">
-                                                <div className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh</div>
+                                                <div className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh (bấm để xem lớn)</div>
                                                 <div className="grid grid-cols-2 gap-2">
                                                     <img
                                                         src={selectedTree.images?.[0] || '/images/hero-bg.jpg'}
                                                         alt={`Cây ${selectedTree.code}`}
-                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                                        className="w-full h-28 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 hover:shadow-md transition-all"
+                                                        onClick={() => setLightboxImage(selectedTree.images?.[0] || '/images/hero-bg.jpg')}
                                                     />
                                                     <img
                                                         src={selectedTree.images?.[1] || '/images/og-image.jpg'}
                                                         alt={`Cây ${selectedTree.code}`}
-                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                                        className="w-full h-28 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 hover:shadow-md transition-all"
+                                                        onClick={() => setLightboxImage(selectedTree.images?.[1] || '/images/og-image.jpg')}
                                                     />
                                                 </div>
                                             </div>
@@ -411,6 +414,27 @@ export default function MapTreePage() {
                     )}
                 </main>
             </div>
+
+            {/* Lightbox Modal */}
+            {lightboxImage && (
+                <div
+                    className="fixed inset-0 bg-black/90 z-[10000] flex items-center justify-center p-4"
+                    onClick={() => setLightboxImage(null)}
+                >
+                    <button
+                        onClick={() => setLightboxImage(null)}
+                        className="absolute top-4 right-4 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white text-2xl"
+                    >
+                        ✕
+                    </button>
+                    <img
+                        src={lightboxImage}
+                        alt="Xem ảnh lớn"
+                        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     );
 }

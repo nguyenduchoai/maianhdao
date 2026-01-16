@@ -32,6 +32,7 @@ export function InteractiveMap({ trees }: InteractiveMapProps) {
     const [selectedZone, setSelectedZone] = useState<string>('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [L, setL] = useState<typeof import('leaflet') | null>(null);
+    const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
     useEffect(() => {
         setIsClient(true);
@@ -295,14 +296,15 @@ function TreePopup({ tree }: { tree: Tree }) {
 
                         {/* Images Gallery */}
                         <div className="mb-4">
-                            <p className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh ({treeImages.length})</p>
+                            <p className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh ({treeImages.length}) - bấm để xem lớn</p>
                             <div className="grid grid-cols-2 gap-2">
                                 {treeImages.slice(0, 4).map((img, i) => (
                                     <img
                                         key={i}
                                         src={img}
                                         alt={`Cây ${tree.code}`}
-                                        className="w-full h-20 object-cover rounded-lg border border-gray-200 hover:opacity-90 cursor-pointer"
+                                        className="w-full h-24 object-cover rounded-lg border border-gray-200 hover:opacity-80 hover:shadow-md cursor-pointer transition-all"
+                                        onClick={() => window.open(img, '_blank')}
                                     />
                                 ))}
                             </div>

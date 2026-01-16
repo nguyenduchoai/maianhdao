@@ -93,10 +93,17 @@ interface SponsorCardProps {
 }
 
 function SponsorCard({ sponsor, size }: SponsorCardProps) {
+    // Organizer = largest, Diamond = medium-large, Gold = medium
     const sizes = {
-        large: 'w-40 h-28',
-        medium: 'w-32 h-24',
-        small: 'w-24 h-20',
+        large: 'w-56 h-40',    // Organizer - 224x160px
+        medium: 'w-44 h-32',   // Diamond - 176x128px
+        small: 'w-32 h-24',    // Gold - 128x96px
+    };
+
+    const imageSizes = {
+        large: { width: 180, height: 100 },
+        medium: { width: 140, height: 80 },
+        small: { width: 100, height: 60 },
     };
 
     return (
@@ -105,23 +112,23 @@ function SponsorCard({ sponsor, size }: SponsorCardProps) {
             target={sponsor.website ? '_blank' : undefined}
             rel="noopener noreferrer"
             className={`
-        ${sizes[size]} 
-        glass-card p-3 flex flex-col items-center justify-center
-        hover:shadow-lg transition-all duration-300 hover:-translate-y-1
-      `}
+                ${sizes[size]} 
+                glass-card p-4 flex flex-col items-center justify-center
+                hover:shadow-lg transition-all duration-300 hover:-translate-y-1
+            `}
         >
             {sponsor.logoUrl ? (
                 <Image
                     src={sponsor.logoUrl}
                     alt={sponsor.name}
-                    width={size === 'large' ? 120 : size === 'medium' ? 100 : 80}
-                    height={size === 'large' ? 60 : size === 'medium' ? 50 : 40}
+                    width={imageSizes[size].width}
+                    height={imageSizes[size].height}
                     className="object-contain"
                 />
             ) : (
                 <div className="text-center">
-                    <div className="text-2xl mb-1">🏢</div>
-                    <div className="text-xs text-gray-600 line-clamp-2">{sponsor.name}</div>
+                    <div className={`${size === 'large' ? 'text-4xl' : size === 'medium' ? 'text-3xl' : 'text-2xl'} mb-2`}>🏢</div>
+                    <div className={`${size === 'large' ? 'text-sm' : 'text-xs'} text-gray-600 line-clamp-2 font-medium`}>{sponsor.name}</div>
                 </div>
             )}
         </a>
