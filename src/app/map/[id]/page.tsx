@@ -31,11 +31,18 @@ export default function MapTreePage() {
 
     const [trees, setTrees] = useState<Tree[]>([]);
     const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
+    const [showPopup, setShowPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isMapReady, setIsMapReady] = useState(false);
     const [L, setL] = useState<typeof import('leaflet') | null>(null);
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
+
+    // Function to select a tree and show popup
+    const selectTree = (tree: Tree) => {
+        setSelectedTree(tree);
+        setShowPopup(true);
+    };
 
     useEffect(() => {
         fetchTrees();
@@ -50,6 +57,7 @@ export default function MapTreePage() {
             const tree = trees.find(t => t.id === treeId);
             if (tree) {
                 setSelectedTree(tree);
+                setShowPopup(true);
             }
         }
     }, [trees, treeId]);
@@ -82,21 +90,19 @@ export default function MapTreePage() {
 
     const createIcon = (isSponsored: boolean, isSelected: boolean) => {
         if (!L) return undefined;
+        const size = isSelected ? 28 : 20;
         return L.divIcon({
             className: 'custom-tree-marker',
             html: `
-                <div class="relative">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg transition-transform
-                        ${isSelected ? 'scale-125 ring-4 ring-blue-400 animate-pulse' : ''}
-                        ${isSponsored ? 'bg-pink-500 text-white' : 'bg-gray-300 text-gray-600'}">
-                        🌸
-                    </div>
-                    ${isSponsored ? '<div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>' : ''}
+                <div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:${isSelected ? 14 : 10}px;box-shadow:0 2px 4px rgba(0,0,0,0.2);transition:transform 0.2s;
+                    ${isSelected ? 'transform:scale(1.2);box-shadow:0 0 0 3px #60a5fa;' : ''}
+                    ${isSponsored ? 'background:#ec4899;' : 'background:#d1d5db;'}">
+                    🌸
                 </div>
             `,
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40],
+            iconSize: [size, size],
+            iconAnchor: [size / 2, size],
+            popupAnchor: [0, -size],
         });
     };
 
@@ -172,7 +178,7 @@ export default function MapTreePage() {
                         {filteredTrees.map((tree) => (
                             <div
                                 key={tree.id}
-                                onClick={() => setSelectedTree(tree)}
+                                onClick={() => selectTree(tree)}
                                 className={`
                                     p-3 border-b cursor-pointer transition-colors
                                     ${selectedTree?.id === tree.id ? 'bg-pink-50 border-l-4 border-l-pink-500' : 'hover:bg-gray-50'}
@@ -216,7 +222,7 @@ export default function MapTreePage() {
                     {isMapReady && L ? (
                         <MapContainer
                             center={mapCenter}
-                            zoom={selectedTree ? 19 : 17}
+                            zoom={selectedTree ? 18 : 15}
                             style={{ height: '100%', width: '100%' }}
                             scrollWheelZoom={true}
                         >
@@ -230,7 +236,7 @@ export default function MapTreePage() {
                                     position={[tree.lat, tree.lng]}
                                     icon={createIcon(tree.status === 'sponsored', selectedTree?.id === tree.id)}
                                     eventHandlers={{
-                                        click: () => setSelectedTree(tree),
+                                        click: () => selectTree(tree),
                                     }}
                                 >
                                     <Popup>
@@ -249,7 +255,7 @@ export default function MapTreePage() {
                     )}
 
                     {/* Selected Tree Detail Modal */}
-                    {selectedTree && (
+                    {selectedTree && showPopup && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 pointer-events-auto overflow-hidden">
                                 {/* Header with status */}
@@ -266,7 +272,7 @@ export default function MapTreePage() {
                                         <div className="text-pink-100">{selectedTree.code} - Khu {selectedTree.zone}</div>
                                     </div>
                                     <button
-                                        onClick={() => setSelectedTree(null)}
+                                        onClick={() => setShowPopup(false)}
                                         className="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
                                     >
                                         ✕
@@ -357,7 +363,7 @@ export default function MapTreePage() {
                                             📍 Chỉ đường
                                         </a>
                                         <button
-                                            onClick={() => setSelectedTree(null)}
+                                            onClick={() => setShowPopup(false)}
                                             className="py-3 px-6 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200"
                                         >
                                             Đóng
