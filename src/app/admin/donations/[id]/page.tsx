@@ -39,6 +39,7 @@ export default function DonationDetailPage() {
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedTreeId, setSelectedTreeId] = useState('');
+    const [treeSearch, setTreeSearch] = useState('');
     const [editForm, setEditForm] = useState<Partial<Donation>>({});
     const [isSaving, setIsSaving] = useState(false);
 
@@ -429,28 +430,55 @@ export default function DonationDetailPage() {
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
                         <div className="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-4 flex items-center justify-between">
                             <h3 className="text-xl font-bold">🌸 Gán cây</h3>
-                            <button onClick={() => setShowAssignModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30">✕</button>
+                            <button onClick={() => { setShowAssignModal(false); setTreeSearch(''); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30">✕</button>
                         </div>
                         <div className="p-6">
                             <p className="mb-4 text-gray-600">Chọn cây để gán cho <strong>{donation.name}</strong>:</p>
+
+                            {/* Search input */}
+                            <input
+                                type="text"
+                                value={treeSearch}
+                                onChange={(e) => setTreeSearch(e.target.value)}
+                                placeholder="🔍 Tìm kiếm theo mã cây hoặc khu..."
+                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 mb-3"
+                            />
+
+                            {/* Tree select with filtered options */}
                             <select
                                 value={selectedTreeId}
                                 onChange={(e) => setSelectedTreeId(e.target.value)}
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 mb-4"
+                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 mb-2"
+                                size={8}
                             >
                                 <option value="">-- Chọn cây --</option>
-                                {availableTrees.map(tree => (
-                                    <option key={tree.id} value={tree.id}>
-                                        {tree.code} (Khu {tree.zone})
-                                    </option>
-                                ))}
+                                {availableTrees
+                                    .filter(tree =>
+                                        treeSearch === '' ||
+                                        tree.code.toLowerCase().includes(treeSearch.toLowerCase()) ||
+                                        tree.zone.toLowerCase().includes(treeSearch.toLowerCase())
+                                    )
+                                    .map(tree => (
+                                        <option key={tree.id} value={tree.id}>
+                                            {tree.code} (Khu {tree.zone})
+                                        </option>
+                                    ))}
                             </select>
+
+                            <p className="text-xs text-gray-500 mb-4">
+                                Hiển thị {availableTrees.filter(tree =>
+                                    treeSearch === '' ||
+                                    tree.code.toLowerCase().includes(treeSearch.toLowerCase()) ||
+                                    tree.zone.toLowerCase().includes(treeSearch.toLowerCase())
+                                ).length} / {availableTrees.length} cây trống
+                            </p>
+
                             {availableTrees.length === 0 && (
                                 <p className="text-yellow-600 text-sm mb-4">⚠️ Không có cây trống nào!</p>
                             )}
                         </div>
                         <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
-                            <button onClick={() => setShowAssignModal(false)} className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Hủy</button>
+                            <button onClick={() => { setShowAssignModal(false); setTreeSearch(''); }} className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Hủy</button>
                             <button onClick={handleAssignTree} disabled={isSaving || !selectedTreeId} className="py-2 px-6 bg-pink-500 text-white rounded-lg hover:bg-pink-600 disabled:opacity-50">
                                 {isSaving ? 'Đang lưu...' : '✅ Gán cây'}
                             </button>

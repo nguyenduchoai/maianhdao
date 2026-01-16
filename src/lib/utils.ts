@@ -21,19 +21,25 @@ export function formatDate(date: string | Date): string {
     }).format(new Date(date));
 }
 
-export function getDonationTier(amount: number): 'diamond' | 'gold' | 'silver' | 'green' {
-    if (amount >= 50_000_000) return 'diamond';
-    if (amount >= 20_000_000) return 'gold';
-    if (amount >= 5_000_000) return 'silver';
-    return 'green';
+export function getDonationTier(amount: number): 'kientao' | 'dauun' | 'guitrao' | 'gieomam' {
+    if (amount >= 5_000_000) return 'kientao';  // KIẾN TẠO: 5-10tr
+    if (amount >= 1_000_000) return 'dauun';    // DẤU ẤN: 1-2tr
+    if (amount >= 200_000) return 'guitrao';    // GỬI TRAO: 200k-500k
+    return 'gieomam';                           // GIEO MẦM: 50k-100k
 }
 
 export function getTierLabel(tier: string): string {
     const labels: Record<string, string> = {
+        kientao: '🏆 KIẾN TẠO',
+        dauun: '🌸 DẤU ẤN',
+        guitrao: '💝 GỬi TRAO',
+        gieomam: '🌱 GIEO MẦM',
         diamond: '💎 Kim Cương',
         gold: '🥇 Vàng',
         silver: '🥈 Bạc',
         green: '💚 Xanh',
+        imprint: '🌸 Ghi danh',
+        entrust: '🌸 Uỷ thác',
         organizer: '🏆 Đơn vị tổ chức',
     };
     return labels[tier] || tier;
@@ -41,6 +47,10 @@ export function getTierLabel(tier: string): string {
 
 export function getTierColor(tier: string): string {
     const colors: Record<string, string> = {
+        kientao: 'bg-gradient-to-r from-yellow-400 to-amber-500',
+        dauun: 'bg-gradient-to-r from-pink-400 to-pink-500',
+        guitrao: 'bg-gradient-to-r from-blue-400 to-blue-500',
+        gieomam: 'bg-gradient-to-r from-green-400 to-green-500',
         diamond: 'bg-blue-500',
         gold: 'bg-amber-500',
         silver: 'bg-gray-400',

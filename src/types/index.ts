@@ -2,7 +2,7 @@
 
 export type TreeStatus = 'available' | 'sponsored' | 'pending';
 export type DonationStatus = 'pending' | 'approved' | 'rejected';
-export type DonationTier = 'diamond' | 'gold' | 'silver' | 'green' | 'imprint' | 'entrust';
+export type DonationTier = 'kientao' | 'dauun' | 'guitrao' | 'gieomam' | 'diamond' | 'gold' | 'silver' | 'green' | 'imprint' | 'entrust';
 export type SponsorTier = 'organizer' | 'diamond' | 'gold' | 'silver';
 
 export interface Tree {
