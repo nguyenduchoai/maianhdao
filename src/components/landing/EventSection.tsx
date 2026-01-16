@@ -18,7 +18,7 @@ export function EventSection() {
                         <div className="bg-gradient-to-r from-pink-500 to-pink-600 text-white p-8 text-center">
                             <div className="text-lg opacity-90 mb-2">Thời gian</div>
                             <div className="text-3xl md:text-4xl font-bold mb-2">07:30 Sáng, Thứ Năm</div>
-                            <div className="text-2xl md:text-3xl font-heading">Ngày 15 Tháng 01, 2026</div>
+                            <div className="text-2xl md:text-3xl font-heading">Ngày 18 Tháng 01, 2026</div>
                         </div>
 
                         <div className="p-8">
