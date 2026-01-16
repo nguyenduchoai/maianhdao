@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://maianhdao.lamdong.vn'),
+  metadataBase: new URL('https://maianhdao.lamdong.vn'),
   title: "Đảo Mai Anh Đào - Để Lại Dấu Ấn Tại Trái Tim Đà Lạt",
   description: "Xã hội hóa cảnh quan & Gây quỹ cộng đồng để trồng 200 cây Mai Anh Đào trưởng thành tại Hồ Xuân Hương - trái tim thành phố Đà Lạt",
   keywords: ["Mai Anh Đào", "Đà Lạt", "Hồ Xuân Hương", "Gây quỹ", "Cây xanh", "Festival hoa"],
