@@ -216,95 +216,127 @@ export function InteractiveMap({ trees }: InteractiveMapProps) {
     );
 }
 
-// Tree Popup Component
+// Tree Popup Component - Enhanced like festival map
 function TreePopup({ tree }: { tree: Tree }) {
+    const defaultImages = [
+        '/images/hero-bg.jpg',
+        '/images/og-image.jpg'
+    ];
+    const treeImages = tree.images && tree.images.length > 0 ? tree.images : defaultImages;
+
     return (
-        <div className="min-w-[280px]">
-            {/* Header */}
+        <div className="min-w-[320px] max-w-[380px]">
+            {/* Header with status indicator */}
             <div className={`
-        p-4 text-white
-        ${tree.status === 'sponsored' ? 'bg-pink-500' : 'bg-gray-500'}
-      `}>
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold">🌸 Cây {tree.code}</h3>
-                    <span className={`
-            px-2 py-1 rounded-full text-xs font-medium
-            ${tree.status === 'sponsored' ? 'bg-white/20' : 'bg-white/20'}
-          `}>
-                        Khu {tree.zone}
-                    </span>
+                px-4 py-3 flex items-center gap-2
+                ${tree.status === 'sponsored' ? 'bg-gradient-to-r from-pink-500 to-pink-400' : 'bg-gray-400'}
+                text-white rounded-t-lg
+            `}>
+                <span className="text-2xl">🌸</span>
+                <div>
+                    <h3 className="text-lg font-bold">
+                        {tree.status === 'sponsored' ? 'Cây đã có chủ' : 'Cây còn trống'}
+                    </h3>
+                    <p className="text-pink-100 text-sm">{tree.code} - Khu {tree.zone}</p>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-4">
+            <div className="p-4 bg-white">
                 {tree.status === 'sponsored' && tree.donorName ? (
                     <>
-                        {/* Donor Info */}
-                        <div className="flex items-center gap-3 mb-3">
-                            {tree.donorLogo ? (
-                                <img
-                                    src={tree.donorLogo}
-                                    alt={tree.donorName}
-                                    className="w-12 h-12 rounded-full object-cover border-2 border-pink-200"
-                                />
-                            ) : (
-                                <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center text-2xl">
-                                    🏢
+                        {/* Location & Info */}
+                        <div className="space-y-2 mb-4 text-sm">
+                            <div className="flex items-center gap-2 text-gray-700">
+                                <span className="text-pink-500">🏢</span>
+                                <span className="font-semibold">{tree.donorName}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <span>📅</span>
+                                <span>Thời gian: 05/01/2026 - 15/01/2026</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <span>📍</span>
+                                <span>Đảo Mai Anh Đào, Hồ Xuân Hương</span>
+                            </div>
+                            {tree.donorAmount && (
+                                <div className="flex items-center gap-2 text-pink-600 font-medium">
+                                    <span>💰</span>
+                                    <span>{formatCurrency(tree.donorAmount)}</span>
                                 </div>
                             )}
-                            <div>
-                                <p className="font-semibold text-gray-800">{tree.donorName}</p>
-                                {tree.donorAmount && (
-                                    <p className="text-sm text-pink-600">
-                                        {formatCurrency(tree.donorAmount)}
-                                    </p>
-                                )}
-                            </div>
                         </div>
 
                         {/* Images Gallery */}
-                        {tree.images && tree.images.length > 0 && (
-                            <div className="grid grid-cols-3 gap-2 mb-3">
-                                {tree.images.slice(0, 3).map((img, i) => (
+                        <div className="mb-4">
+                            <p className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh ({treeImages.length})</p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {treeImages.slice(0, 4).map((img, i) => (
                                     <img
                                         key={i}
                                         src={img}
                                         alt={`Cây ${tree.code}`}
-                                        className="w-full h-16 object-cover rounded-lg"
+                                        className="w-full h-20 object-cover rounded-lg border border-gray-200 hover:opacity-90 cursor-pointer"
                                     />
                                 ))}
                             </div>
-                        )}
+                        </div>
+
+                        {/* Sponsor Logo/Name Plate */}
+                        <div className="bg-gradient-to-r from-pink-50 to-white p-3 rounded-lg border border-pink-100 mb-4">
+                            <div className="flex items-center gap-3">
+                                {tree.donorLogo ? (
+                                    <img
+                                        src={tree.donorLogo}
+                                        alt={tree.donorName}
+                                        className="w-14 h-14 rounded-lg object-cover border-2 border-pink-200"
+                                    />
+                                ) : (
+                                    <div className="w-14 h-14 rounded-lg bg-pink-100 flex items-center justify-center text-2xl border-2 border-pink-200">
+                                        🌸
+                                    </div>
+                                )}
+                                <div>
+                                    <p className="font-bold text-gray-800">{tree.donorName}</p>
+                                    <p className="text-xs text-pink-600">Nhà tài trợ cây {tree.code}</p>
+                                </div>
+                            </div>
+                        </div>
                     </>
                 ) : (
-                    <div className="text-center py-4">
-                        <div className="text-4xl mb-2">🌱</div>
-                        <p className="text-gray-600 mb-3">Cây này đang chờ người đóng góp!</p>
+                    <div className="text-center py-6">
+                        <div className="text-5xl mb-3">🌱</div>
+                        <h4 className="font-bold text-gray-800 mb-2">Cây này đang chờ bạn!</h4>
+                        <p className="text-gray-500 text-sm mb-4">
+                            Đóng góp để sở hữu cây Mai Anh Đào và để lại dấu ấn tại Đà Lạt
+                        </p>
                         <a
                             href="#donate"
-                            className="inline-block btn-primary text-sm py-2 px-4"
+                            className="inline-block btn-primary text-sm py-2 px-6 rounded-full"
                         >
-                            Đóng Góp Ngay
+                            💝 Đóng Góp Ngay
                         </a>
                     </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                <div className="flex gap-2 pt-3 border-t border-gray-100">
                     <a
                         href={`https://www.google.com/maps/dir/?api=1&destination=${tree.lat},${tree.lng}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 text-center py-2 px-3 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+                        className="flex-1 text-center py-2.5 px-3 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
                     >
                         📍 Chỉ đường
                     </a>
                     <button
-                        className="flex-1 py-2 px-3 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-                        onClick={() => navigator.clipboard.writeText(`Cây ${tree.code} - Đảo Mai Anh Đào`)}
+                        className="py-2.5 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                        onClick={() => {
+                            const shareText = `🌸 Cây ${tree.code} - Đảo Mai Anh Đào, Đà Lạt\n${tree.donorName ? `Nhà tài trợ: ${tree.donorName}` : 'Đang chờ người đóng góp!'}\nhttps://maianhdao.lamdong.vn`;
+                            navigator.clipboard.writeText(shareText);
+                        }}
                     >
-                        📋 Sao chép
+                        Đóng
                     </button>
                 </div>
             </div>
