@@ -20,10 +20,7 @@ const Marker = dynamic(
     () => import('react-leaflet').then((mod) => mod.Marker),
     { ssr: false }
 );
-const Popup = dynamic(
-    () => import('react-leaflet').then((mod) => mod.Popup),
-    { ssr: false }
-);
+
 
 export default function MapTreePage() {
     const params = useParams();
@@ -238,11 +235,7 @@ export default function MapTreePage() {
                                     eventHandlers={{
                                         click: () => selectTree(tree),
                                     }}
-                                >
-                                    <Popup>
-                                        <TreePopup tree={tree} />
-                                    </Popup>
-                                </Marker>
+                                />
                             ))}
                         </MapContainer>
                     ) : (
@@ -283,58 +276,61 @@ export default function MapTreePage() {
                                 <div className="p-5">
                                     {selectedTree.status === 'sponsored' && selectedTree.donorName ? (
                                         <>
-                                            {/* Donor Name */}
-                                            <h3 className="text-xl font-bold text-gray-800 mb-4">{selectedTree.donorName}</h3>
+                                            {/* Sponsor Logo/Banner - shown first */}
+                                            <div className="flex items-center gap-4 mb-4">
+                                                {selectedTree.donorLogo ? (
+                                                    <div className="w-16 h-16 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center overflow-hidden">
+                                                        <img
+                                                            src={selectedTree.donorLogo}
+                                                            alt={selectedTree.donorName}
+                                                            className="w-14 h-14 object-contain"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center text-3xl">
+                                                        🏢
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-gray-800">{selectedTree.donorName}</h3>
+                                                    {selectedTree.donorAmount && (
+                                                        <p className="text-pink-600 font-semibold">{formatCurrency(selectedTree.donorAmount)}</p>
+                                                    )}
+                                                </div>
+                                            </div>
 
                                             {/* Info Grid */}
-                                            <div className="space-y-2 mb-4 text-sm">
+                                            <div className="space-y-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg">
                                                 <div className="flex items-center gap-2 text-gray-600">
                                                     <span>📅</span>
-                                                    <span><strong>Thời gian nở hoa:</strong> 05/01/2026 - 31/01/2026</span>
+                                                    <span><strong>Thời gian trồng:</strong> 05/01/2026 - 15/01/2026</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-gray-600">
                                                     <span>🌸</span>
-                                                    <span><strong>Số lượng cây:</strong> 1 tree</span>
+                                                    <span><strong>Số lượng:</strong> 1 cây</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-gray-600">
                                                     <span>📍</span>
                                                     <span>Đảo Mai Anh Đào, Hồ Xuân Hương, Đà Lạt</span>
                                                 </div>
-                                                {selectedTree.donorAmount && (
-                                                    <div className="flex items-center gap-2 text-pink-600 font-semibold">
-                                                        <span>💰</span>
-                                                        <span>{formatCurrency(selectedTree.donorAmount)}</span>
-                                                    </div>
-                                                )}
                                             </div>
 
                                             {/* Images Gallery */}
                                             <div className="mb-4">
-                                                <div className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh (2)</div>
+                                                <div className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh</div>
                                                 <div className="grid grid-cols-2 gap-2">
                                                     <img
                                                         src={selectedTree.images?.[0] || '/images/hero-bg.jpg'}
                                                         alt={`Cây ${selectedTree.code}`}
-                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                                        className="w-full h-20 object-cover rounded-lg border border-gray-200"
                                                     />
                                                     <img
                                                         src={selectedTree.images?.[1] || '/images/og-image.jpg'}
                                                         alt={`Cây ${selectedTree.code}`}
-                                                        className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                                        className="w-full h-20 object-cover rounded-lg border border-gray-200"
                                                     />
                                                 </div>
                                             </div>
-
-                                            {/* Sponsor Logo/Banner */}
-                                            {selectedTree.donorLogo && (
-                                                <div className="mb-4 p-3 bg-pink-50 rounded-lg border border-pink-100">
-                                                    <img
-                                                        src={selectedTree.donorLogo}
-                                                        alt={selectedTree.donorName}
-                                                        className="h-16 object-contain mx-auto"
-                                                    />
-                                                </div>
-                                            )}
                                         </>
                                     ) : (
                                         <div className="text-center py-6">
@@ -374,82 +370,6 @@ export default function MapTreePage() {
                         </div>
                     )}
                 </main>
-            </div>
-        </div>
-    );
-}
-
-// Popup content
-function TreePopup({ tree }: { tree: Tree }) {
-    const defaultImages = ['/images/hero-bg.jpg', '/images/og-image.jpg'];
-    const images = tree.images && tree.images.length > 0 ? tree.images : defaultImages;
-
-    return (
-        <div className="min-w-[300px]">
-            <div className={`
-                px-4 py-3 flex items-center gap-3 rounded-t-lg
-                ${tree.status === 'sponsored' ? 'bg-gradient-to-r from-pink-500 to-pink-400' : 'bg-gray-400'}
-                text-white
-            `}>
-                <span className="text-2xl">🌸</span>
-                <div>
-                    <div className="font-bold text-lg">{tree.status === 'sponsored' ? 'Cây đã có chủ' : 'Cây còn trống'}</div>
-                    <div className="text-sm opacity-90">{tree.code} - Khu {tree.zone}</div>
-                </div>
-            </div>
-
-            <div className="p-4 bg-white">
-                {tree.status === 'sponsored' && tree.donorName && (
-                    <div className="mb-4 space-y-2">
-                        <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                            <span className="text-pink-500">🏢</span>
-                            <span>{tree.donorName}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span>📅</span>
-                            <span>Thời gian nở hoa: 05/01/2026 - 31/01/2026</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span>📍</span>
-                            <span>Đảo Mai Anh Đào, Hồ Xuân Hương, Đà Lạt</span>
-                        </div>
-                        {tree.donorAmount && (
-                            <div className="flex items-center gap-2 text-sm text-pink-600 font-medium">
-                                <span>💰</span>
-                                <span>{formatCurrency(tree.donorAmount)}</span>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Images */}
-                <div className="mb-4">
-                    <div className="text-xs text-gray-500 mb-2">🖼️ Hình ảnh ({images.length})</div>
-                    <div className="grid grid-cols-2 gap-2">
-                        {images.slice(0, 2).map((img, i) => (
-                            <img
-                                key={i}
-                                src={img}
-                                alt={`Cây ${tree.code}`}
-                                className="w-full h-20 object-cover rounded-lg"
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex gap-2">
-                    <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${tree.lat},${tree.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 text-center py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600"
-                    >
-                        📍 Chỉ đường
-                    </a>
-                    <button className="py-2.5 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-                        Đóng
-                    </button>
-                </div>
             </div>
         </div>
     );
