@@ -31,20 +31,20 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
                 {/* Main Title */}
                 <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold mb-4 drop-shadow-lg">
-                    Để Lại Dấu Ấn
+                    NGÀN CÂY ANH ĐÀO
                 </h1>
-                <h2 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold mb-6 drop-shadow-lg">
-                    Tại Trái Tim Đà Lạt
+                <h2 className="font-heading text-2xl md:text-4xl lg:text-5xl font-bold mb-6 drop-shadow-lg">
+                    Quanh Hồ Xuân Hương & Khu Vực Đà Lạt
                 </h2>
 
                 {/* Subtitle */}
                 <p className="font-accent text-2xl md:text-3xl mb-8 text-pink-100">
-                    Đảo Mai Anh Đào - Hồ Xuân Hương
+                    Để Lại Dấu Ấn Tại Trái Tim Thành Phố Ngàn Hoa
                 </p>
 
                 <p className="text-lg md:text-xl max-w-2xl mx-auto mb-12 text-pink-50 leading-relaxed">
-                    Xã hội hóa cảnh quan & Gây quỹ cộng đồng để trồng <strong>200 cây Mai Anh Đào trưởng thành</strong>
-                    {' '}tại trái tim thành phố ngàn hoa
+                    Chiến dịch gây quỹ cộng đồng để trồng <strong>hoa Anh Đào</strong>
+                    {' '}tại Hồ Xuân Hương và các khu vực trọng điểm của Đà Lạt
                 </p>
 
                 {/* Progress Bar */}

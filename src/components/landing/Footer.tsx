@@ -8,11 +8,11 @@ export function Footer() {
                     {/* About */}
                     <div>
                         <h3 className="font-heading text-2xl font-bold text-pink-400 mb-4">
-                            🌸 Đảo Mai Anh Đào
+                            🌸 NGÀN CÂY ANH ĐÀO
                         </h3>
                         <p className="text-gray-400 text-sm leading-relaxed">
-                            Dự án xã hội hóa cảnh quan và gây quỹ cộng đồng để trồng 200 cây Mai Anh Đào
-                            trưởng thành tại Hồ Xuân Hương - trái tim thành phố Đà Lạt.
+                            Chiến dịch gây quỹ cộng đồng để trồng hoa Anh Đào quanh Hồ Xuân Hương
+                            và các khu vực trọng điểm của Đà Lạt - Thành phố ngàn hoa.
                         </p>
                     </div>
 
@@ -22,11 +22,11 @@ export function Footer() {
                         <ul className="space-y-2 text-gray-400 text-sm">
                             <li className="flex items-center gap-2">
                                 <span>📍</span>
-                                <span>Đảng ủy - UBND Phường Xuân Huong, Đà Lạt</span>
+                                <span>Chi hội DNT Phường Xuân Hương - Đà Lạt</span>
                             </li>
                             <li className="flex items-center gap-2">
                                 <span>📞</span>
-                                <span>0263.XXX.XXXX</span>
+                                <span>0935.956.421 (Anh Nghĩa)</span>
                             </li>
                             <li className="flex items-center gap-2">
                                 <span>✉️</span>
@@ -75,7 +75,7 @@ export function Footer() {
                             <strong>Thời gian chiến dịch:</strong> 05/01/2026 - 15/01/2026 (10 ngày cao điểm)
                         </p>
                         <p className="text-gray-400 text-sm">
-                            <strong>Mục tiêu:</strong> 500.000.000 VNĐ | 200 cây Mai Anh Đào trưởng thành
+                            <strong>Mục tiêu:</strong> 500.000.000 VNĐ | Ngàn cây hoa Anh Đào cho Đà Lạt
                         </p>
                     </div>
                 </div>
@@ -83,7 +83,7 @@ export function Footer() {
                 {/* Copyright */}
                 <div className="text-center text-gray-500 text-sm border-t border-gray-800 pt-8">
                     <p>
-                        © 2026 Đảo Mai Anh Đào - Hồ Xuân Hương, Đà Lạt.
+                        © 2026 Chiến dịch NGÀN CÂY ANH ĐÀO - Hội DNT tỉnh Lâm Đồng.
                         Được phát triển bởi <a href="https://bizino.vn" target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline">Bizino</a>
                     </p>
                 </div>

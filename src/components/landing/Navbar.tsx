@@ -40,7 +40,7 @@ export function Navbar() {
               font-heading font-bold text-lg md:text-xl
               ${isScrolled ? 'text-pink-600' : 'text-white'}
             `}>
-                            Đảo Mai Anh Đào
+                            Ngàn Cây Anh Đào
                         </span>
                     </Link>
 

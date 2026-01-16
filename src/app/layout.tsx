@@ -3,13 +3,13 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://maianhdao.lamdong.vn'),
-  title: "Đảo Mai Anh Đào - Để Lại Dấu Ấn Tại Trái Tim Đà Lạt",
-  description: "Xã hội hóa cảnh quan & Gây quỹ cộng đồng để trồng 200 cây Mai Anh Đào trưởng thành tại Hồ Xuân Hương - trái tim thành phố Đà Lạt",
-  keywords: ["Mai Anh Đào", "Đà Lạt", "Hồ Xuân Hương", "Gây quỹ", "Cây xanh", "Festival hoa"],
-  authors: [{ name: "Bizino", url: "https://bizino.vn" }],
+  title: "NGÀN CÂY ANH ĐÀO - Quanh Hồ Xuân Hương & Khu Vực Đà Lạt",
+  description: "Chiến dịch NGÀN CÂY ANH ĐÀO - Gây quỹ cộng đồng để trồng hoa Anh Đào quanh Hồ Xuân Hương và khu vực Đà Lạt. Hãy cùng để lại dấu ấn tại trái tim thành phố!",
+  keywords: ["Mai Anh Đào", "Anh Đào", "Đà Lạt", "Hồ Xuân Hương", "Gây quỹ", "Cây xanh", "Festival hoa", "Ngàn cây"],
+  authors: [{ name: "Hội DNT Lâm Đồng", url: "https://maianhdao.lamdong.vn" }],
   openGraph: {
-    title: "Đảo Mai Anh Đào - Để Lại Dấu Ấn Tại Trái Tim Đà Lạt",
-    description: "Đóng góp để trồng 200 cây Mai Anh Đào và được ghi danh trên bản đồ",
+    title: "NGÀN CÂY ANH ĐÀO - Quanh Hồ Xuân Hương & Khu Vực Đà Lạt",
+    description: "Đóng góp để trồng hoa Anh Đào và được ghi danh trên bản đồ - Chiến dịch xã hội hóa cảnh quan Đà Lạt",
     url: "https://maianhdao.lamdong.vn",
     siteName: "Đảo Mai Anh Đào",
     locale: "vi_VN",

@@ -1,6 +1,15 @@
-# Đảo Mai Anh Đào - Landing Page & Admin
+# 🌸 NGÀN CÂY ANH ĐÀO - Quanh Hồ Xuân Hương & Khu Vực Đà Lạt
 
-🌸 Hệ thống gây quỹ cộng đồng cho chiến dịch trồng Mai Anh Đào tại Hồ Xuân Hương, Đà Lạt.
+Chiến dịch gây quỹ cộng đồng để trồng hoa Anh Đào quanh Hồ Xuân Hương và khu vực Đà Lạt.
+
+**Website**: https://maianhdao.lamdong.vn
+
+## 📋 Thông Tin Chiến Dịch
+
+- **Đơn vị thực hiện**: Chi hội DNT Phường Xuân Hương - Đà Lạt
+- **Liên hệ**: Anh Nghĩa - 0935.956.421
+- **Tài khoản**: MSB 991977 - Hội DNT tỉnh Lâm Đồng
+- **Thời gian**: 05/01/2026 - 15/01/2026
 
 ## 🚀 Quick Start
 
@@ -11,9 +20,6 @@ npm install
 # Chạy development server
 npm run dev
 
-# Seed sample data (chạy 1 lần)
-curl -X POST http://localhost:3000/api/admin/seed
-
 # Build production
 npm run build
 npm run start
@@ -21,8 +27,8 @@ npm run start
 
 ## 🌐 URLs
 
-- **Landing Page**: http://localhost:3000
-- **Admin Panel**: http://localhost:3000/admin
+- **Landing Page**: https://maianhdao.lamdong.vn
+- **Admin Panel**: https://maianhdao.lamdong.vn/admin
 
 ## 📁 Project Structure
 
