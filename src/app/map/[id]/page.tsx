@@ -27,6 +27,7 @@ export default function MapTreePage() {
     const treeId = params.id as string;
 
     const [trees, setTrees] = useState<Tree[]>([]);
+    const [organizers, setOrganizers] = useState<{ id: string, name: string, logoUrl: string }[]>([]);
     const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
     const [showPopup, setShowPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +44,7 @@ export default function MapTreePage() {
 
     useEffect(() => {
         fetchTrees();
+        fetchOrganizers();
         import('leaflet').then((leaflet) => {
             setL(leaflet.default);
             setIsMapReady(true);
@@ -68,6 +70,17 @@ export default function MapTreePage() {
             console.error('Error fetching trees:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchOrganizers = async () => {
+        try {
+            const res = await fetch('/api/sponsors');
+            const data = await res.json();
+            const orgSponsors = (data.data || []).filter((s: any) => s.tier === 'organizer');
+            setOrganizers(orgSponsors);
+        } catch (error) {
+            console.error('Error fetching organizers:', error);
         }
     };
 
@@ -126,6 +139,20 @@ export default function MapTreePage() {
             <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-4">
+                        {/* Organizer Logos */}
+                        <div className="flex items-center gap-2">
+                            {organizers.map((org) => (
+                                <img
+                                    key={org.id}
+                                    src={org.logoUrl || `/logos/${org.name.toLowerCase().replace(/\s+/g, '')}.svg`}
+                                    alt={org.name}
+                                    className="h-8 object-contain"
+                                    title={org.name}
+                                    onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                                />
+                            ))}
+                        </div>
+                        <span className="text-gray-300">|</span>
                         <Link href="/" className="flex items-center gap-2 hover:opacity-80">
                             <span className="text-2xl">🌸</span>
                             <span className="font-bold text-gray-800">Ngàn Cây Anh Đào</span>
@@ -250,7 +277,7 @@ export default function MapTreePage() {
                     {/* Selected Tree Detail Modal */}
                     {selectedTree && showPopup && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[9999]">
-                            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 pointer-events-auto overflow-hidden animate-fadeIn">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 pointer-events-auto overflow-hidden animate-fadeIn">
                                 {/* Header with status */}
                                 <div className={`
                                     px-6 py-5 flex items-center gap-3
@@ -270,16 +297,6 @@ export default function MapTreePage() {
                                     >
                                         ✕
                                     </button>
-                                </div>
-
-                                {/* Organizer Logos Bar */}
-                                <div className="bg-white border-b px-6 py-3">
-                                    <p className="text-xs text-gray-500 mb-2">Đơn vị tổ chức:</p>
-                                    <div className="flex items-center gap-4 overflow-x-auto">
-                                        <img src="/logos/hoidnt.svg" alt="Hội DNT" className="h-10 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
-                                        <img src="/logos/bizino.svg" alt="Bizino" className="h-8 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
-                                        <img src="/logos/caonguyen.svg" alt="Cao Nguyên" className="h-8 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
-                                    </div>
                                 </div>
 
                                 {/* Content */}
