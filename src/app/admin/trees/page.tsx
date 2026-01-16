@@ -10,6 +10,14 @@ export default function AdminTreesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newTree, setNewTree] = useState({
+        code: '',
+        zone: 'A',
+        lat: 11.948307,
+        lng: 108.450188,
+    });
+    const [isAdding, setIsAdding] = useState(false);
 
     useEffect(() => {
         fetchTrees();
@@ -24,6 +32,37 @@ export default function AdminTreesPage() {
             console.error('Error fetching trees:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleAddTree = async () => {
+        if (!newTree.code.trim()) {
+            alert('Vui lòng nhập mã cây!');
+            return;
+        }
+
+        setIsAdding(true);
+        try {
+            // TODO: Implement add tree API
+            const tree: Tree = {
+                id: `tree-${Date.now()}`,
+                code: newTree.code.toUpperCase(),
+                zone: newTree.zone,
+                lat: newTree.lat,
+                lng: newTree.lng,
+                status: 'available',
+            };
+
+            // For now, just add to local state
+            setTrees([...trees, tree]);
+            setShowAddModal(false);
+            setNewTree({ code: '', zone: 'A', lat: 11.948307, lng: 108.450188 });
+            alert('Đã thêm cây thành công! (dữ liệu local, cần implement API để lưu vào DB)');
+        } catch (error) {
+            console.error('Error adding tree:', error);
+            alert('Có lỗi xảy ra!');
+        } finally {
+            setIsAdding(false);
         }
     };
 
@@ -57,6 +96,12 @@ export default function AdminTreesPage() {
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">🌸 Quản Lý Cây</h2>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="py-2 px-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600"
+                    >
+                        ➕ Thêm cây mới
+                    </button>
                     <Link
                         href="/map/all"
                         className="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -188,6 +233,99 @@ export default function AdminTreesPage() {
             <div className="mt-4 text-sm text-gray-500 text-center">
                 Hiển thị {filteredTrees.length} / {trees.length} cây
             </div>
+
+            {/* Add Tree Modal */}
+            {showAddModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-4 flex items-center justify-between">
+                            <h3 className="text-xl font-bold">🌸 Thêm cây mới</h3>
+                            <button
+                                onClick={() => setShowAddModal(false)}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Mã cây <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newTree.code}
+                                    onChange={(e) => setNewTree({ ...newTree, code: e.target.value })}
+                                    placeholder="VD: A1, B5, C10..."
+                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 uppercase"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Khu vực</label>
+                                <select
+                                    value={newTree.zone}
+                                    onChange={(e) => setNewTree({ ...newTree, zone: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
+                                >
+                                    <option value="A">Khu A</option>
+                                    <option value="B">Khu B</option>
+                                    <option value="C">Khu C</option>
+                                    <option value="D">Khu D</option>
+                                    <option value="E">Khu E</option>
+                                </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Vĩ độ (Lat)</label>
+                                    <input
+                                        type="number"
+                                        step="0.000001"
+                                        value={newTree.lat}
+                                        onChange={(e) => setNewTree({ ...newTree, lat: parseFloat(e.target.value) || 0 })}
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kinh độ (Lng)</label>
+                                    <input
+                                        type="number"
+                                        step="0.000001"
+                                        value={newTree.lng}
+                                        onChange={(e) => setNewTree({ ...newTree, lng: parseFloat(e.target.value) || 0 })}
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                                💡 <strong>Mẹo:</strong> Bạn có thể lấy tọa độ từ Google Maps bằng cách click chuột phải vào vị trí và copy tọa độ.
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
+                            <button
+                                onClick={() => setShowAddModal(false)}
+                                className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleAddTree}
+                                disabled={isAdding}
+                                className="py-2 px-6 bg-pink-500 text-white rounded-lg hover:bg-pink-600 disabled:opacity-50"
+                            >
+                                {isAdding ? 'Đang thêm...' : '✅ Thêm cây'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
