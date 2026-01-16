@@ -20,8 +20,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        // Skip auth check for login page
+        if (pathname === '/admin/login') {
+            setIsLoading(false);
+            return;
+        }
         checkAuth();
-    }, []);
+    }, [pathname]);
 
     // Check access when pathname changes
     useEffect(() => {
@@ -92,6 +97,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         );
     }
 
+    // Skip layout for login page
+    if (pathname === '/admin/login') {
+        return <>{children}</>;
+    }
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -113,8 +122,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                         👤 {user.username}
                                     </span>
                                     <span className={`text-xs px-2 py-0.5 rounded-full ${user.role === 'admin'
-                                            ? 'bg-red-100 text-red-700'
-                                            : 'bg-blue-100 text-blue-700'
+                                        ? 'bg-red-100 text-red-700'
+                                        : 'bg-blue-100 text-blue-700'
                                         }`}>
                                         {user.role === 'admin' ? 'Admin' : 'Editor'}
                                     </span>
