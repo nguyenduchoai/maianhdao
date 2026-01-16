@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatCurrency, getTierLabel } from '@/lib/utils';
 
 interface Donation {
@@ -18,10 +19,12 @@ interface Donation {
 }
 
 export default function AdminDonationsPage() {
+    const router = useRouter();
     const [donations, setDonations] = useState<Donation[]>([]);
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     useEffect(() => {
         fetchDonations();
@@ -29,13 +32,31 @@ export default function AdminDonationsPage() {
 
     const fetchDonations = async () => {
         try {
-            const res = await fetch('/api/donations');
+            const res = await fetch('/api/admin/donations');
             const data = await res.json();
             setDonations(data.data || []);
         } catch (error) {
             console.error('Error fetching donations:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Bạn có chắc muốn xóa đóng góp của "${name}"?`)) return;
+        setIsDeleting(id);
+        try {
+            const res = await fetch(`/api/admin/donations?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchDonations();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsDeleting(null);
         }
     };
 
@@ -158,12 +179,27 @@ export default function AdminDonationsPage() {
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 text-right">
-                                    <Link
-                                        href={`/admin/donations/${d.id}`}
-                                        className="text-blue-600 hover:underline text-sm mr-3"
-                                    >
-                                        Chi tiết
-                                    </Link>
+                                    <div className="flex items-center justify-end gap-2">
+                                        <Link
+                                            href={`/admin/donations/${d.id}`}
+                                            className="text-blue-600 hover:underline text-sm"
+                                        >
+                                            Chi tiết
+                                        </Link>
+                                        <button
+                                            onClick={() => router.push(`/admin/donations/${d.id}`)}
+                                            className="text-green-600 hover:underline text-sm"
+                                        >
+                                            Sửa
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(d.id, d.name)}
+                                            disabled={isDeleting === d.id}
+                                            className="text-red-600 hover:underline text-sm disabled:opacity-50"
+                                        >
+                                            {isDeleting === d.id ? '...' : 'Xóa'}
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

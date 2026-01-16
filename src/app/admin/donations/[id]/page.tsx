@@ -11,13 +11,21 @@ interface Donation {
     phone?: string;
     email?: string;
     amount: number;
-    logoUrl?: string;
+    logo_url?: string;
     message?: string;
-    isOrganization?: boolean;
+    is_organization?: number;
     status: string;
     tier?: string;
-    treeCode?: string;
-    createdAt?: string;
+    tree_id?: string;
+    tree_code?: string;
+    created_at?: string;
+}
+
+interface Tree {
+    id: string;
+    code: string;
+    zone: string;
+    status: string;
 }
 
 export default function DonationDetailPage() {
@@ -26,24 +34,193 @@ export default function DonationDetailPage() {
     const donationId = params.id as string;
 
     const [donation, setDonation] = useState<Donation | null>(null);
+    const [availableTrees, setAvailableTrees] = useState<Tree[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedTreeId, setSelectedTreeId] = useState('');
+    const [editForm, setEditForm] = useState<Partial<Donation>>({});
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         fetchDonation();
+        fetchAvailableTrees();
     }, [donationId]);
 
     const fetchDonation = async () => {
         try {
-            const res = await fetch('/api/donations');
+            const res = await fetch('/api/admin/donations');
             const data = await res.json();
             const found = data.data?.find((d: Donation) => d.id === donationId);
             if (found) {
                 setDonation(found);
+                setEditForm(found);
             }
         } catch (error) {
             console.error('Error fetching donation:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchAvailableTrees = async () => {
+        try {
+            const res = await fetch('/api/trees');
+            const data = await res.json();
+            const available = data.data?.filter((t: Tree) => t.status === 'available') || [];
+            setAvailableTrees(available);
+        } catch (error) {
+            console.error('Error fetching trees:', error);
+        }
+    };
+
+    const handleApprove = async () => {
+        if (!confirm('Duyệt đóng góp này?')) return;
+        setIsSaving(true);
+        try {
+            const res = await fetch('/api/admin/donations', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: donationId, status: 'approved' }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã duyệt thành công!');
+                fetchDonation();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleReject = async () => {
+        if (!confirm('Từ chối đóng góp này?')) return;
+        setIsSaving(true);
+        try {
+            const res = await fetch('/api/admin/donations', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: donationId, status: 'rejected' }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã từ chối!');
+                fetchDonation();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleAssignTree = async () => {
+        if (!selectedTreeId) {
+            alert('Vui lòng chọn cây!');
+            return;
+        }
+        setIsSaving(true);
+        try {
+            const res = await fetch('/api/admin/donations', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: donationId, tree_id: selectedTreeId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã gán cây thành công!');
+                setShowAssignModal(false);
+                fetchDonation();
+                fetchAvailableTrees();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleUnassignTree = async () => {
+        if (!confirm('Hủy gán cây này?')) return;
+        setIsSaving(true);
+        try {
+            const res = await fetch('/api/admin/donations', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: donationId, tree_id: null }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã hủy gán cây!');
+                fetchDonation();
+                fetchAvailableTrees();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleSaveEdit = async () => {
+        setIsSaving(true);
+        try {
+            const res = await fetch('/api/admin/donations', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: donationId,
+                    name: editForm.name,
+                    phone: editForm.phone,
+                    email: editForm.email,
+                    amount: editForm.amount,
+                    message: editForm.message,
+                    tier: editForm.tier,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã cập nhật thành công!');
+                setShowEditModal(false);
+                fetchDonation();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!confirm('Bạn có chắc muốn xóa đóng góp này? Hành động này không thể hoàn tác!')) return;
+        setIsSaving(true);
+        try {
+            const res = await fetch(`/api/admin/donations?id=${donationId}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã xóa thành công!');
+                router.push('/admin/donations');
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối server');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -110,14 +287,16 @@ export default function DonationDetailPage() {
                     {donation.status === 'pending' && (
                         <>
                             <button
-                                onClick={() => alert('TODO: Duyệt đóng góp')}
-                                className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                                onClick={handleApprove}
+                                disabled={isSaving}
+                                className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
                             >
                                 ✅ Duyệt
                             </button>
                             <button
-                                onClick={() => alert('TODO: Từ chối đóng góp')}
-                                className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                onClick={handleReject}
+                                disabled={isSaving}
+                                className="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
                             >
                                 ❌ Từ chối
                             </button>
@@ -134,12 +313,12 @@ export default function DonationDetailPage() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-4 p-4 bg-pink-50 rounded-lg">
                             <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center text-3xl">
-                                {donation.isOrganization ? '🏢' : '👤'}
+                                {donation.is_organization ? '🏢' : '👤'}
                             </div>
                             <div>
                                 <p className="font-bold text-gray-800 text-lg">{donation.name}</p>
                                 <p className="text-sm text-gray-500">
-                                    {donation.isOrganization ? 'Tổ chức/Doanh nghiệp' : 'Cá nhân'}
+                                    {donation.is_organization ? 'Tổ chức/Doanh nghiệp' : 'Cá nhân'}
                                 </p>
                             </div>
                         </div>
@@ -190,12 +369,26 @@ export default function DonationDetailPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm text-gray-500">Mã cây được gán</label>
-                                <p className="font-medium">{donation.treeCode || 'Chưa gán'}</p>
+                                <div className="flex items-center gap-2">
+                                    {donation.tree_code ? (
+                                        <>
+                                            <span className="font-medium text-pink-600">{donation.tree_code}</span>
+                                            <button
+                                                onClick={handleUnassignTree}
+                                                className="text-xs text-red-500 hover:underline"
+                                            >
+                                                (Hủy)
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <span className="text-gray-400">Chưa gán</span>
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm text-gray-500">Ngày tạo</label>
                                 <p className="font-medium">
-                                    {donation.createdAt ? new Date(donation.createdAt).toLocaleDateString('vi-VN') : '-'}
+                                    {donation.created_at ? new Date(donation.created_at).toLocaleDateString('vi-VN') : '-'}
                                 </p>
                             </div>
                         </div>
@@ -208,30 +401,145 @@ export default function DonationDetailPage() {
 
                     <div className="flex flex-wrap gap-4">
                         <button
-                            onClick={() => alert('TODO: Gán cây cho người đóng góp')}
+                            onClick={() => setShowAssignModal(true)}
                             className="py-2 px-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600"
                         >
                             🌸 Gán cây
                         </button>
                         <button
-                            onClick={() => alert('TODO: Chỉnh sửa thông tin')}
+                            onClick={() => setShowEditModal(true)}
                             className="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                         >
                             ✏️ Chỉnh sửa
                         </button>
                         <button
-                            onClick={() => {
-                                if (confirm('Bạn có chắc muốn xóa đóng góp này?')) {
-                                    alert('TODO: Xóa đóng góp');
-                                }
-                            }}
-                            className="py-2 px-4 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
+                            onClick={handleDelete}
+                            disabled={isSaving}
+                            className="py-2 px-4 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50"
                         >
                             🗑️ Xóa
                         </button>
                     </div>
                 </div>
             </div>
+
+            {/* Assign Tree Modal */}
+            {showAssignModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+                        <div className="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-4 flex items-center justify-between">
+                            <h3 className="text-xl font-bold">🌸 Gán cây</h3>
+                            <button onClick={() => setShowAssignModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30">✕</button>
+                        </div>
+                        <div className="p-6">
+                            <p className="mb-4 text-gray-600">Chọn cây để gán cho <strong>{donation.name}</strong>:</p>
+                            <select
+                                value={selectedTreeId}
+                                onChange={(e) => setSelectedTreeId(e.target.value)}
+                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 mb-4"
+                            >
+                                <option value="">-- Chọn cây --</option>
+                                {availableTrees.map(tree => (
+                                    <option key={tree.id} value={tree.id}>
+                                        {tree.code} (Khu {tree.zone})
+                                    </option>
+                                ))}
+                            </select>
+                            {availableTrees.length === 0 && (
+                                <p className="text-yellow-600 text-sm mb-4">⚠️ Không có cây trống nào!</p>
+                            )}
+                        </div>
+                        <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
+                            <button onClick={() => setShowAssignModal(false)} className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Hủy</button>
+                            <button onClick={handleAssignTree} disabled={isSaving || !selectedTreeId} className="py-2 px-6 bg-pink-500 text-white rounded-lg hover:bg-pink-600 disabled:opacity-50">
+                                {isSaving ? 'Đang lưu...' : '✅ Gán cây'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden max-h-[90vh] overflow-y-auto">
+                        <div className="bg-gradient-to-r from-blue-500 to-blue-400 text-white px-6 py-4 flex items-center justify-between">
+                            <h3 className="text-xl font-bold">✏️ Chỉnh sửa đóng góp</h3>
+                            <button onClick={() => setShowEditModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30">✕</button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Tên người đóng góp</label>
+                                <input
+                                    type="text"
+                                    value={editForm.name || ''}
+                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.phone || ''}
+                                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input
+                                        type="email"
+                                        value={editForm.email || ''}
+                                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Số tiền</label>
+                                <input
+                                    type="number"
+                                    value={editForm.amount || 0}
+                                    onChange={(e) => setEditForm({ ...editForm, amount: parseFloat(e.target.value) || 0 })}
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Cấp độ</label>
+                                <select
+                                    value={editForm.tier || 'imprint'}
+                                    onChange={(e) => setEditForm({ ...editForm, tier: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                >
+                                    <option value="diamond">💎 Kim cương</option>
+                                    <option value="gold">🥇 Vàng</option>
+                                    <option value="silver">🥈 Bạc</option>
+                                    <option value="green">💚 Xanh</option>
+                                    <option value="imprint">🌸 Ghi danh</option>
+                                    <option value="entrust">🌸 Uỷ thác</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Lời nhắn</label>
+                                <textarea
+                                    value={editForm.message || ''}
+                                    onChange={(e) => setEditForm({ ...editForm, message: e.target.value })}
+                                    rows={3}
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                />
+                            </div>
+                        </div>
+                        <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
+                            <button onClick={() => setShowEditModal(false)} className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Hủy</button>
+                            <button onClick={handleSaveEdit} disabled={isSaving} className="py-2 px-6 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50">
+                                {isSaving ? 'Đang lưu...' : '✅ Lưu thay đổi'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
