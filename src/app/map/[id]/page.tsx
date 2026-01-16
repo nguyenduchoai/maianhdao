@@ -250,26 +250,36 @@ export default function MapTreePage() {
                     {/* Selected Tree Detail Modal */}
                     {selectedTree && showPopup && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[9999]">
-                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 pointer-events-auto overflow-hidden animate-fadeIn">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 pointer-events-auto overflow-hidden animate-fadeIn">
                                 {/* Header with status */}
                                 <div className={`
-                                    px-5 py-4 flex items-center gap-3
+                                    px-6 py-5 flex items-center gap-3
                                     ${selectedTree.status === 'sponsored' ? 'bg-gradient-to-r from-pink-500 to-pink-400' : 'bg-gray-400'}
                                     text-white
                                 `}>
-                                    <span className="text-3xl">🌸</span>
-                                    <div>
-                                        <div className="font-bold text-xl">
-                                            {selectedTree.status === 'sponsored' ? 'Điểm có Hoa mai anh đào' : 'Cây còn trống'}
+                                    <span className="text-4xl">🌸</span>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-2xl">
+                                            {selectedTree.status === 'sponsored' ? 'Địa điểm cây Mai anh đào' : 'Cây còn trống'}
                                         </div>
-                                        <div className="text-pink-100">{selectedTree.code} - Khu {selectedTree.zone}</div>
+                                        <div className="text-pink-100 text-lg">{selectedTree.code} - Khu {selectedTree.zone}</div>
                                     </div>
                                     <button
                                         onClick={() => setShowPopup(false)}
-                                        className="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
+                                        className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-xl"
                                     >
                                         ✕
                                     </button>
+                                </div>
+
+                                {/* Organizer Logos Bar */}
+                                <div className="bg-white border-b px-6 py-3">
+                                    <p className="text-xs text-gray-500 mb-2">Đơn vị tổ chức:</p>
+                                    <div className="flex items-center gap-4 overflow-x-auto">
+                                        <img src="/logos/hoidnt.svg" alt="Hội DNT" className="h-10 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                                        <img src="/logos/bizino.svg" alt="Bizino" className="h-8 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                                        <img src="/logos/caonguyen.svg" alt="Cao Nguyên" className="h-8 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                                    </div>
                                 </div>
 
                                 {/* Content */}

@@ -225,19 +225,28 @@ function TreePopup({ tree }: { tree: Tree }) {
     const treeImages = tree.images && tree.images.length > 0 ? tree.images : defaultImages;
 
     return (
-        <div className="min-w-[320px] max-w-[380px]">
+        <div className="min-w-[380px] max-w-[420px]">
             {/* Header with status indicator */}
             <div className={`
-                px-4 py-3 flex items-center gap-2
+                px-5 py-4 flex items-center gap-3
                 ${tree.status === 'sponsored' ? 'bg-gradient-to-r from-pink-500 to-pink-400' : 'bg-gray-400'}
                 text-white rounded-t-lg
             `}>
-                <span className="text-2xl">🌸</span>
+                <span className="text-3xl">🌸</span>
                 <div>
-                    <h3 className="text-lg font-bold">
-                        {tree.status === 'sponsored' ? 'Cây đã có chủ' : 'Cây còn trống'}
+                    <h3 className="text-xl font-bold">
+                        {tree.status === 'sponsored' ? 'Địa điểm cây Mai anh đào' : 'Cây còn trống'}
                     </h3>
-                    <p className="text-pink-100 text-sm">{tree.code} - Khu {tree.zone}</p>
+                    <p className="text-pink-100">{tree.code} - Khu {tree.zone}</p>
+                </div>
+            </div>
+
+            {/* Organizer Logos Bar */}
+            <div className="bg-gray-50 border-b px-4 py-2">
+                <div className="flex items-center gap-3 justify-center">
+                    <img src="/logos/hoidnt.svg" alt="Hội DNT" className="h-8 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                    <img src="/logos/bizino.svg" alt="Bizino" className="h-6 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                    <img src="/logos/caonguyen.svg" alt="Cao Nguyên" className="h-6 object-contain" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
                 </div>
             </div>
 
