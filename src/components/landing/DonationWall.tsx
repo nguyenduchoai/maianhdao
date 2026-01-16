@@ -41,7 +41,6 @@ export function DonationWall({ donations }: DonationWallProps) {
                             <span className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 text-white text-xl md:text-2xl font-bold px-8 py-4 rounded-2xl shadow-lg">
                                 🏆 KIẾN TẠO ({kientao.length})
                             </span>
-                            <p className="text-amber-600 mt-2 text-sm">5.000.000đ - 10.000.000đ | Doanh nghiệp, Khách sạn, Nhà hàng</p>
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                             {kientao.map((donation) => (
@@ -86,7 +85,6 @@ export function DonationWall({ donations }: DonationWallProps) {
                             <span className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-pink-400 text-white text-lg md:text-xl font-bold px-6 py-3 rounded-xl shadow-md">
                                 🌸 DẤU ẤN ({dauun.length})
                             </span>
-                            <p className="text-pink-600 mt-2 text-sm">1.000.000đ - 2.000.000đ | Hộ gia đình, Nhóm bạn bè</p>
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
                             {dauun.map((donation) => (
@@ -126,7 +124,6 @@ export function DonationWall({ donations }: DonationWallProps) {
                             <span className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white text-base md:text-lg font-bold px-5 py-2.5 rounded-lg shadow">
                                 💝 GỬI TRAO ({guitrao.length})
                             </span>
-                            <p className="text-blue-600 mt-2 text-sm">200.000đ - 500.000đ | Nhân viên văn phòng, Du khách yêu Đà Lạt</p>
                         </h3>
                         <div className="glass-card p-6 max-w-5xl mx-auto">
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -154,7 +151,6 @@ export function DonationWall({ donations }: DonationWallProps) {
                             <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-400 text-white text-sm md:text-base font-bold px-4 py-2 rounded-lg">
                                 🌱 GIEO MẦM ({filteredGieomam.length})
                             </span>
-                            <p className="text-green-600 mt-2 text-xs">50.000đ - 100.000đ | Mọi người dân</p>
                         </h3>
 
                         <div className="glass-card p-6 max-w-4xl mx-auto">
