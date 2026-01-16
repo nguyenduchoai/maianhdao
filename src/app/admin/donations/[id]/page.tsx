@@ -535,18 +535,16 @@ export default function DonationDetailPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Cấp độ</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Cấp độ vinh danh</label>
                                 <select
-                                    value={editForm.tier || 'imprint'}
+                                    value={editForm.tier || 'gieomam'}
                                     onChange={(e) => setEditForm({ ...editForm, tier: e.target.value })}
                                     className="w-full px-4 py-2 border rounded-lg"
                                 >
-                                    <option value="diamond">💎 Kim cương</option>
-                                    <option value="gold">🥇 Vàng</option>
-                                    <option value="silver">🥈 Bạc</option>
-                                    <option value="green">💚 Xanh</option>
-                                    <option value="imprint">🌸 Ghi danh</option>
-                                    <option value="entrust">🌸 Uỷ thác</option>
+                                    <option value="kientao">🏆 KIẾN TẠO (5tr+)</option>
+                                    <option value="dauun">🌸 DẤU ẤN (1-2tr)</option>
+                                    <option value="guitrao">💝 GỬI TRAO (200k-500k)</option>
+                                    <option value="gieomam">🌱 GIEO MẦM (50k-100k)</option>
                                 </select>
                             </div>
                             <div>
