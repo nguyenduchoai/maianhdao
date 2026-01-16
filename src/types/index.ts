@@ -2,7 +2,7 @@
 
 export type TreeStatus = 'available' | 'sponsored' | 'pending';
 export type DonationStatus = 'pending' | 'approved' | 'rejected';
-export type DonationTier = 'diamond' | 'gold' | 'silver' | 'green';
+export type DonationTier = 'diamond' | 'gold' | 'silver' | 'green' | 'imprint' | 'entrust';
 export type SponsorTier = 'organizer' | 'diamond' | 'gold' | 'silver';
 
 export interface Tree {
@@ -12,43 +12,43 @@ export interface Tree {
     lat: number;
     lng: number;
     status: TreeStatus;
-    images: string[];
+    images?: string[];
     donorId?: string;
     donorName?: string;
     donorLogo?: string;
     donorAmount?: number;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Donation {
     id: string;
     name: string;
-    phone: string;
-    email: string;
+    phone?: string;
+    email?: string;
     amount: number;
     logoUrl?: string;
     message?: string;
-    isOrganization: boolean;
+    isOrganization?: boolean;
     status: DonationStatus;
     paymentRef?: string;
     treeId?: string;
     treeCode?: string;
-    tier: DonationTier;
-    displayOrder: number;
-    createdAt: string;
+    tier?: DonationTier;
+    displayOrder?: number;
+    createdAt?: string;
     approvedAt?: string;
 }
 
 export interface Sponsor {
     id: string;
     name: string;
-    logoUrl: string;
+    logoUrl?: string;
     website?: string;
     tier: SponsorTier;
-    displayOrder: number;
+    displayOrder?: number;
     isActive: boolean;
-    createdAt: string;
+    createdAt?: string;
 }
 
 export interface CampaignStats {

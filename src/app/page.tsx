@@ -6,58 +6,135 @@ import { DonationForm } from '@/components/landing/DonationForm';
 import { DonationWall } from '@/components/landing/DonationWall';
 import { Footer } from '@/components/landing/Footer';
 import { InteractiveMap } from '@/components/map/InteractiveMap';
-import { getAllSettings } from '@/lib/db';
+import db, { getAllSettings } from '@/lib/db';
+import { CampaignStats, Tree, Sponsor, Donation } from '@/types';
 
-// This page uses dynamic data, so we need to opt out of static generation
+// This page uses dynamic data
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function getPageData() {
   try {
-    // Fetch stats
-    const statsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/stats`, {
-      cache: 'no-store',
-    });
-    const statsData = statsRes.ok ? await statsRes.json() : { data: null };
+    // Get trees with donor info
+    const treesRows = db.prepare(`
+      SELECT 
+        t.id, t.code, t.zone, t.lat, t.lng, t.status, t.images,
+        d.id as donorId, d.name as donorName, d.amount as donorAmount, d.logo_url as donorLogo
+      FROM trees t
+      LEFT JOIN donations d ON t.donor_id = d.id
+      ORDER BY t.code
+    `).all() as any[];
 
-    // Fetch trees
-    const treesRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/trees`, {
-      cache: 'no-store',
-    });
-    const treesData = treesRes.ok ? await treesRes.json() : { data: [] };
+    const trees: Tree[] = treesRows.map(row => ({
+      id: row.id,
+      code: row.code,
+      zone: row.zone,
+      lat: row.lat,
+      lng: row.lng,
+      status: row.status,
+      images: row.images ? JSON.parse(row.images) : [],
+      donorId: row.donorId,
+      donorName: row.donorName,
+      donorAmount: row.donorAmount,
+      donorLogo: row.donorLogo,
+    }));
 
-    // Fetch sponsors
-    const sponsorsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/sponsors`, {
-      cache: 'no-store',
-    });
-    const sponsorsData = sponsorsRes.ok ? await sponsorsRes.json() : { data: [] };
+    // Get sponsors
+    const sponsorsRows = db.prepare(`
+      SELECT id, name, logo_url, website, tier, display_order, is_active
+      FROM sponsors
+      WHERE is_active = 1
+      ORDER BY 
+        CASE tier WHEN 'organizer' THEN 1 WHEN 'diamond' THEN 2 WHEN 'gold' THEN 3 WHEN 'silver' THEN 4 ELSE 5 END,
+        display_order
+    `).all() as any[];
 
-    // Fetch donations
-    const donationsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/donations`, {
-      cache: 'no-store',
-    });
-    const donationsData = donationsRes.ok ? await donationsRes.json() : { data: [] };
+    const sponsors: Sponsor[] = sponsorsRows.map(row => ({
+      id: row.id,
+      name: row.name,
+      logoUrl: row.logo_url,
+      website: row.website,
+      tier: row.tier,
+      displayOrder: row.display_order,
+      isActive: row.is_active === 1,
+    }));
+
+    // Get approved donations
+    const donationsRows = db.prepare(`
+      SELECT d.id, d.name, d.phone, d.email, d.amount, d.logo_url, d.message, 
+             d.is_organization, d.status, d.tier, d.created_at,
+             t.code as tree_code
+      FROM donations d
+      LEFT JOIN trees t ON d.tree_id = t.id
+      WHERE d.status = 'approved'
+      ORDER BY d.amount DESC, d.created_at DESC
+    `).all() as any[];
+
+    const donations: Donation[] = donationsRows.map(row => ({
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      email: row.email,
+      amount: row.amount,
+      logoUrl: row.logo_url,
+      message: row.message,
+      isOrganization: row.is_organization === 1,
+      status: row.status,
+      tier: row.tier,
+      treeCode: row.tree_code,
+      createdAt: row.created_at,
+    }));
+
+    // Calculate stats
+    const totalRaised = db.prepare(`
+      SELECT COALESCE(SUM(amount), 0) as total FROM donations WHERE status = 'approved'
+    `).get() as { total: number };
+
+    const totalDonors = db.prepare(`
+      SELECT COUNT(*) as count FROM donations WHERE status = 'approved'
+    `).get() as { count: number };
+
+    const treesSponsored = trees.filter(t => t.status === 'sponsored').length;
+    const treesAvailable = trees.filter(t => t.status === 'available').length;
+    const targetAmount = 500000000;
+
+    const stats: CampaignStats = {
+      totalRaised: totalRaised.total,
+      targetAmount,
+      totalDonors: totalDonors.count,
+      treesSponsored,
+      treesAvailable,
+      percentComplete: Math.round((totalRaised.total / targetAmount) * 100),
+    };
 
     // Get settings
     const settings = getAllSettings();
 
     return {
-      stats: statsData.data,
-      trees: treesData.data || [],
-      sponsors: sponsorsData.data || [],
-      donations: donationsData.data || [],
+      stats,
+      trees,
+      sponsors,
+      donations,
       settings,
     };
   } catch (error) {
     console.error('Error fetching page data:', error);
     return {
-      stats: null,
+      stats: {
+        totalRaised: 0,
+        targetAmount: 500000000,
+        totalDonors: 0,
+        treesSponsored: 0,
+        treesAvailable: 200,
+        percentComplete: 0,
+      } as CampaignStats,
       trees: [],
       sponsors: [],
       donations: [],
       settings: {
-        bankName: 'Vietcombank',
-        accountNumber: '0123456789',
-        accountHolder: 'Quỹ Mai Anh Đào Đà Lạt',
+        bankName: 'MSB',
+        accountNumber: '991977',
+        accountHolder: 'Hội DNT tỉnh Lâm Đồng',
       },
     };
   }
@@ -67,9 +144,9 @@ export default async function HomePage() {
   const { stats, trees, sponsors, donations, settings } = await getPageData();
 
   const bankInfo = {
-    bankName: settings.bankName || 'Vietcombank',
-    accountNumber: settings.accountNumber || '0123456789',
-    accountHolder: settings.accountHolder || 'Quỹ Mai Anh Đào Đà Lạt',
+    bankName: settings.bankName || 'MSB',
+    accountNumber: settings.accountNumber || '991977',
+    accountHolder: settings.accountHolder || 'Hội DNT tỉnh Lâm Đồng',
   };
 
   return (
@@ -92,7 +169,7 @@ export default async function HomePage() {
                 Về Chiến Dịch
               </h2>
               <p className="font-accent text-2xl text-pink-500">
-                "Để Lại Di Sản"
+                "NGÀN CÂY ANH ĐÀO"
               </p>
             </div>
 
@@ -110,10 +187,10 @@ export default async function HomePage() {
               {/* Card 2 */}
               <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
                 <div className="text-4xl mb-4">🌸</div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Hiện Vật & Chất Lượng</h3>
-                <p className="text-2xl font-bold text-pink-600 mb-2">200 Cây</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Ngàn Cây Anh Đào</h3>
+                <p className="text-2xl font-bold text-pink-600 mb-2">200+ Cây</p>
                 <p className="text-gray-600 text-sm">
-                  Mai Anh Đào trưởng thành<br />Cao &gt;3m, gốc &gt;10cm
+                  Quanh Hồ Xuân Hương<br />và khu vực Đà Lạt
                 </p>
               </div>
 

@@ -18,6 +18,12 @@ export function DonationWall({ donations }: DonationWallProps) {
     const golds = donations.filter(d => d.tier === 'gold');
     const silvers = donations.filter(d => d.tier === 'silver');
     const greens = donations.filter(d => d.tier === 'green');
+    const imprints = donations.filter(d => d.tier === 'imprint');
+    const entrusts = donations.filter(d => d.tier === 'entrust');
+
+    // Combine all other donors
+    const otherDonors = [...imprints, ...entrusts, ...donations.filter(d => !['diamond', 'gold', 'silver', 'green', 'imprint', 'entrust'].includes(d.tier || ''))];
+
 
     return (
         <section id="donors" className="py-20 bg-gradient-to-b from-pink-50 to-white">
@@ -93,6 +99,31 @@ export function DonationWall({ donations }: DonationWallProps) {
                     </div>
                 )}
 
+                {/* Imprint & Entrust Donors - Danh Sách Ghi Danh */}
+                {otherDonors.length > 0 && (
+                    <div className="mb-8">
+                        <h3 className="text-center mb-6">
+                            <span className="bg-gradient-to-r from-pink-500 to-pink-400 text-white text-base px-4 py-2 rounded-full">
+                                🌸 Danh Sách Ghi Danh ({otherDonors.length})
+                            </span>
+                        </h3>
+
+                        {/* Grid of Names */}
+                        <div className="glass-card p-6 max-w-5xl mx-auto">
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {otherDonors.map((d) => (
+                                    <span
+                                        key={d.id}
+                                        className="bg-pink-50 border border-pink-200 text-pink-700 px-3 py-1.5 rounded-full text-sm font-medium hover:bg-pink-100 transition-colors"
+                                    >
+                                        🌸 {d.name}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Total Count */}
                 <div className="text-center mt-12">
                     <p className="text-gray-500">
@@ -122,7 +153,7 @@ function DonationCard({ donation, featured }: DonationCardProps) {
                 <div className={`
           ${featured ? 'w-16 h-16' : 'w-12 h-12'} 
           rounded-full flex items-center justify-center text-white text-xl
-          ${getTierColor(donation.tier)}
+          ${getTierColor(donation.tier || 'green')}
         `}>
                     {donation.logoUrl ? (
                         <img src={donation.logoUrl} alt={donation.name} className="w-full h-full rounded-full object-cover" />
