@@ -18,8 +18,8 @@ export function Navbar() {
     const navLinks = [
         { href: '#map', label: 'Bản Đồ' },
         { href: '#donate', label: 'Đóng Góp' },
-        { href: '#sponsors', label: 'Nhà Tài Trợ' },
-        { href: '#donors', label: 'Ghi Danh' },
+        { href: '#sponsors', label: 'Ban Tổ Chức' },
+        { href: '#donors', label: 'Bảng Vinh Danh' },
     ];
 
     return (

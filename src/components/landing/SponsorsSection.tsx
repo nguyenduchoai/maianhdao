@@ -1,7 +1,6 @@
 'use client';
 
 import { Sponsor } from '@/types';
-import { getTierLabel } from '@/lib/utils';
 import Image from 'next/image';
 
 interface SponsorsSectionProps {
@@ -9,128 +8,55 @@ interface SponsorsSectionProps {
 }
 
 export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
+    // Chỉ lấy organizers (Ban Tổ Chức)
     const organizers = sponsors.filter(s => s.tier === 'organizer');
-    const diamonds = sponsors.filter(s => s.tier === 'diamond');
-    const golds = sponsors.filter(s => s.tier === 'gold');
-    const silvers = sponsors.filter(s => s.tier === 'silver');
+
+    if (organizers.length === 0) {
+        return null;
+    }
 
     return (
-        <section id="sponsors" className="py-20 bg-white">
+        <section id="sponsors" className="py-20 bg-gradient-to-b from-white to-pink-50">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
+                <div className="text-center mb-12">
                     <h2 className="font-heading text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-                        Đơn Vị Đồng Hành
+                        🏛️ Ban Tổ Chức
                     </h2>
                     <p className="text-gray-600 max-w-2xl mx-auto">
-                        Cảm ơn sự đồng hành của các đơn vị, doanh nghiệp và cá nhân đã chung tay xây dựng
-                        Đảo Mai Anh Đào tại trái tim Đà Lạt
+                        Chiến dịch được tổ chức bởi các đơn vị uy tín tại Lâm Đồng
                     </p>
                 </div>
 
-                {/* Organizers */}
-                {organizers.length > 0 && (
-                    <div className="mb-12">
-                        <h3 className="text-center text-lg font-semibold text-pink-600 mb-6 uppercase tracking-wider">
-                            {getTierLabel('organizer')}
-                        </h3>
-                        <div className="flex flex-wrap justify-center items-center gap-8">
-                            {organizers.map((sponsor) => (
-                                <SponsorCard key={sponsor.id} sponsor={sponsor} size="large" />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Diamond Sponsors */}
-                {diamonds.length > 0 && (
-                    <div className="mb-12">
-                        <h3 className="text-center text-lg font-semibold text-blue-600 mb-6 uppercase tracking-wider">
-                            {getTierLabel('diamond')}
-                        </h3>
-                        <div className="flex flex-wrap justify-center items-center gap-6">
-                            {diamonds.map((sponsor) => (
-                                <SponsorCard key={sponsor.id} sponsor={sponsor} size="medium" />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Gold Sponsors */}
-                {golds.length > 0 && (
-                    <div className="mb-12">
-                        <h3 className="text-center text-lg font-semibold text-amber-600 mb-6 uppercase tracking-wider">
-                            {getTierLabel('gold')}
-                        </h3>
-                        <div className="flex flex-wrap justify-center items-center gap-4">
-                            {golds.map((sponsor) => (
-                                <SponsorCard key={sponsor.id} sponsor={sponsor} size="small" />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Silver Sponsors */}
-                {silvers.length > 0 && (
-                    <div className="mb-8">
-                        <h3 className="text-center text-lg font-semibold text-gray-500 mb-6 uppercase tracking-wider">
-                            {getTierLabel('silver')}
-                        </h3>
-                        <div className="flex flex-wrap justify-center items-center gap-4">
-                            {silvers.map((sponsor) => (
-                                <SponsorCard key={sponsor.id} sponsor={sponsor} size="small" />
-                            ))}
-                        </div>
-                    </div>
-                )}
+                {/* Large Logo Cards for Organizers */}
+                <div className="flex flex-wrap justify-center items-stretch gap-8 max-w-5xl mx-auto">
+                    {organizers.map((sponsor) => (
+                        <a
+                            key={sponsor.id}
+                            href={sponsor.website || '#'}
+                            target={sponsor.website ? '_blank' : undefined}
+                            rel="noopener noreferrer"
+                            className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 p-8 flex flex-col items-center justify-center min-w-[200px] max-w-[280px] border border-gray-100"
+                        >
+                            {sponsor.logoUrl ? (
+                                <div className="w-40 h-32 flex items-center justify-center mb-4">
+                                    <Image
+                                        src={sponsor.logoUrl}
+                                        alt={sponsor.name}
+                                        width={160}
+                                        height={120}
+                                        className="object-contain max-h-28"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-40 h-32 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl flex items-center justify-center mb-4">
+                                    <span className="text-5xl">🏛️</span>
+                                </div>
+                            )}
+                            <h3 className="text-lg font-bold text-gray-800 text-center">{sponsor.name}</h3>
+                        </a>
+                    ))}
+                </div>
             </div>
         </section>
-    );
-}
-
-interface SponsorCardProps {
-    sponsor: Sponsor;
-    size: 'large' | 'medium' | 'small';
-}
-
-function SponsorCard({ sponsor, size }: SponsorCardProps) {
-    // Organizer = largest, Diamond = medium-large, Gold = medium
-    const sizes = {
-        large: 'w-56 h-40',    // Organizer - 224x160px
-        medium: 'w-44 h-32',   // Diamond - 176x128px
-        small: 'w-32 h-24',    // Gold - 128x96px
-    };
-
-    const imageSizes = {
-        large: { width: 180, height: 100 },
-        medium: { width: 140, height: 80 },
-        small: { width: 100, height: 60 },
-    };
-
-    return (
-        <a
-            href={sponsor.website || '#'}
-            target={sponsor.website ? '_blank' : undefined}
-            rel="noopener noreferrer"
-            className={`
-                ${sizes[size]} 
-                glass-card p-4 flex flex-col items-center justify-center
-                hover:shadow-lg transition-all duration-300 hover:-translate-y-1
-            `}
-        >
-            {sponsor.logoUrl ? (
-                <Image
-                    src={sponsor.logoUrl}
-                    alt={sponsor.name}
-                    width={imageSizes[size].width}
-                    height={imageSizes[size].height}
-                    className="object-contain"
-                />
-            ) : (
-                <div className="text-center">
-                    <div className={`${size === 'large' ? 'text-4xl' : size === 'medium' ? 'text-3xl' : 'text-2xl'} mb-2`}>🏢</div>
-                    <div className={`${size === 'large' ? 'text-sm' : 'text-xs'} text-gray-600 line-clamp-2 font-medium`}>{sponsor.name}</div>
-                </div>
-            )}
-        </a>
     );
 }
