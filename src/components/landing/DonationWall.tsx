@@ -52,12 +52,14 @@ export function DonationWall({ donations }: DonationWallProps) {
                                     onClick={() => setSelectedDonation(donation)}
                                     className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer text-center"
                                 >
-                                    {/* Square Logo */}
-                                    <div className="w-16 h-16 mx-auto mb-3 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-2xl shadow-md overflow-hidden">
+                                    {/* Logo - no background if has image */}
+                                    <div className="w-20 h-16 mx-auto mb-3 flex items-center justify-center overflow-hidden">
                                         {donation.logoUrl ? (
-                                            <img src={donation.logoUrl} alt={donation.name} className="w-full h-full object-cover" />
+                                            <img src={donation.logoUrl} alt={donation.name} className="max-w-full max-h-full object-contain" />
                                         ) : (
-                                            donation.isOrganization ? '🏢' : '👤'
+                                            <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-2xl shadow-md">
+                                                {donation.isOrganization ? '🏢' : '👤'}
+                                            </div>
                                         )}
                                     </div>
                                     {/* Name - single line */}
@@ -65,9 +67,6 @@ export function DonationWall({ donations }: DonationWallProps) {
                                     {donation.treeCode && (
                                         <p className="text-amber-600 text-xs mt-1">🌸 Cây {donation.treeCode}</p>
                                     )}
-                                    <p className="text-amber-600 font-bold text-sm mt-1">
-                                        {formatCurrency(donation.amount)}
-                                    </p>
                                 </div>
                             ))}
                         </div>
