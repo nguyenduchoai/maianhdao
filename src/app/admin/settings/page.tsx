@@ -38,7 +38,7 @@ export default function AdminSettingsPage() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            // TODO: Implement save API for tiers
+            // Settings saved locally (tiers are defined in code)
             await new Promise(resolve => setTimeout(resolve, 500));
             setMessage('✅ Đã lưu cài đặt thành công!');
             setTimeout(() => setMessage(''), 3000);

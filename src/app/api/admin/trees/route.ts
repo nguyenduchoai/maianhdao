@@ -1,6 +1,54 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+// POST /api/admin/trees - Create new tree
+export async function POST(request: Request) {
+    try {
+        const body = await request.json();
+        const { code, zone, lat, lng } = body;
+
+        if (!code || !zone) {
+            return NextResponse.json(
+                { success: false, error: 'Mã cây và khu vực là bắt buộc' },
+                { status: 400 }
+            );
+        }
+
+        // Check if code already exists
+        const existing = db.prepare('SELECT id FROM trees WHERE code = ?').get(code.toUpperCase());
+        if (existing) {
+            return NextResponse.json(
+                { success: false, error: 'Mã cây đã tồn tại' },
+                { status: 400 }
+            );
+        }
+
+        // Generate unique ID
+        const id = `tree-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+        // Insert new tree
+        db.prepare(`
+            INSERT INTO trees (id, code, zone, lat, lng, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(
+            id,
+            code.toUpperCase(),
+            zone,
+            lat || 11.948307,
+            lng || 108.450188,
+            'available'
+        );
+
+        return NextResponse.json({ success: true, message: 'Đã thêm cây thành công', id });
+    } catch (error) {
+        console.error('Error creating tree:', error);
+        return NextResponse.json(
+            { success: false, error: 'Lỗi tạo cây mới' },
+            { status: 500 }
+        );
+    }
+}
+
 // PUT /api/admin/trees - Update tree
 export async function PUT(request: Request) {
     try {

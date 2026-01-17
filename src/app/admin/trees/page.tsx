@@ -95,24 +95,28 @@ export default function AdminTreesPage() {
 
         setIsAdding(true);
         try {
-            // TODO: Implement add tree API
-            const tree: Tree = {
-                id: `tree-${Date.now()}`,
-                code: newTree.code.toUpperCase(),
-                zone: newTree.zone,
-                lat: newTree.lat,
-                lng: newTree.lng,
-                status: 'available',
-            };
-
-            // For now, just add to local state
-            setTrees([...trees, tree]);
-            setShowAddModal(false);
-            setNewTree({ code: '', zone: 'A', lat: 11.948307, lng: 108.450188 });
-            alert('Đã thêm cây thành công! (dữ liệu local, cần implement API để lưu vào DB)');
+            const res = await fetch('/api/admin/trees', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: newTree.code.toUpperCase(),
+                    zone: newTree.zone,
+                    lat: newTree.lat,
+                    lng: newTree.lng,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Đã thêm cây thành công!');
+                setShowAddModal(false);
+                setNewTree({ code: '', zone: 'A', lat: 11.948307, lng: 108.450188 });
+                fetchTrees();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra');
+            }
         } catch (error) {
             console.error('Error adding tree:', error);
-            alert('Có lỗi xảy ra!');
+            alert('Lỗi kết nối server');
         } finally {
             setIsAdding(false);
         }
