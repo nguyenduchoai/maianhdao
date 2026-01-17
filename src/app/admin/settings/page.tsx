@@ -16,12 +16,12 @@ interface DonationTierConfig {
 
 export default function AdminSettingsPage() {
     const [settings, setSettings] = useState({
-        bankName: 'MSB',
-        accountNumber: '991977',
-        accountHolder: 'Hội DNT tỉnh Lâm Đồng',
-        targetAmount: '500000000',
-        campaignStart: '2026-01-05',
-        campaignEnd: '2026-01-15',
+        bankName: '',
+        accountNumber: '',
+        accountHolder: '',
+        targetAmount: '',
+        campaignStart: '',
+        campaignEnd: '',
     });
 
     const [donationTiers, setDonationTiers] = useState<DonationTierConfig[]>([
@@ -33,17 +33,51 @@ export default function AdminSettingsPage() {
 
     const [editingDonationTier, setEditingDonationTier] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState('');
+
+    // Load settings from API
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/admin/settings');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    setSettings({
+                        bankName: data.data.bankName || '',
+                        accountNumber: data.data.accountNumber || '',
+                        accountHolder: data.data.accountHolder || '',
+                        targetAmount: data.data.targetAmount || '',
+                        campaignStart: data.data.campaignStart || '',
+                        campaignEnd: data.data.campaignEnd || '',
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching settings:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            // Settings saved locally (tiers are defined in code)
-            await new Promise(resolve => setTimeout(resolve, 500));
-            setMessage('✅ Đã lưu cài đặt thành công!');
+            const res = await fetch('/api/admin/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setMessage('✅ Đã lưu cài đặt thành công!');
+            } else {
+                setMessage('❌ ' + (data.error || 'Có lỗi xảy ra!'));
+            }
             setTimeout(() => setMessage(''), 3000);
         } catch (error) {
-            setMessage('❌ Có lỗi xảy ra!');
+            setMessage('❌ Lỗi kết nối server!');
         } finally {
             setIsSaving(false);
         }
