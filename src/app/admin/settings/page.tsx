@@ -272,8 +272,31 @@ export default function AdminSettingsPage() {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Google Apps Script (Paste vào Sheet)</label>
                         <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto max-h-64">
-                            {`function onEdit(e) {
+                            {`// Trigger khi EDIT hoặc THÊM DÒNG MỚI
+function onEdit(e) {
   sendToWebhook();
+}
+
+function onChange(e) {
+  // Bắn khi thêm/xóa dòng
+  if (e.changeType === 'INSERT_ROW' || e.changeType === 'REMOVE_ROW' || e.changeType === 'EDIT') {
+    sendToWebhook();
+  }
+}
+
+// Chạy 1 lần để cài đặt trigger tự động
+function setupTriggers() {
+  // Xóa triggers cũ
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    ScriptApp.deleteTrigger(triggers[i]);
+  }
+  // Thêm trigger onChange
+  ScriptApp.newTrigger('onChange')
+    .forSpreadsheet(SpreadsheetApp.getActive())
+    .onChange()
+    .create();
+  Logger.log('✅ Đã cài đặt trigger thành công!');
 }
 
 function sendToWebhook() {
@@ -302,8 +325,31 @@ function sendToWebhook() {
                         </pre>
                         <button
                             onClick={() => {
-                                const code = `function onEdit(e) {
+                                const code = `// Trigger khi EDIT hoặc THÊM DÒNG MỚI
+function onEdit(e) {
   sendToWebhook();
+}
+
+function onChange(e) {
+  // Bắn khi thêm/xóa dòng
+  if (e.changeType === 'INSERT_ROW' || e.changeType === 'REMOVE_ROW' || e.changeType === 'EDIT') {
+    sendToWebhook();
+  }
+}
+
+// Chạy 1 lần để cài đặt trigger tự động
+function setupTriggers() {
+  // Xóa triggers cũ
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    ScriptApp.deleteTrigger(triggers[i]);
+  }
+  // Thêm trigger onChange
+  ScriptApp.newTrigger('onChange')
+    .forSpreadsheet(SpreadsheetApp.getActive())
+    .onChange()
+    .create();
+  Logger.log('✅ Đã cài đặt trigger thành công!');
 }
 
 function sendToWebhook() {
@@ -344,7 +390,8 @@ function sendToWebhook() {
                             <li>Mở Google Sheet → Extensions → Apps Script</li>
                             <li>Xóa code cũ, paste Apps Script ở trên vào</li>
                             <li>Nhấn Save (Ctrl+S)</li>
-                            <li>Mỗi khi edit Sheet, dữ liệu sẽ tự động gửi về hệ thống</li>
+                            <li><strong>Chạy hàm setupTriggers()</strong> 1 lần để cài trigger</li>
+                            <li>Mỗi khi edit hoặc thêm dòng → Tự động gửi về hệ thống</li>
                         </ol>
                     </div>
                 </div>
