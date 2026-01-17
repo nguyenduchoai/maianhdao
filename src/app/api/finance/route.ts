@@ -54,6 +54,7 @@ export async function GET() {
                 donations: donations.map(d => ({
                     id: d.id,
                     name: d.name,
+                    amount: d.amount,
                     tier: d.tier,
                     message: d.message,
                     isOrganization: d.is_organization,
