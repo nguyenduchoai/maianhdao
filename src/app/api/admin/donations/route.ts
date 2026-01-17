@@ -74,10 +74,10 @@ export async function POST(request: NextRequest) {
             status === 'approved' ? new Date().toISOString() : null
         );
 
-        // If tree_id is provided, update tree status
+        // If tree_id is provided, update tree status (multiple donors allowed)
         if (tree_id) {
-            db.prepare('UPDATE trees SET status = ?, donor_id = ? WHERE id = ?')
-                .run('sponsored', id, tree_id);
+            db.prepare('UPDATE trees SET status = ? WHERE id = ?')
+                .run('sponsored', tree_id);
         }
 
         return NextResponse.json({ success: true, message: 'Tạo đóng góp thành công', id });
@@ -128,23 +128,37 @@ export async function PUT(request: NextRequest) {
         if (tree_id !== undefined) {
             // If assigning to a tree
             if (tree_id) {
-                // Unassign from old tree if any
-                if (existing.tree_id) {
-                    db.prepare('UPDATE trees SET status = ?, donor_id = NULL WHERE id = ?')
-                        .run('available', existing.tree_id);
+                // If changing from one tree to another, check if old tree has other donors
+                if (existing.tree_id && existing.tree_id !== tree_id) {
+                    const otherDonors = db.prepare(
+                        'SELECT COUNT(*) as count FROM donations WHERE tree_id = ? AND id != ? AND status = ?'
+                    ).get(existing.tree_id, id, 'approved') as { count: number };
+
+                    // Only set to available if no other donors
+                    if (otherDonors.count === 0) {
+                        db.prepare('UPDATE trees SET status = ? WHERE id = ?')
+                            .run('available', existing.tree_id);
+                    }
                 }
 
-                // Assign to new tree
-                db.prepare('UPDATE trees SET status = ?, donor_id = ? WHERE id = ?')
-                    .run('sponsored', id, tree_id);
+                // Mark new tree as sponsored (don't overwrite donor_id - multiple donors allowed)
+                db.prepare('UPDATE trees SET status = ? WHERE id = ?')
+                    .run('sponsored', tree_id);
 
                 updates.push('tree_id = ?');
                 values.push(tree_id);
             } else {
-                // Unassign tree
+                // Unassigning from tree - check if tree has other donors
                 if (existing.tree_id) {
-                    db.prepare('UPDATE trees SET status = ?, donor_id = NULL WHERE id = ?')
-                        .run('available', existing.tree_id);
+                    const otherDonors = db.prepare(
+                        'SELECT COUNT(*) as count FROM donations WHERE tree_id = ? AND id != ? AND status = ?'
+                    ).get(existing.tree_id, id, 'approved') as { count: number };
+
+                    // Only set to available if no other donors
+                    if (otherDonors.count === 0) {
+                        db.prepare('UPDATE trees SET status = ? WHERE id = ?')
+                            .run('available', existing.tree_id);
+                    }
                 }
                 updates.push('tree_id = NULL');
             }
@@ -178,10 +192,16 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'Đóng góp không tồn tại' }, { status: 404 });
         }
 
-        // Unassign tree if any
+        // Unassign tree if any - but only set to available if no other donors
         if (existing.tree_id) {
-            db.prepare('UPDATE trees SET status = ?, donor_id = NULL WHERE id = ?')
-                .run('available', existing.tree_id);
+            const otherDonors = db.prepare(
+                'SELECT COUNT(*) as count FROM donations WHERE tree_id = ? AND id != ? AND status = ?'
+            ).get(existing.tree_id, id, 'approved') as { count: number };
+
+            if (otherDonors.count === 0) {
+                db.prepare('UPDATE trees SET status = ? WHERE id = ?')
+                    .run('available', existing.tree_id);
+            }
         }
 
         // Delete donation
