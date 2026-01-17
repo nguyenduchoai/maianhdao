@@ -235,6 +235,7 @@ export default function DonationDetailPage() {
             case 'green': return '💚 Xanh';
             case 'imprint': return '🌸 Ghi danh';
             case 'entrust': return '🌸 Uỷ thác';
+            case 'sponsor': return '🎁 Tài trợ';
             default: return '🌸 Ghi danh';
         }
     };
@@ -352,8 +353,14 @@ export default function DonationDetailPage() {
 
                     <div className="space-y-4">
                         <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                            <span className="text-gray-600">Số tiền</span>
-                            <span className="text-2xl font-bold text-green-600">{formatCurrency(donation.amount)}</span>
+                            <span className="text-gray-600">
+                                {donation.amount > 0 ? 'Số tiền' : '🎁 Loại đóng góp'}
+                            </span>
+                            {donation.amount > 0 ? (
+                                <span className="text-2xl font-bold text-green-600">{formatCurrency(donation.amount)}</span>
+                            ) : (
+                                <span className="text-lg font-bold text-purple-600">Tài trợ hiện vật</span>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -586,15 +593,40 @@ export default function DonationDetailPage() {
                                     />
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Số tiền</label>
-                                <input
-                                    type="number"
-                                    value={editForm.amount || 0}
-                                    onChange={(e) => setEditForm({ ...editForm, amount: parseFloat(e.target.value) || 0 })}
-                                    className="w-full px-4 py-2 border rounded-lg"
-                                />
+
+                            {/* In-kind Sponsorship Toggle */}
+                            <div className="p-4 bg-purple-50 rounded-xl">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={(editForm.amount || 0) === 0 && !!editForm.message?.includes('Tài trợ')}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setEditForm({ ...editForm, amount: 0 });
+                                            }
+                                        }}
+                                        className="w-5 h-5 rounded text-purple-600 focus:ring-purple-500"
+                                    />
+                                    <div>
+                                        <span className="font-medium text-purple-700">🎁 Tài trợ hiện vật / dịch vụ</span>
+                                        <p className="text-xs text-purple-600">Đóng góp không bằng tiền mặt (VD: Tài trợ Website, Cây, Vật liệu...)</p>
+                                    </div>
+                                </label>
                             </div>
+
+                            {/* Amount - only show if not in-kind */}
+                            {(editForm.amount || 0) > 0 || !editForm.message?.includes('Tài trợ') ? (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Số tiền (VNĐ)</label>
+                                    <input
+                                        type="number"
+                                        value={editForm.amount || 0}
+                                        onChange={(e) => setEditForm({ ...editForm, amount: parseFloat(e.target.value) || 0 })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </div>
+                            ) : null}
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Cấp độ vinh danh</label>
                                 <select
@@ -606,15 +638,19 @@ export default function DonationDetailPage() {
                                     <option value="dauun">🌸 DẤU ẤN (1-2tr)</option>
                                     <option value="guitrao">💝 GỬI TRAO (200k-500k)</option>
                                     <option value="gieomam">🌱 GIEO MẦM (50k-100k)</option>
+                                    <option value="sponsor">🎁 TÀI TRỢ (Hiện vật/Dịch vụ)</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Lời nhắn</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    {(editForm.amount || 0) === 0 ? 'Mô tả tài trợ *' : 'Lời nhắn'}
+                                </label>
                                 <textarea
                                     value={editForm.message || ''}
                                     onChange={(e) => setEditForm({ ...editForm, message: e.target.value })}
                                     rows={3}
                                     className="w-full px-4 py-2 border rounded-lg"
+                                    placeholder={(editForm.amount || 0) === 0 ? 'VD: Tài trợ Website, Tài trợ 100 cây giống...' : 'Nhập lời nhắn...'}
                                 />
                             </div>
                         </div>
