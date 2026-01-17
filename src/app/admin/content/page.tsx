@@ -7,7 +7,7 @@ export default function SiteContentPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState('');
-    const [activeTab, setActiveTab] = useState<'hero' | 'about' | 'tiers' | 'event' | 'finance' | 'footer'>('hero');
+    const [activeTab, setActiveTab] = useState<'hero' | 'navbar' | 'about' | 'tiers' | 'event' | 'finance' | 'sections' | 'footer'>('hero');
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -105,10 +105,12 @@ export default function SiteContentPage() {
             <div className="flex flex-wrap gap-2 mb-6 border-b pb-2">
                 {[
                     { id: 'hero', label: '🏠 Hero & Stats' },
+                    { id: 'navbar', label: '🧭 Navbar' },
                     { id: 'about', label: '📋 Về Chiến Dịch' },
                     { id: 'tiers', label: '💎 Cấp Đóng Góp' },
                     { id: 'event', label: '🎉 Sự Kiện' },
                     { id: 'finance', label: '📊 Tài Chính' },
+                    { id: 'sections', label: '📌 Sections' },
                     { id: 'footer', label: '📌 Footer' },
                 ].map(tab => (
                     <button
@@ -161,6 +163,23 @@ export default function SiteContentPage() {
                                 </div>
                                 <InputField label="Ô 4: Label" settingKey="statWaitingLabel" placeholder="Cây chờ đóng góp" />
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Navbar Tab */}
+            {activeTab === 'navbar' && (
+                <div className="space-y-6">
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🧭 Thanh Điều Hướng</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Logo Text" settingKey="navLogoText" placeholder="Ngàn Cây Anh Đào" />
+                            <InputField label="Link Bản đồ" settingKey="navLinkMap" placeholder="Bản Đồ" />
+                            <InputField label="Link Đóng góp" settingKey="navLinkDonate" placeholder="Đóng Góp" />
+                            <InputField label="Link Ban Tổ Chức" settingKey="navLinkSponsors" placeholder="Ban Tổ Chức" />
+                            <InputField label="Link Vinh Danh" settingKey="navLinkDonors" placeholder="Bảng Vinh Danh" />
+                            <InputField label="Link Minh Bạch" settingKey="navLinkTransparency" placeholder="📊 Minh Bạch" />
                         </div>
                     </div>
                 </div>
@@ -329,6 +348,40 @@ export default function SiteContentPage() {
                             <InputField label="Tiêu đề" settingKey="financeOrgTitle" placeholder="Tổ Chức & Truyền Thông" />
                             <InputField label="Số tiền" settingKey="financeOrgAmount" placeholder="50 Triệu" />
                             <InputField label="Mô tả" settingKey="financeOrgDesc" rows={2} />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Sections Tab */}
+            {activeTab === 'sections' && (
+                <div className="space-y-6">
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🏛️ Ban Tổ Chức</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề" settingKey="sponsorsTitle" placeholder="🏛️ Ban Tổ Chức" />
+                            <InputField label="Phụ đề" settingKey="sponsorsSubtitle" placeholder="Chiến dịch được tổ chức bởi các đơn vị uy tín tại Lâm Đồng" />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🌸 Bảng Vinh Danh</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề" settingKey="donorsTitle" placeholder="🌸 Bảng Vinh Danh" />
+                            <InputField label="Phụ đề" settingKey="donorsSubtitle" placeholder="Cảm ơn tất cả các cá nhân và đơn vị đã đóng góp cho chiến dịch" />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🗺️ Bản Đồ</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề" settingKey="mapTitle" placeholder="🗺️ Bản Đồ Cây Anh Đào" />
+                            <InputField label="Phụ đề" settingKey="mapSubtitle" placeholder="Khám phá vị trí các cây Mai Anh Đào quanh Hồ Xuân Hương" />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">💝 Form Đóng Góp</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề" settingKey="donationFormTitle" placeholder="💝 Đóng Góp" />
+                            <InputField label="Phụ đề" settingKey="donationFormSubtitle" placeholder="Để lại dấu ấn của bạn tại trái tim Đà Lạt" />
                         </div>
                     </div>
                 </div>
