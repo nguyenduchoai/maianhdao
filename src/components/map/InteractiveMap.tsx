@@ -40,6 +40,15 @@ export function InteractiveMap({ trees }: InteractiveMapProps) {
         import('leaflet').then((leaflet) => {
             setL(leaflet.default);
         });
+
+        // Listen for lightbox events from popup
+        const handleLightbox = (e: CustomEvent) => {
+            setLightboxImage(e.detail);
+        };
+        window.addEventListener('openLightbox' as any, handleLightbox);
+        return () => {
+            window.removeEventListener('openLightbox' as any, handleLightbox);
+        };
     }, []);
 
     // Get unique zones
@@ -213,6 +222,27 @@ export function InteractiveMap({ trees }: InteractiveMapProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Lightbox Modal */}
+            {lightboxImage && (
+                <div
+                    className="fixed inset-0 bg-black/90 z-[10000] flex items-center justify-center p-4"
+                    onClick={() => setLightboxImage(null)}
+                >
+                    <button
+                        onClick={() => setLightboxImage(null)}
+                        className="absolute top-4 right-4 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white text-2xl"
+                    >
+                        ✕
+                    </button>
+                    <img
+                        src={lightboxImage}
+                        alt="Xem ảnh lớn"
+                        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </section>
     );
 }
@@ -304,7 +334,7 @@ function TreePopup({ tree }: { tree: Tree }) {
                                         src={img}
                                         alt={`Cây ${tree.code}`}
                                         className="w-full h-24 object-cover rounded-lg border border-gray-200 hover:opacity-80 hover:shadow-md cursor-pointer transition-all"
-                                        onClick={() => window.open(img, '_blank')}
+                                        onClick={() => window.dispatchEvent(new CustomEvent('openLightbox', { detail: img }))}
                                     />
                                 ))}
                             </div>
