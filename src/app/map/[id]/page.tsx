@@ -213,24 +213,28 @@ export default function MapTreePage() {
                             >
                                 <div className="flex items-center gap-3">
                                     {/* Avatar/Logo */}
-                                    <div className={`
-                                        w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden shadow-sm
-                                        ${tree.status === 'sponsored'
-                                            ? 'bg-gradient-to-br from-pink-400 to-pink-500'
-                                            : 'bg-gradient-to-br from-gray-200 to-gray-300'}
-                                    `}>
-                                        {tree.donorLogo ? (
+                                    {tree.donorLogo ? (
+                                        <div className="w-12 h-12 flex items-center justify-center overflow-hidden">
                                             <img
                                                 src={tree.donorLogo}
                                                 alt={tree.donorName || ''}
-                                                className="w-full h-full object-cover"
+                                                className="max-w-full max-h-full object-contain"
                                             />
-                                        ) : tree.status === 'sponsored' ? (
-                                            <span className="text-white text-2xl">🌸</span>
-                                        ) : (
-                                            <span className="text-gray-500 text-xl">🌱</span>
-                                        )}
-                                    </div>
+                                        </div>
+                                    ) : (
+                                        <div className={`
+                                            w-12 h-12 rounded-xl flex items-center justify-center shadow-sm
+                                            ${tree.status === 'sponsored'
+                                                ? 'bg-gradient-to-br from-pink-400 to-pink-500'
+                                                : 'bg-gradient-to-br from-gray-200 to-gray-300'}
+                                        `}>
+                                            {tree.status === 'sponsored' ? (
+                                                <span className="text-white text-2xl">🌸</span>
+                                            ) : (
+                                                <span className="text-gray-500 text-xl">🌱</span>
+                                            )}
+                                        </div>
+                                    )}
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">
