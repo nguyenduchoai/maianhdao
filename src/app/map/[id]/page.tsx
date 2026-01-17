@@ -205,32 +205,59 @@ export default function MapTreePage() {
                                 key={tree.id}
                                 onClick={() => selectTree(tree)}
                                 className={`
-                                    p-3 border-b cursor-pointer transition-colors
-                                    ${selectedTree?.id === tree.id ? 'bg-pink-50 border-l-4 border-l-pink-500' : 'hover:bg-gray-50'}
+                                    p-3 border-b cursor-pointer transition-all
+                                    ${selectedTree?.id === tree.id
+                                        ? 'bg-gradient-to-r from-pink-50 to-pink-100 border-l-4 border-l-pink-500'
+                                        : 'hover:bg-gray-50'}
                                 `}
                             >
                                 <div className="flex items-center gap-3">
+                                    {/* Avatar/Logo */}
                                     <div className={`
-                                        w-10 h-10 rounded-full flex items-center justify-center text-lg
-                                        ${tree.status === 'sponsored' ? 'bg-pink-100' : 'bg-gray-100'}
+                                        w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden shadow-sm
+                                        ${tree.status === 'sponsored'
+                                            ? 'bg-gradient-to-br from-pink-400 to-pink-500'
+                                            : 'bg-gradient-to-br from-gray-200 to-gray-300'}
                                     `}>
-                                        🌸
+                                        {tree.donorLogo ? (
+                                            <img
+                                                src={tree.donorLogo}
+                                                alt={tree.donorName || ''}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : tree.status === 'sponsored' ? (
+                                            <span className="text-white text-2xl">🌸</span>
+                                        ) : (
+                                            <span className="text-gray-500 text-xl">🌱</span>
+                                        )}
                                     </div>
+                                    {/* Info */}
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-semibold text-gray-800">{tree.code}</span>
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className="font-bold text-gray-800">{tree.code}</span>
                                             <span className={`
-                                                text-xs px-1.5 py-0.5 rounded-full
-                                                ${tree.status === 'sponsored' ? 'bg-pink-100 text-pink-700' : 'bg-gray-100 text-gray-600'}
+                                                text-xs px-2 py-0.5 rounded-full font-medium
+                                                ${tree.status === 'sponsored'
+                                                    ? 'bg-pink-500 text-white'
+                                                    : 'bg-gray-200 text-gray-600'}
                                             `}>
                                                 {tree.status === 'sponsored' ? 'Có chủ' : 'Trống'}
                                             </span>
                                         </div>
                                         {tree.donorName ? (
-                                            <div className="text-sm text-pink-600 truncate">{tree.donorName}</div>
+                                            <div className="text-sm text-pink-600 font-medium truncate">{tree.donorName}</div>
                                         ) : (
-                                            <div className="text-xs text-gray-400">Khu {tree.zone}</div>
+                                            <div className="text-xs text-gray-400">Khu {tree.zone} • Chờ đóng góp</div>
                                         )}
+                                        {tree.donorAmount && tree.donorAmount > 0 && (
+                                            <div className="text-xs text-amber-600 font-medium mt-0.5">
+                                                💰 {formatCurrency(tree.donorAmount)}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {/* Arrow */}
+                                    <div className="text-gray-300">
+                                        →
                                     </div>
                                 </div>
                             </div>
