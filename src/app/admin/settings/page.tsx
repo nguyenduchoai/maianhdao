@@ -272,34 +272,10 @@ export default function AdminSettingsPage() {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Google Apps Script (Paste vào Sheet)</label>
                         <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto max-h-64">
-                            {`// Trigger khi EDIT hoặc THÊM DÒNG MỚI
-function onEdit(e) {
-  sendToWebhook();
-}
+                            {`var WEBHOOK_URL = '${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhook/donations';
 
-function onChange(e) {
-  // Bắn khi thêm/xóa dòng
-  if (e.changeType === 'INSERT_ROW' || e.changeType === 'REMOVE_ROW' || e.changeType === 'EDIT') {
-    sendToWebhook();
-  }
-}
-
-// Chạy 1 lần để cài đặt trigger tự động
-function setupTriggers() {
-  // Xóa triggers cũ
-  var triggers = ScriptApp.getProjectTriggers();
-  for (var i = 0; i < triggers.length; i++) {
-    ScriptApp.deleteTrigger(triggers[i]);
-  }
-  // Thêm trigger onChange
-  ScriptApp.newTrigger('onChange')
-    .forSpreadsheet(SpreadsheetApp.getActive())
-    .onChange()
-    .create();
-  Logger.log('✅ Đã cài đặt trigger thành công!');
-}
-
-function sendToWebhook() {
+// 1. SYNC - Bắn toàn bộ dữ liệu hiện có
+function syncAll() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var headers = data[0];
@@ -313,46 +289,80 @@ function sendToWebhook() {
     if (row['Người gửi']) donations.push(row);
   }
   
+  sendRequest({ action: 'sync', data: donations });
+  Logger.log('✅ Đã sync ' + donations.length + ' dòng');
+}
+
+// 2. UPDATE - Khi edit ô
+function onEdit(e) {
+  var row = e.range.getRow();
+  if (row <= 1) return; // Skip header
+  
+  var sheet = e.source.getActiveSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var rowData = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
+  
+  var donation = {};
+  for (var j = 0; j < headers.length; j++) {
+    donation[headers[j]] = rowData[j];
+  }
+  
+  if (donation['Người gửi']) {
+    sendRequest({ action: 'update', data: donation });
+  }
+}
+
+// 3. NEW - Khi thêm dòng mới
+function onChange(e) {
+  if (e.changeType === 'INSERT_ROW') {
+    // Delay để đợi user nhập data
+    Utilities.sleep(2000);
+    
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lastRow = sheet.getLastRow();
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var rowData = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+    
+    var donation = {};
+    for (var j = 0; j < headers.length; j++) {
+      donation[headers[j]] = rowData[j];
+    }
+    
+    if (donation['Người gửi']) {
+      sendRequest({ action: 'new', data: donation });
+    }
+  }
+}
+
+// Cài đặt trigger (chạy 1 lần)
+function setupTriggers() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    ScriptApp.deleteTrigger(triggers[i]);
+  }
+  ScriptApp.newTrigger('onChange')
+    .forSpreadsheet(SpreadsheetApp.getActive())
+    .onChange()
+    .create();
+  Logger.log('✅ Đã cài đặt trigger!');
+}
+
+function sendRequest(payload) {
   var options = {
     method: 'post',
     contentType: 'application/json',
-    payload: JSON.stringify(donations),
+    payload: JSON.stringify(payload),
     muteHttpExceptions: true
   };
-  
-  UrlFetchApp.fetch('${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhook/donations', options);
+  UrlFetchApp.fetch(WEBHOOK_URL, options);
 }`}
                         </pre>
                         <button
                             onClick={() => {
-                                const code = `// Trigger khi EDIT hoặc THÊM DÒNG MỚI
-function onEdit(e) {
-  sendToWebhook();
-}
+                                const code = `var WEBHOOK_URL = '${window.location.origin}/api/webhook/donations';
 
-function onChange(e) {
-  // Bắn khi thêm/xóa dòng
-  if (e.changeType === 'INSERT_ROW' || e.changeType === 'REMOVE_ROW' || e.changeType === 'EDIT') {
-    sendToWebhook();
-  }
-}
-
-// Chạy 1 lần để cài đặt trigger tự động
-function setupTriggers() {
-  // Xóa triggers cũ
-  var triggers = ScriptApp.getProjectTriggers();
-  for (var i = 0; i < triggers.length; i++) {
-    ScriptApp.deleteTrigger(triggers[i]);
-  }
-  // Thêm trigger onChange
-  ScriptApp.newTrigger('onChange')
-    .forSpreadsheet(SpreadsheetApp.getActive())
-    .onChange()
-    .create();
-  Logger.log('✅ Đã cài đặt trigger thành công!');
-}
-
-function sendToWebhook() {
+// 1. SYNC - Bắn toàn bộ dữ liệu hiện có
+function syncAll() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var headers = data[0];
@@ -366,14 +376,69 @@ function sendToWebhook() {
     if (row['Người gửi']) donations.push(row);
   }
   
+  sendRequest({ action: 'sync', data: donations });
+  Logger.log('✅ Đã sync ' + donations.length + ' dòng');
+}
+
+// 2. UPDATE - Khi edit ô
+function onEdit(e) {
+  var row = e.range.getRow();
+  if (row <= 1) return;
+  
+  var sheet = e.source.getActiveSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var rowData = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
+  
+  var donation = {};
+  for (var j = 0; j < headers.length; j++) {
+    donation[headers[j]] = rowData[j];
+  }
+  
+  if (donation['Người gửi']) {
+    sendRequest({ action: 'update', data: donation });
+  }
+}
+
+// 3. NEW - Khi thêm dòng mới
+function onChange(e) {
+  if (e.changeType === 'INSERT_ROW') {
+    Utilities.sleep(2000);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lastRow = sheet.getLastRow();
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var rowData = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+    
+    var donation = {};
+    for (var j = 0; j < headers.length; j++) {
+      donation[headers[j]] = rowData[j];
+    }
+    
+    if (donation['Người gửi']) {
+      sendRequest({ action: 'new', data: donation });
+    }
+  }
+}
+
+function setupTriggers() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    ScriptApp.deleteTrigger(triggers[i]);
+  }
+  ScriptApp.newTrigger('onChange')
+    .forSpreadsheet(SpreadsheetApp.getActive())
+    .onChange()
+    .create();
+  Logger.log('✅ Đã cài trigger!');
+}
+
+function sendRequest(payload) {
   var options = {
     method: 'post',
     contentType: 'application/json',
-    payload: JSON.stringify(donations),
+    payload: JSON.stringify(payload),
     muteHttpExceptions: true
   };
-  
-  UrlFetchApp.fetch('${window.location.origin}/api/webhook/donations', options);
+  UrlFetchApp.fetch(WEBHOOK_URL, options);
 }`;
                                 navigator.clipboard.writeText(code);
                                 alert('✅ Đã copy Apps Script!');
@@ -391,7 +456,8 @@ function sendToWebhook() {
                             <li>Xóa code cũ, paste Apps Script ở trên vào</li>
                             <li>Nhấn Save (Ctrl+S)</li>
                             <li><strong>Chạy hàm setupTriggers()</strong> 1 lần để cài trigger</li>
-                            <li>Mỗi khi edit hoặc thêm dòng → Tự động gửi về hệ thống</li>
+                            <li><strong>Chạy hàm syncAll()</strong> để bắn toàn bộ dữ liệu hiện có</li>
+                            <li>Sau đó: Edit → bắn UPDATE | Thêm dòng → bắn NEW</li>
                         </ol>
                     </div>
                 </div>
