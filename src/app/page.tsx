@@ -108,7 +108,8 @@ async function getPageData() {
     `).get() as { count: number };
 
     const treesSponsored = trees.filter(t => t.status === 'sponsored').length;
-    const treesAvailable = trees.filter(t => t.status === 'available').length;
+    const targetTrees = 200; // Mục tiêu 200 cây
+    const treesAvailable = targetTrees - treesSponsored; // Cây chờ đóng góp = Mục tiêu - Đã sponsor
     const targetAmount = 500000000;
 
     const stats: CampaignStats = {
