@@ -213,9 +213,6 @@ export function DonationWall({ donations }: DonationWallProps) {
                                 )}
                                 <div className="flex-1">
                                     <h3 className="text-xl font-bold text-gray-800">{selectedDonation.name}</h3>
-                                    {selectedDonation.amount && (
-                                        <p className="text-pink-600 font-semibold text-lg">{formatCurrency(selectedDonation.amount)}</p>
-                                    )}
                                 </div>
                             </div>
 
