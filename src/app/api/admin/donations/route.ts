@@ -41,6 +41,52 @@ export async function GET(request: NextRequest) {
     }
 }
 
+// POST /api/admin/donations - Create new donation
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const { name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tier } = body;
+
+        if (!name || !amount) {
+            return NextResponse.json({ error: 'Tên và số tiền là bắt buộc' }, { status: 400 });
+        }
+
+        // Generate unique ID
+        const id = `d-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+        // Insert donation
+        db.prepare(`
+            INSERT INTO donations (id, name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tier, created_at, approved_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            id,
+            name,
+            phone || null,
+            email || null,
+            amount,
+            message || null,
+            logo_url || null,
+            is_organization ? 1 : 0,
+            status || 'pending',
+            tree_id || null,
+            tier || 'gieomam',
+            new Date().toISOString(),
+            status === 'approved' ? new Date().toISOString() : null
+        );
+
+        // If tree_id is provided, update tree status
+        if (tree_id) {
+            db.prepare('UPDATE trees SET status = ?, donor_id = ? WHERE id = ?')
+                .run('sponsored', id, tree_id);
+        }
+
+        return NextResponse.json({ success: true, message: 'Tạo đóng góp thành công', id });
+    } catch (error) {
+        console.error('Error creating donation:', error);
+        return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
+    }
+}
+
 // PUT /api/admin/donations - Update donation
 export async function PUT(request: NextRequest) {
     try {

@@ -92,6 +92,12 @@ export default function AdminDonationsPage() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">💰 Quản Lý Đóng Góp ({stats.total})</h2>
+                <Link
+                    href="/admin/donations/new"
+                    className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+                >
+                    ➕ Thêm đóng góp
+                </Link>
             </div>
 
             {/* Stats */}
