@@ -199,15 +199,15 @@ export default function MapTreePage() {
                     </div>
 
                     {/* Tree List */}
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
                         {filteredTrees.map((tree) => (
                             <div
                                 key={tree.id}
                                 onClick={() => selectTree(tree)}
                                 className={`
-                                    p-3 border-b cursor-pointer transition-all
+                                    p-2 rounded-lg cursor-pointer transition-all
                                     ${selectedTree?.id === tree.id
-                                        ? 'bg-gradient-to-r from-pink-50 to-pink-100 border-l-4 border-l-pink-500'
+                                        ? 'bg-gradient-to-r from-pink-100 to-pink-50 shadow-sm'
                                         : 'hover:bg-gray-50'}
                                 `}
                             >
