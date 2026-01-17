@@ -29,7 +29,15 @@ export async function GET() {
             ORDER BY date DESC
         `).all() as Expense[];
 
-        const totalIncome = incomes.reduce((sum, i) => sum + (i.amount || 0), 0);
+        // Get approved donations with details
+        const donations = db.prepare(`
+            SELECT id, name, amount, tier, message, created_at, is_organization
+            FROM donations 
+            WHERE status = 'approved'
+            ORDER BY created_at DESC
+        `).all() as any[];
+
+        const totalIncome = donations.reduce((sum, i) => sum + (i.amount || 0), 0);
         const totalExpense = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
         const balance = totalIncome - totalExpense;
         const expenseRatio = totalIncome > 0 ? ((totalExpense / totalIncome) * 100).toFixed(1) : '0';
@@ -41,8 +49,16 @@ export async function GET() {
                 totalExpense,
                 balance,
                 expenseRatio,
-                incomeCount: incomes.length,
+                incomeCount: donations.length,
                 expenseCount: expenses.length,
+                donations: donations.map(d => ({
+                    id: d.id,
+                    name: d.name,
+                    tier: d.tier,
+                    message: d.message,
+                    isOrganization: d.is_organization,
+                    createdAt: d.created_at,
+                })),
                 expenses: expenses.map(e => ({
                     id: e.id,
                     date: e.date,

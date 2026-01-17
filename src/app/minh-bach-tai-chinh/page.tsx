@@ -14,6 +14,15 @@ interface Expense {
     invoice_url?: string;
 }
 
+interface Donation {
+    id: string;
+    name: string;
+    tier: string;
+    message?: string;
+    isOrganization: boolean;
+    createdAt: string;
+}
+
 interface FinanceData {
     totalIncome: number;
     totalExpense: number;
@@ -21,6 +30,7 @@ interface FinanceData {
     expenseRatio: string;
     incomeCount: number;
     expenseCount: number;
+    donations: Donation[];
     expenses: Expense[];
 }
 
@@ -168,6 +178,53 @@ export default function FinanceTransparencyPage() {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Donations List */}
+                <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-6">💰 Danh sách đóng góp ({data.donations.length})</h2>
+
+                    {data.donations.length === 0 ? (
+                        <p className="text-center text-gray-500 py-8">Chưa có đóng góp nào</p>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b">
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Người đóng góp</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Cấp độ</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ghi chú</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ngày</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.donations.map((donation) => (
+                                        <tr key={donation.id} className="border-b hover:bg-gray-50">
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span>{donation.isOrganization ? '🏢' : '👤'}</span>
+                                                    <span className="font-medium text-gray-800">{donation.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <span className={`tier-badge tier-${donation.tier}`}>
+                                                    {donation.tier === 'kientao' ? '🏆 KIẾN TẠO' :
+                                                        donation.tier === 'dauun' ? '🌸 DẤU ẤN' :
+                                                            donation.tier === 'guitrao' ? '💝 GỬI TRAO' : '🌱 GIEO MẦM'}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 px-4 text-sm text-gray-600 max-w-xs truncate">
+                                                {donation.message || '—'}
+                                            </td>
+                                            <td className="py-4 px-4 text-sm text-gray-500">
+                                                {new Date(donation.createdAt).toLocaleDateString('vi-VN')}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
 
                 {/* Expenses List */}
