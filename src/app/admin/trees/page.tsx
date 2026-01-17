@@ -19,6 +19,10 @@ const Marker = dynamic(
     () => import('react-leaflet').then((mod) => mod.Marker),
     { ssr: false }
 );
+const ZoomControl = dynamic(
+    () => import('react-leaflet').then((mod) => mod.ZoomControl),
+    { ssr: false }
+);
 
 // Map click handler component - dynamically loaded
 const LocationPicker = dynamic(
@@ -374,6 +378,7 @@ export default function AdminTreesPage() {
                                             zoom={17}
                                             style={{ height: '100%', width: '100%', minHeight: '400px' }}
                                             scrollWheelZoom={true}
+                                            zoomControl={false}
                                         >
                                             <TileLayer
                                                 attribution='&copy; OpenStreetMap'
@@ -392,6 +397,7 @@ export default function AdminTreesPage() {
                                                 }}
                                             />
                                             <LocationPicker onLocationSelect={handleLocationSelect} />
+                                            <ZoomControl position="bottomright" />
                                         </MapContainer>
                                     ) : (
                                         <div className="h-full flex items-center justify-center bg-gray-100">
