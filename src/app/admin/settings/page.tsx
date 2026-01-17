@@ -12,13 +12,7 @@ interface DonationTierConfig {
     color: string;
 }
 
-interface SponsorTierConfig {
-    id: string;
-    name: string;
-    emoji: string;
-    description: string;
-    color: string;
-}
+
 
 export default function AdminSettingsPage() {
     const [settings, setSettings] = useState({
@@ -37,15 +31,7 @@ export default function AdminSettingsPage() {
         { id: 'gieomam', name: 'GIEO MẦM', emoji: '🌱', minAmount: 50000, maxAmount: 100000, description: 'Mọi người dân', color: 'green' },
     ]);
 
-    const [sponsorTiers, setSponsorTiers] = useState<SponsorTierConfig[]>([
-        { id: 'organizer', name: 'Đơn vị tổ chức', emoji: '🏆', description: 'Ban tổ chức chính của chiến dịch', color: 'pink' },
-        { id: 'diamond', name: 'Kim Cương', emoji: '💎', description: 'Nhà tài trợ cao nhất', color: 'blue' },
-        { id: 'gold', name: 'Vàng', emoji: '🥇', description: 'Nhà tài trợ vàng', color: 'amber' },
-        { id: 'silver', name: 'Bạc', emoji: '🥈', description: 'Nhà tài trợ bạc', color: 'gray' },
-    ]);
-
     const [editingDonationTier, setEditingDonationTier] = useState<string | null>(null);
-    const [editingSponsorTier, setEditingSponsorTier] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -67,9 +53,7 @@ export default function AdminSettingsPage() {
         setDonationTiers(tiers => tiers.map(t => t.id === id ? { ...t, [field]: value } : t));
     };
 
-    const updateSponsorTier = (id: string, field: keyof SponsorTierConfig, value: string) => {
-        setSponsorTiers(tiers => tiers.map(t => t.id === id ? { ...t, [field]: value } : t));
-    };
+
 
     const formatCurrency = (num: number) => new Intl.NumberFormat('vi-VN').format(num);
 
@@ -216,68 +200,7 @@ export default function AdminSettingsPage() {
                 </div>
             </div>
 
-            {/* Sponsor Tiers */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h3 className="font-semibold text-gray-800 mb-2">🏢 Cấp Độ Nhà Tài Trợ</h3>
-                <p className="text-sm text-gray-500 mb-4">Click vào từng cấp độ để chỉnh sửa tên và mô tả</p>
 
-                <div className="space-y-3">
-                    {sponsorTiers.map((tier) => (
-                        <div
-                            key={tier.id}
-                            className={`p-4 rounded-lg border transition-all cursor-pointer
-                                ${editingSponsorTier === tier.id
-                                    ? 'border-pink-500 bg-pink-50 ring-2 ring-pink-300'
-                                    : 'border-gray-200 bg-gray-50 hover:border-gray-400'
-                                }`}
-                            onClick={() => setEditingSponsorTier(editingSponsorTier === tier.id ? null : tier.id)}
-                        >
-                            <div className="flex items-center gap-4">
-                                <span className="text-2xl">{tier.emoji}</span>
-                                <div className="flex-1">
-                                    <div className="font-bold">{tier.name}</div>
-                                    <div className="text-sm text-gray-600">{tier.description}</div>
-                                </div>
-                                <span className={`tier-badge tier-${tier.id} text-xs`}>{tier.id}</span>
-                                <span className="text-gray-400">{editingSponsorTier === tier.id ? '▲' : '▼'}</span>
-                            </div>
-
-                            {editingSponsorTier === tier.id && (
-                                <div className="mt-4 pt-4 border-t border-gray-200 space-y-3" onClick={(e) => e.stopPropagation()}>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Tên cấp độ</label>
-                                        <input
-                                            type="text"
-                                            value={tier.name}
-                                            onChange={(e) => updateSponsorTier(tier.id, 'name', e.target.value)}
-                                            className="w-full px-3 py-2 border rounded-lg text-sm"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Mô tả</label>
-                                        <input
-                                            type="text"
-                                            value={tier.description}
-                                            onChange={(e) => updateSponsorTier(tier.id, 'description', e.target.value)}
-                                            className="w-full px-3 py-2 border rounded-lg text-sm"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Emoji</label>
-                                        <input
-                                            type="text"
-                                            value={tier.emoji}
-                                            onChange={(e) => updateSponsorTier(tier.id, 'emoji', e.target.value)}
-                                            className="w-full px-3 py-2 border rounded-lg text-sm"
-                                            maxLength={2}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
 
             <button
                 onClick={handleSave}
