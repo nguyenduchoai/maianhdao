@@ -274,6 +274,15 @@ export default function AdminSettingsPage() {
                         <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto max-h-64">
                             {`var WEBHOOK_URL = '${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhook/donations';
 
+// Tạo menu tùy chỉnh khi mở Sheet
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('🌸 Mai Anh Đào')
+    .addItem('📤 Sync tất cả', 'syncAll')
+    .addItem('⚙️ Cài đặt Trigger', 'setupTriggers')
+    .addToUi();
+}
+
 // 1. SYNC - Bắn toàn bộ dữ liệu hiện có
 function syncAll() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -290,7 +299,7 @@ function syncAll() {
   }
   
   sendRequest({ action: 'sync', data: donations });
-  Logger.log('✅ Đã sync ' + donations.length + ' dòng');
+  SpreadsheetApp.getUi().alert('✅ Đã sync ' + donations.length + ' đóng góp!');
 }
 
 // 2. UPDATE - Khi edit ô
@@ -361,6 +370,15 @@ function sendRequest(payload) {
                             onClick={() => {
                                 const code = `var WEBHOOK_URL = '${window.location.origin}/api/webhook/donations';
 
+// Tạo menu "🌸 Mai Anh Đào" khi mở Sheet
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('🌸 Mai Anh Đào')
+    .addItem('📤 Sync tất cả', 'syncAll')
+    .addItem('⚙️ Cài đặt Trigger', 'setupTriggers')
+    .addToUi();
+}
+
 // 1. SYNC - Bắn toàn bộ dữ liệu hiện có
 function syncAll() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -377,7 +395,7 @@ function syncAll() {
   }
   
   sendRequest({ action: 'sync', data: donations });
-  Logger.log('✅ Đã sync ' + donations.length + ' dòng');
+  SpreadsheetApp.getUi().alert('✅ Đã sync ' + donations.length + ' đóng góp!');
 }
 
 // 2. UPDATE - Khi edit ô
