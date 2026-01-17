@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { Donation } from '@/types';
 
@@ -8,6 +9,8 @@ interface DonationWallProps {
 }
 
 export function DonationWall({ donations }: DonationWallProps) {
+    const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+
     // Group donations by the 4 tiers
     const kientao = donations.filter(d => d.tier === 'kientao' || d.tier === 'diamond' || (d.amount && d.amount >= 5000000));
     const dauun = donations.filter(d => d.tier === 'dauun' || d.tier === 'gold' || (d.amount && d.amount >= 1000000 && d.amount < 5000000));
@@ -46,54 +49,11 @@ export function DonationWall({ donations }: DonationWallProps) {
                             {kientao.map((donation) => (
                                 <div
                                     key={donation.id}
-                                    className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1"
-                                >
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-4xl shadow-lg">
-                                            {donation.logoUrl ? (
-                                                <img src={donation.logoUrl} alt={donation.name} className="w-full h-full rounded-full object-cover" />
-                                            ) : (
-                                                donation.isOrganization ? '🏢' : '👤'
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="font-bold text-2xl text-gray-800 mb-1">{donation.name}</h4>
-                                            {donation.treeCode && (
-                                                <p className="text-amber-600 font-medium">🌸 Cây {donation.treeCode}</p>
-                                            )}
-                                            <p className="text-lg font-bold text-amber-600 mt-2">
-                                                {formatCurrency(donation.amount)}
-                                            </p>
-                                        </div>
-                                        <span className="text-4xl">🏆</span>
-                                    </div>
-                                    {donation.message && (
-                                        <p className="mt-4 text-gray-600 italic border-t border-amber-200 pt-4">
-                                            "{donation.message}"
-                                        </p>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* DẤU ẤN - Size lớn */}
-                {dauun.length > 0 && (
-                    <div className="mb-14">
-                        <h3 className="text-center mb-6">
-                            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-pink-400 text-white text-lg md:text-xl font-bold px-6 py-3 rounded-xl shadow-md">
-                                🌸 DẤU ẤN ({dauun.length})
-                            </span>
-                        </h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
-                            {dauun.map((donation) => (
-                                <div
-                                    key={donation.id}
-                                    className="bg-white border-2 border-pink-200 rounded-xl p-5 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
+                                    onClick={() => setSelectedDonation(donation)}
+                                    className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-400 to-pink-500 flex items-center justify-center text-2xl text-white shadow">
+                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-3xl shadow-lg overflow-hidden">
                                             {donation.logoUrl ? (
                                                 <img src={donation.logoUrl} alt={donation.name} className="w-full h-full rounded-full object-cover" />
                                             ) : (
@@ -101,15 +61,15 @@ export function DonationWall({ donations }: DonationWallProps) {
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="font-bold text-lg text-gray-800 truncate">{donation.name}</h4>
+                                            <h4 className="font-bold text-xl text-gray-800">{donation.name}</h4>
                                             {donation.treeCode && (
-                                                <p className="text-pink-600 text-sm">🌸 Cây {donation.treeCode}</p>
+                                                <p className="text-amber-600 font-medium">🌸 Cây {donation.treeCode}</p>
                                             )}
-                                            <p className="text-pink-600 font-medium text-sm mt-1">
+                                            <p className="text-lg font-bold text-amber-600 mt-1">
                                                 {formatCurrency(donation.amount)}
                                             </p>
                                         </div>
-                                        <span className="text-2xl">🌸</span>
+                                        <span className="text-3xl">🏆</span>
                                     </div>
                                 </div>
                             ))}
@@ -117,7 +77,34 @@ export function DonationWall({ donations }: DonationWallProps) {
                     </div>
                 )}
 
-                {/* GỬI TRAO - Size trung bình */}
+                {/* DẤU ẤN - Chỉ tên, không logo/emoji ngoài */}
+                {dauun.length > 0 && (
+                    <div className="mb-14">
+                        <h3 className="text-center mb-6">
+                            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-pink-400 text-white text-lg md:text-xl font-bold px-6 py-3 rounded-xl shadow-md">
+                                🌸 DẤU ẤN ({dauun.length})
+                            </span>
+                        </h3>
+                        <div className="glass-card p-6 max-w-6xl mx-auto">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                {dauun.map((donation) => (
+                                    <button
+                                        key={donation.id}
+                                        onClick={() => setSelectedDonation(donation)}
+                                        className="bg-pink-50 hover:bg-pink-100 border border-pink-200 rounded-lg p-3 text-left transition-all hover:shadow-md hover:-translate-y-0.5"
+                                    >
+                                        <h4 className="font-semibold text-gray-800 text-sm leading-tight">{donation.name}</h4>
+                                        {donation.treeCode && (
+                                            <p className="text-pink-600 text-xs mt-1">Cây {donation.treeCode}</p>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* GỬI TRAO - Chỉ tên, không emoji */}
                 {guitrao.length > 0 && (
                     <div className="mb-12">
                         <h3 className="text-center mb-6">
@@ -126,18 +113,15 @@ export function DonationWall({ donations }: DonationWallProps) {
                             </span>
                         </h3>
                         <div className="glass-card p-6 max-w-5xl mx-auto">
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2">
                                 {guitrao.map((donation) => (
-                                    <div
+                                    <button
                                         key={donation.id}
-                                        className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center hover:bg-blue-100 transition-colors"
+                                        onClick={() => setSelectedDonation(donation)}
+                                        className="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg p-2 text-center transition-colors"
                                     >
-                                        <div className="text-2xl mb-1">💝</div>
-                                        <h4 className="font-semibold text-gray-800 text-sm truncate">{donation.name}</h4>
-                                        {donation.treeCode && (
-                                            <p className="text-blue-600 text-xs">Cây {donation.treeCode}</p>
-                                        )}
-                                    </div>
+                                        <h4 className="font-medium text-gray-800 text-xs leading-tight">{donation.name}</h4>
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -154,14 +138,15 @@ export function DonationWall({ donations }: DonationWallProps) {
                         </h3>
 
                         <div className="glass-card p-6 max-w-4xl mx-auto">
-                            <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 gap-2">
+                            <div className="flex flex-wrap justify-center gap-2">
                                 {filteredGieomam.map((d) => (
-                                    <span
+                                    <button
                                         key={d.id}
+                                        onClick={() => setSelectedDonation(d)}
                                         className="bg-green-50 border border-green-200 text-green-700 px-3 py-1.5 rounded-full text-sm font-medium hover:bg-green-100 transition-colors"
                                     >
-                                        🌱 {d.name}
-                                    </span>
+                                        {d.name}
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -175,6 +160,107 @@ export function DonationWall({ donations }: DonationWallProps) {
                     </p>
                 </div>
             </div>
+
+            {/* Popup Modal */}
+            {selectedDonation && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+                    onClick={() => setSelectedDonation(null)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-4 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl">🌸</span>
+                                <div>
+                                    <h3 className="font-bold text-lg">Thông tin đóng góp</h3>
+                                    {selectedDonation.treeCode && (
+                                        <p className="text-pink-100 text-sm">Cây {selectedDonation.treeCode}</p>
+                                    )}
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setSelectedDonation(null)}
+                                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6">
+                            {/* Donor Info */}
+                            <div className="flex items-center gap-4 mb-4 p-4 bg-gradient-to-r from-pink-50 to-white rounded-xl border border-pink-100">
+                                {selectedDonation.logoUrl ? (
+                                    <div className="w-16 h-16 rounded-xl bg-white border-2 border-pink-200 flex items-center justify-center overflow-hidden shadow-sm">
+                                        <img
+                                            src={selectedDonation.logoUrl}
+                                            alt={selectedDonation.name}
+                                            className="w-14 h-14 object-contain"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center text-3xl border-2 border-pink-200">
+                                        {selectedDonation.isOrganization ? '🏢' : '👤'}
+                                    </div>
+                                )}
+                                <div className="flex-1">
+                                    <h3 className="text-xl font-bold text-gray-800">{selectedDonation.name}</h3>
+                                    {selectedDonation.amount && (
+                                        <p className="text-pink-600 font-semibold text-lg">{formatCurrency(selectedDonation.amount)}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Message */}
+                            {selectedDonation.message && (
+                                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-lg">💬</span>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium mb-1">Ghi chú:</p>
+                                            <p className="text-gray-700">{selectedDonation.message}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Info */}
+                            <div className="space-y-2 text-sm bg-gray-50 p-3 rounded-lg">
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <span>📅</span>
+                                    <span>Thời gian trồng: 18/01/2026</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <span>📍</span>
+                                    <span>Đảo Mai Anh Đào, Hồ Xuân Hương, Đà Lạt</span>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-3 mt-6">
+                                {selectedDonation.treeCode && (
+                                    <a
+                                        href={`/map/tree-${selectedDonation.treeCode.toLowerCase()}`}
+                                        className="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-3 px-4 rounded-lg font-medium text-center transition-colors"
+                                    >
+                                        🗺️ Xem trên bản đồ
+                                    </a>
+                                )}
+                                <button
+                                    onClick={() => setSelectedDonation(null)}
+                                    className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+                                >
+                                    Đóng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

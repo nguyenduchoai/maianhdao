@@ -18,17 +18,26 @@ export const revalidate = 0;
 
 async function getPageData() {
   try {
-    // Get trees with donor info
+    // Get trees with donor info (join via tree_id, get highest amount donor per tree)
     const treesRows = db.prepare(`
       SELECT 
         t.id, t.code, t.zone, t.lat, t.lng, t.status, t.images,
-        d.id as donorId, d.name as donorName, d.amount as donorAmount, d.logo_url as donorLogo
+        d.id as donorId, d.name as donorName, d.amount as donorAmount, 
+        d.logo_url as donorLogo, d.message as donorMessage
       FROM trees t
-      LEFT JOIN donations d ON t.donor_id = d.id
-      ORDER BY t.code
+      LEFT JOIN donations d ON d.tree_id = t.id AND d.status = 'approved'
+      ORDER BY t.zone, t.code
     `).all() as any[];
 
-    const trees: Tree[] = treesRows.map(row => ({
+    // Group by tree to avoid duplicates (take first/highest donation)
+    const treeMap = new Map<string, any>();
+    for (const row of treesRows) {
+      if (!treeMap.has(row.id) || (row.donorAmount && row.donorAmount > (treeMap.get(row.id).donorAmount || 0))) {
+        treeMap.set(row.id, row);
+      }
+    }
+
+    const trees: Tree[] = Array.from(treeMap.values()).map(row => ({
       id: row.id,
       code: row.code,
       zone: row.zone,
@@ -40,6 +49,7 @@ async function getPageData() {
       donorName: row.donorName,
       donorAmount: row.donorAmount,
       donorLogo: row.donorLogo,
+      donorMessage: row.donorMessage,
     }));
 
     // Get sponsors
