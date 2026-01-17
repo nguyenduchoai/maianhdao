@@ -3,85 +3,11 @@
 import { useState, useEffect } from 'react';
 
 export default function SiteContentPage() {
-    const [settings, setSettings] = useState({
-        // Header
-        siteName: 'Ngàn Cây Anh Đào',
-        siteLogo: '',
-
-        // Hero Section
-        heroTitle: 'NGÀN CÂY ANH ĐÀO',
-        heroSubtitle: 'Quanh Hồ Xuân Hương & Khu Vực Đà Lạt',
-        heroTagline: 'Để Lại Dấu Ấn Tại Trái Tim Thành Phố Ngàn Hoa',
-        heroDescription: 'Chiến dịch gây quỹ cộng đồng để trồng hoa Anh Đào tại Hồ Xuân Hương và các khu vực trọng điểm của Đà Lạt',
-        heroButtonText: 'Đóng Góp Ngay',
-        heroButtonText2: 'Xem Bản Đồ Cây',
-
-        // Stats
-        statTarget: '500 triệu',
-        statTargetLabel: 'Mục tiêu',
-        statTrees: '200',
-        statTreesLabel: 'Cây Mai Anh Đào',
-        statDays: '10',
-        statDaysLabel: 'Ngày cao điểm',
-        statWaiting: '199',
-        statWaitingLabel: 'Cây chờ đóng góp',
-
-        // About Section
-        aboutTitle: 'Về Chiến Dịch',
-        aboutSubtitle: 'Xã hội hóa cảnh quan & Gây quỹ cộng đồng – Ngàn Cây Anh Đào quanh Hồ Xuân Hương',
-        aboutContent1Title: 'Vị thế địa lý',
-        aboutContent1: 'Hồ Xuân Hương là "trái tim" của Đà Lạt. Cảnh quan quanh hồ quyết định trực tiếp đến ấn tượng của du khách và niềm tự hào của người dân địa phương.',
-        aboutContent2Title: 'Thực trạng',
-        aboutContent2: 'Mật độ Mai Anh Đào quanh hồ hiện nay chưa đồng bộ, một số cây già cỗi hoặc bị sâu bệnh. Việc bổ sung những cây Mai Anh Đào trưởng thành, tán đẹp là nhu cầu cấp thiết để chỉnh trang đô thị đón Tết.',
-        aboutContent3Title: 'Cơ hội',
-        aboutContent3: 'Với tâm lý hướng về nguồn cội dịp Tết, người dân và doanh nghiệp rất sẵn lòng đóng góp nếu họ được "ghi danh" tại địa điểm danh giá nhất thành phố. Đây là cơ sở để thực hiện chiến dịch xã hội hóa 100%.',
-
-        // Goals Section
-        goalsTitle: 'Mục Tiêu Đề Án (10 Ngày Cao Điểm)',
-        goalFinanceTitle: 'Mục Tiêu Tài Chính',
-        goalFinanceAmount: '500.000.000 VNĐ',
-        goalFinanceNote: '(Năm trăm triệu đồng)',
-        goalFinanceTime: 'Thời gian: 05/01 - 15/01/2026',
-        goalTreeTitle: 'Mục Tiêu Hiện Vật',
-        goalTreeAmount: '200 Cây',
-        goalTreeNote: 'Mai Anh Đào',
-        goalTreeSpec1: 'Cao >3m',
-        goalTreeSpec2: 'Đường kính gốc >10cm',
-        goalTreeSpec3: 'Dáng đẹp, tán đều',
-        goalCommitTitle: 'Cam Kết Đặc Biệt',
-        goalCommitContent: '100% ngân sách dư được đưa vào "Quỹ Bảo Dưỡng Xanh"',
-        goalCommitNote: 'Thuê nhân sự chuyên nghiệp chăm sóc trong 24 tháng',
-        goalCommitHighlight: 'Đảm bảo cây sống và ra hoa!',
-
-        // Tier descriptions
-        tierGieomamDesc: 'Mọi người dân',
-        tierGuitraoDesc: 'Nhân viên văn phòng, Du khách yêu Đà Lạt',
-        tierDauunDesc: 'Hộ gia đình, Nhóm bạn bè',
-        tierKientaoDesc: 'Doanh nghiệp, Khách sạn, Nhà hàng',
-
-        // Event Section
-        eventTitle: 'Lễ Phát Động & Ra Quân',
-        eventTime: '07:30 Sáng, Thứ Năm',
-        eventDate: 'Ngày 18 Tháng 01, 2026',
-        eventLocation: 'Khu vực bãi cỏ/công viên ven Hồ Xuân Hương thuộc địa bàn Phường',
-        eventParticipants: 'Lãnh đạo Tỉnh, Lãnh đạo Phường, Doanh nghiệp, Đại diện nhân dân',
-        eventProgram1: 'Báo cáo nhanh kết quả 10 ngày thần tốc',
-        eventProgram2: 'Trao Giấy khen/Thư cảm ơn cho Doanh nghiệp "Kiến Tạo"',
-        eventProgram3: 'Nghi thức trồng cây: Đại diện vun đất và treo biển tên',
-        eventProgram4: 'Check-in quảng bá cùng cây của mình',
-
-        // Footer
-        footerText: '© 2026 Ngàn Cây Anh Đào. Vì một Đà Lạt xanh hơn.',
-        footerAddress: 'Đảo Mai Anh Đào, Hồ Xuân Hương, TP. Đà Lạt, Lâm Đồng',
-        footerPhone: '',
-        footerEmail: '',
-        footerFacebook: '',
-    });
-
+    const [settings, setSettings] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState('');
-    const [activeTab, setActiveTab] = useState<'hero' | 'about' | 'goals' | 'event' | 'footer'>('hero');
+    const [activeTab, setActiveTab] = useState<'hero' | 'about' | 'tiers' | 'event' | 'finance' | 'footer'>('hero');
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -89,7 +15,7 @@ export default function SiteContentPage() {
                 const res = await fetch('/api/admin/settings');
                 const data = await res.json();
                 if (data.success && data.data) {
-                    setSettings(prev => ({ ...prev, ...data.data }));
+                    setSettings(data.data);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -126,6 +52,29 @@ export default function SiteContentPage() {
         setSettings(prev => ({ ...prev, [key]: value }));
     };
 
+    const InputField = ({ label, settingKey, placeholder, type = 'text', rows }: { label: string; settingKey: string; placeholder?: string; type?: string; rows?: number }) => (
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            {rows ? (
+                <textarea
+                    value={settings[settingKey] || ''}
+                    onChange={e => updateSetting(settingKey, e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg"
+                    placeholder={placeholder || label}
+                    rows={rows}
+                />
+            ) : (
+                <input
+                    type={type}
+                    value={settings[settingKey] || ''}
+                    onChange={e => updateSetting(settingKey, e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg"
+                    placeholder={placeholder || label}
+                />
+            )}
+        </div>
+    );
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -139,13 +88,9 @@ export default function SiteContentPage() {
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800">📝 Nội Dung Website</h2>
-                    <p className="text-gray-600">Chỉnh sửa nội dung hiển thị trên trang chủ</p>
+                    <p className="text-gray-600">Chỉnh sửa toàn bộ nội dung hiển thị trên trang chủ</p>
                 </div>
-                <button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="btn-primary py-2 px-6 disabled:opacity-50"
-                >
+                <button onClick={handleSave} disabled={isSaving} className="btn-primary py-2 px-6 disabled:opacity-50">
                     {isSaving ? '⏳ Đang lưu...' : '💾 Lưu Tất Cả'}
                 </button>
             </div>
@@ -161,8 +106,9 @@ export default function SiteContentPage() {
                 {[
                     { id: 'hero', label: '🏠 Hero & Stats' },
                     { id: 'about', label: '📋 Về Chiến Dịch' },
-                    { id: 'goals', label: '🎯 Mục Tiêu' },
+                    { id: 'tiers', label: '💎 Cấp Đóng Góp' },
                     { id: 'event', label: '🎉 Sự Kiện' },
+                    { id: 'finance', label: '📊 Tài Chính' },
                     { id: 'footer', label: '📌 Footer' },
                 ].map(tab => (
                     <button
@@ -175,67 +121,40 @@ export default function SiteContentPage() {
                 ))}
             </div>
 
-            {/* Hero & Stats Tab */}
+            {/* Hero Tab */}
             {activeTab === 'hero' && (
                 <div className="space-y-6">
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <h3 className="font-semibold text-gray-800 mb-4">🏠 Banner Chính</h3>
                         <div className="grid gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề lớn</label>
-                                <input type="text" value={settings.heroTitle} onChange={e => updateSetting('heroTitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Phụ đề</label>
-                                <input type="text" value={settings.heroSubtitle} onChange={e => updateSetting('heroSubtitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Slogan</label>
-                                <input type="text" value={settings.heroTagline} onChange={e => updateSetting('heroTagline', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                                <textarea value={settings.heroDescription} onChange={e => updateSetting('heroDescription', e.target.value)} className="w-full px-3 py-2 border rounded-lg" rows={2} />
-                            </div>
+                            <InputField label="Tiêu đề lớn" settingKey="heroTitle" placeholder="NGÀN CÂY ANH ĐÀO" />
+                            <InputField label="Phụ đề" settingKey="heroSubtitle" placeholder="Quanh Hồ Xuân Hương & Khu Vực Đà Lạt" />
+                            <InputField label="Slogan" settingKey="heroTagline" placeholder="Để Lại Dấu Ấn Tại Trái Tim Thành Phố Ngàn Hoa" />
+                            <InputField label="Mô tả" settingKey="heroDescription" rows={2} />
                             <div className="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nút 1</label>
-                                    <input type="text" value={settings.heroButtonText} onChange={e => updateSetting('heroButtonText', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nút 2</label>
-                                    <input type="text" value={settings.heroButtonText2} onChange={e => updateSetting('heroButtonText2', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                </div>
+                                <InputField label="Nút 1" settingKey="heroButtonText" placeholder="Đóng Góp Ngay" />
+                                <InputField label="Nút 2" settingKey="heroButtonText2" placeholder="Xem Bản Đồ Cây" />
                             </div>
                         </div>
                     </div>
-
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <h3 className="font-semibold text-gray-800 mb-4">📊 Thống Kê (4 ô)</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="border rounded-lg p-3">
-                                <label className="block text-xs text-gray-500">Ô 1: Số</label>
-                                <input type="text" value={settings.statTarget} onChange={e => updateSetting('statTarget', e.target.value)} className="w-full px-2 py-1 border rounded mb-2" />
-                                <label className="block text-xs text-gray-500">Ô 1: Label</label>
-                                <input type="text" value={settings.statTargetLabel} onChange={e => updateSetting('statTargetLabel', e.target.value)} className="w-full px-2 py-1 border rounded" />
+                                <InputField label="Ô 1: Số" settingKey="statTarget" placeholder="500 triệu" />
+                                <InputField label="Ô 1: Label" settingKey="statTargetLabel" placeholder="Mục tiêu" />
                             </div>
                             <div className="border rounded-lg p-3">
-                                <label className="block text-xs text-gray-500">Ô 2: Số</label>
-                                <input type="text" value={settings.statTrees} onChange={e => updateSetting('statTrees', e.target.value)} className="w-full px-2 py-1 border rounded mb-2" />
-                                <label className="block text-xs text-gray-500">Ô 2: Label</label>
-                                <input type="text" value={settings.statTreesLabel} onChange={e => updateSetting('statTreesLabel', e.target.value)} className="w-full px-2 py-1 border rounded" />
+                                <InputField label="Ô 2: Số" settingKey="statTrees" placeholder="200" />
+                                <InputField label="Ô 2: Label" settingKey="statTreesLabel" placeholder="Cây Mai Anh Đào" />
                             </div>
                             <div className="border rounded-lg p-3">
-                                <label className="block text-xs text-gray-500">Ô 3: Số</label>
-                                <input type="text" value={settings.statDays} onChange={e => updateSetting('statDays', e.target.value)} className="w-full px-2 py-1 border rounded mb-2" />
-                                <label className="block text-xs text-gray-500">Ô 3: Label</label>
-                                <input type="text" value={settings.statDaysLabel} onChange={e => updateSetting('statDaysLabel', e.target.value)} className="w-full px-2 py-1 border rounded" />
+                                <InputField label="Ô 3: Số" settingKey="statDays" placeholder="10" />
+                                <InputField label="Ô 3: Label" settingKey="statDaysLabel" placeholder="Ngày cao điểm" />
                             </div>
                             <div className="border rounded-lg p-3">
-                                <label className="block text-xs text-gray-500">Ô 4: Số</label>
-                                <input type="text" value={settings.statWaiting} onChange={e => updateSetting('statWaiting', e.target.value)} className="w-full px-2 py-1 border rounded mb-2" />
-                                <label className="block text-xs text-gray-500">Ô 4: Label</label>
-                                <input type="text" value={settings.statWaitingLabel} onChange={e => updateSetting('statWaitingLabel', e.target.value)} className="w-full px-2 py-1 border rounded" />
+                                <InputField label="Ô 4: Số" settingKey="statWaiting" placeholder="199" />
+                                <InputField label="Ô 4: Label" settingKey="statWaitingLabel" placeholder="Cây chờ đóng góp" />
                             </div>
                         </div>
                     </div>
@@ -246,98 +165,99 @@ export default function SiteContentPage() {
             {activeTab === 'about' && (
                 <div className="space-y-6">
                     <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">📋 Section "Về Chiến Dịch"</h3>
+                        <h3 className="font-semibold text-gray-800 mb-4">📋 Tiêu đề Section</h3>
                         <div className="grid gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
-                                <input type="text" value={settings.aboutTitle} onChange={e => updateSetting('aboutTitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Phụ đề</label>
-                                <input type="text" value={settings.aboutSubtitle} onChange={e => updateSetting('aboutSubtitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
+                            <InputField label="Tiêu đề" settingKey="aboutTitle" placeholder="Về Chiến Dịch" />
+                            <InputField label="Phụ đề" settingKey="aboutSubtitle" />
+                            <InputField label="Tiêu đề box" settingKey="aboutBoxTitle" placeholder="Căn Cứ & Tính Cấp Thiết" />
                         </div>
                     </div>
-
                     {[1, 2, 3].map(i => (
                         <div key={i} className="bg-white rounded-lg shadow-sm p-6">
                             <h3 className="font-semibold text-gray-800 mb-4">📌 Điểm {i}</h3>
                             <div className="grid gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
-                                    <input type="text" value={(settings as Record<string, string>)[`aboutContent${i}Title`]} onChange={e => updateSetting(`aboutContent${i}Title`, e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nội dung</label>
-                                    <textarea value={(settings as Record<string, string>)[`aboutContent${i}`]} onChange={e => updateSetting(`aboutContent${i}`, e.target.value)} className="w-full px-3 py-2 border rounded-lg" rows={3} />
-                                </div>
+                                <InputField label="Tiêu đề" settingKey={`aboutContent${i}Title`} />
+                                <InputField label="Nội dung" settingKey={`aboutContent${i}`} rows={3} />
                             </div>
                         </div>
                     ))}
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">📣 Mục Tiêu Lan Tỏa</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề" settingKey="spreadTitle" placeholder="Mục Tiêu Lan Tỏa" />
+                            <InputField label="Nội dung 1" settingKey="spreadContent1" rows={2} />
+                            <InputField label="Nội dung 2" settingKey="spreadContent2" rows={2} />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🎯 Mục Tiêu Đề Án</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề section" settingKey="goalsTitle" placeholder="Mục Tiêu Đề Án (10 Ngày Cao Điểm)" />
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-4 mt-4">
+                            <div className="border rounded-lg p-3">
+                                <p className="font-medium mb-2">💰 Tài Chính</p>
+                                <InputField label="Tiêu đề" settingKey="goalFinanceTitle" />
+                                <InputField label="Số tiền" settingKey="goalFinanceAmount" />
+                                <InputField label="Ghi chú" settingKey="goalFinanceNote" />
+                                <InputField label="Thời gian" settingKey="goalFinanceTime" />
+                            </div>
+                            <div className="border rounded-lg p-3">
+                                <p className="font-medium mb-2">🌸 Hiện Vật</p>
+                                <InputField label="Tiêu đề" settingKey="goalTreeTitle" />
+                                <InputField label="Số cây" settingKey="goalTreeAmount" />
+                                <InputField label="Loại" settingKey="goalTreeNote" />
+                                <InputField label="Label" settingKey="goalTreeLabel" placeholder="Tiêu chuẩn Cây Di sản:" />
+                                <InputField label="Tiêu chuẩn 1" settingKey="goalTreeSpec1" />
+                                <InputField label="Tiêu chuẩn 2" settingKey="goalTreeSpec2" />
+                                <InputField label="Tiêu chuẩn 3" settingKey="goalTreeSpec3" />
+                            </div>
+                            <div className="border rounded-lg p-3">
+                                <p className="font-medium mb-2">🛡️ Cam Kết</p>
+                                <InputField label="Tiêu đề" settingKey="goalCommitTitle" />
+                                <InputField label="Nội dung" settingKey="goalCommitContent" />
+                                <InputField label="Ghi chú" settingKey="goalCommitNote" />
+                                <InputField label="Highlight" settingKey="goalCommitHighlight" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
-            {/* Goals Tab */}
-            {activeTab === 'goals' && (
+            {/* Tiers Tab */}
+            {activeTab === 'tiers' && (
                 <div className="space-y-6">
                     <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">🎯 Tiêu đề Section</h3>
-                        <input type="text" value={settings.goalsTitle} onChange={e => updateSetting('goalsTitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                    </div>
-
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">💰 Mục Tiêu Tài Chính</h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <input type="text" value={settings.goalFinanceTitle} onChange={e => updateSetting('goalFinanceTitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Tiêu đề" />
-                            <input type="text" value={settings.goalFinanceAmount} onChange={e => updateSetting('goalFinanceAmount', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Số tiền" />
-                            <input type="text" value={settings.goalFinanceNote} onChange={e => updateSetting('goalFinanceNote', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Ghi chú" />
-                            <input type="text" value={settings.goalFinanceTime} onChange={e => updateSetting('goalFinanceTime', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Thời gian" />
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">🌸 Mục Tiêu Hiện Vật</h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <input type="text" value={settings.goalTreeTitle} onChange={e => updateSetting('goalTreeTitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Tiêu đề" />
-                            <input type="text" value={settings.goalTreeAmount} onChange={e => updateSetting('goalTreeAmount', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Số cây" />
-                            <input type="text" value={settings.goalTreeNote} onChange={e => updateSetting('goalTreeNote', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Loại cây" />
-                            <input type="text" value={settings.goalTreeSpec1} onChange={e => updateSetting('goalTreeSpec1', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Tiêu chuẩn 1" />
-                            <input type="text" value={settings.goalTreeSpec2} onChange={e => updateSetting('goalTreeSpec2', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Tiêu chuẩn 2" />
-                            <input type="text" value={settings.goalTreeSpec3} onChange={e => updateSetting('goalTreeSpec3', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Tiêu chuẩn 3" />
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">🛡️ Cam Kết Đặc Biệt</h3>
+                        <h3 className="font-semibold text-gray-800 mb-4">💎 Tiêu đề Section</h3>
                         <div className="grid gap-4">
-                            <input type="text" value={settings.goalCommitTitle} onChange={e => updateSetting('goalCommitTitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Tiêu đề" />
-                            <input type="text" value={settings.goalCommitContent} onChange={e => updateSetting('goalCommitContent', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Nội dung" />
-                            <input type="text" value={settings.goalCommitNote} onChange={e => updateSetting('goalCommitNote', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Ghi chú" />
-                            <input type="text" value={settings.goalCommitHighlight} onChange={e => updateSetting('goalCommitHighlight', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Highlight" />
+                            <InputField label="Tiêu đề" settingKey="tiersTitle" placeholder='Chiến Lược Gây Quỹ: "Để Lại Di Sản"' />
+                            <InputField label="Phụ đề" settingKey="tiersSubtitle" />
+                            <InputField label="Label Mức" settingKey="tierLevelLabel" placeholder="Mức" />
+                            <InputField label="Label Quyền lợi" settingKey="tierBenefitsLabel" placeholder="Quyền lợi" />
+                            <InputField label="Nút CTA" settingKey="tierCTAButton" placeholder="Đóng Góp Ngay" />
                         </div>
                     </div>
-
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">🏆 Mô tả Cấp Độ</h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm text-gray-600 mb-1">🌱 GIEO MẦM</label>
-                                <input type="text" value={settings.tierGieomamDesc} onChange={e => updateSetting('tierGieomamDesc', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                    {[
+                        { num: 1, name: 'GIEO MẦM', color: 'green' },
+                        { num: 2, name: 'GỬI TRAO', color: 'blue' },
+                        { num: 3, name: 'DẤU ẤN', color: 'pink' },
+                        { num: 4, name: 'KIẾN TẠO', color: 'yellow' },
+                    ].map(tier => (
+                        <div key={tier.num} className={`bg-white rounded-lg shadow-sm p-6 border-l-4 border-${tier.color}-400`}>
+                            <h3 className="font-semibold text-gray-800 mb-4">Mức {tier.num}: {tier.name}</h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <InputField label="Tên" settingKey={`tier${tier.num}Name`} placeholder={tier.name} />
+                                <InputField label="Mức giá" settingKey={`tier${tier.num}Range`} />
+                                <InputField label="Đối tượng" settingKey={tier.num === 1 ? 'tierGieomamDesc' : tier.num === 2 ? 'tierGuitraoDesc' : tier.num === 3 ? 'tierDauunDesc' : 'tierKientaoDesc'} />
                             </div>
-                            <div>
-                                <label className="block text-sm text-gray-600 mb-1">💝 GỬI TRAO</label>
-                                <input type="text" value={settings.tierGuitraoDesc} onChange={e => updateSetting('tierGuitraoDesc', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-600 mb-1">🌸 DẤU ẤN</label>
-                                <input type="text" value={settings.tierDauunDesc} onChange={e => updateSetting('tierDauunDesc', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-600 mb-1">🏆 KIẾN TẠO</label>
-                                <input type="text" value={settings.tierKientaoDesc} onChange={e => updateSetting('tierKientaoDesc', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                            <div className="mt-4 space-y-2">
+                                <p className="text-sm font-medium text-gray-700">Quyền lợi:</p>
+                                {[1, 2, 3, 4].map(b => (
+                                    <InputField key={b} label={`Quyền lợi ${b}`} settingKey={`tier${tier.num}Benefit${b}`} />
+                                ))}
                             </div>
                         </div>
-                    </div>
+                    ))}
                 </div>
             )}
 
@@ -347,23 +267,63 @@ export default function SiteContentPage() {
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <h3 className="font-semibold text-gray-800 mb-4">🎉 Thông Tin Sự Kiện</h3>
                         <div className="grid gap-4">
-                            <input type="text" value={settings.eventTitle} onChange={e => updateSetting('eventTitle', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Tiêu đề" />
+                            <InputField label="Tiêu đề" settingKey="eventTitle" placeholder="Lễ Phát Động & Ra Quân" />
+                            <InputField label="Label thời gian" settingKey="eventTimeLabel" placeholder="Thời gian" />
                             <div className="grid md:grid-cols-2 gap-4">
-                                <input type="text" value={settings.eventTime} onChange={e => updateSetting('eventTime', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Thời gian" />
-                                <input type="text" value={settings.eventDate} onChange={e => updateSetting('eventDate', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Ngày" />
+                                <InputField label="Thời gian" settingKey="eventTime" placeholder="07:30 Sáng, Thứ Năm" />
+                                <InputField label="Ngày" settingKey="eventDate" placeholder="Ngày 18 Tháng 01, 2026" />
                             </div>
-                            <input type="text" value={settings.eventLocation} onChange={e => updateSetting('eventLocation', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Địa điểm" />
-                            <input type="text" value={settings.eventParticipants} onChange={e => updateSetting('eventParticipants', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Thành phần" />
+                            <InputField label="Label địa điểm" settingKey="eventLocationLabel" placeholder="Địa điểm" />
+                            <InputField label="Địa điểm" settingKey="eventLocation" />
+                            <InputField label="Label thành phần" settingKey="eventParticipantsLabel" placeholder="Thành phần" />
+                            <InputField label="Thành phần" settingKey="eventParticipants" />
+                            <InputField label="Label chương trình" settingKey="eventProgramLabel" placeholder="Nội dung chương trình" />
+                            <InputField label="Mục 1" settingKey="eventProgram1" />
+                            <InputField label="Mục 2" settingKey="eventProgram2" />
+                            <InputField label="Mục 3" settingKey="eventProgram3" />
+                            <InputField label="Mục 4" settingKey="eventProgram4" />
                         </div>
                     </div>
+                </div>
+            )}
 
+            {/* Finance Tab */}
+            {activeTab === 'finance' && (
+                <div className="space-y-6">
                     <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">📋 Nội Dung Chương Trình (4 mục)</h3>
+                        <h3 className="font-semibold text-gray-800 mb-4">📊 Cơ Cấu Tài Chính</h3>
                         <div className="grid gap-4">
-                            <input type="text" value={settings.eventProgram1} onChange={e => updateSetting('eventProgram1', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Mục 1" />
-                            <input type="text" value={settings.eventProgram2} onChange={e => updateSetting('eventProgram2', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Mục 2" />
-                            <input type="text" value={settings.eventProgram3} onChange={e => updateSetting('eventProgram3', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Mục 3" />
-                            <input type="text" value={settings.eventProgram4} onChange={e => updateSetting('eventProgram4', e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Mục 4" />
+                            <InputField label="Tiêu đề" settingKey="financeTitle" placeholder="Cơ Cấu Tài Chính" />
+                            <InputField label="Phụ đề" settingKey="financeSubtitle" placeholder="MINH BẠCH TUYỆT ĐỐI" />
+                            <InputField label="Label tổng" settingKey="financeTotalLabel" placeholder="Tổng thu dự kiến" />
+                            <InputField label="Tổng số tiền" settingKey="financeTotalAmount" placeholder="500.000.000 VNĐ" />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🌱 Chi Phí Cây Giống (60%)</h3>
+                        <div className="grid gap-4">
+                            <InputField label="%" settingKey="financeTreePercent" placeholder="60%" />
+                            <InputField label="Tiêu đề" settingKey="financeTreeTitle" placeholder="Chi Phí Cây Giống" />
+                            <InputField label="Số tiền" settingKey="financeTreeAmount" placeholder="300 Triệu" />
+                            <InputField label="Mô tả" settingKey="financeTreeDesc" rows={2} />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🛡️ Quỹ Chăm Sóc (30%)</h3>
+                        <div className="grid gap-4">
+                            <InputField label="%" settingKey="financeCarePercent" placeholder="30%" />
+                            <InputField label="Tiêu đề" settingKey="financeCareTitle" placeholder="Quỹ Chăm Sóc Cây" />
+                            <InputField label="Số tiền" settingKey="financeCareAmount" placeholder="150 Triệu" />
+                            <InputField label="Mô tả" settingKey="financeCareDesc" rows={2} />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🎨 Tổ Chức & Truyền Thông (10%)</h3>
+                        <div className="grid gap-4">
+                            <InputField label="%" settingKey="financeOrgPercent" placeholder="10%" />
+                            <InputField label="Tiêu đề" settingKey="financeOrgTitle" placeholder="Tổ Chức & Truyền Thông" />
+                            <InputField label="Số tiền" settingKey="financeOrgAmount" placeholder="50 Triệu" />
+                            <InputField label="Mô tả" settingKey="financeOrgDesc" rows={2} />
                         </div>
                     </div>
                 </div>
@@ -371,34 +331,45 @@ export default function SiteContentPage() {
 
             {/* Footer Tab */}
             {activeTab === 'footer' && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="font-semibold text-gray-800 mb-4">📌 Footer</h3>
-                    <div className="grid gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Tên website</label>
-                            <input type="text" value={settings.siteName} onChange={e => updateSetting('siteName', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                <div className="space-y-6">
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🌸 Cột 1: Giới thiệu</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tên website" settingKey="siteName" placeholder="NGÀN CÂY ANH ĐÀO" />
+                            <InputField label="Mô tả footer" settingKey="footerAbout" rows={3} />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Text copyright</label>
-                            <input type="text" value={settings.footerText} onChange={e => updateSetting('footerText', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">📞 Cột 2: Liên hệ</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề" settingKey="footerContactTitle" placeholder="Liên Hệ" />
+                            <InputField label="Địa chỉ" settingKey="footerAddress" />
+                            <InputField label="Điện thoại" settingKey="footerPhone" />
+                            <InputField label="Email" settingKey="footerEmail" />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ</label>
-                            <input type="text" value={settings.footerAddress} onChange={e => updateSetting('footerAddress', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">🔗 Cột 3: Liên kết</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Tiêu đề" settingKey="footerLinksTitle" placeholder="Liên Kết" />
+                            <InputField label="Link Bản đồ" settingKey="footerLinkMap" placeholder="Bản đồ cây" />
+                            <InputField label="Link Đóng góp" settingKey="footerLinkDonate" placeholder="Đóng góp" />
+                            <InputField label="Link Nhà tài trợ" settingKey="footerLinkSponsors" placeholder="Nhà tài trợ" />
+                            <InputField label="Link Ghi danh" settingKey="footerLinkDonors" placeholder="Danh sách ghi danh" />
                         </div>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Điện thoại</label>
-                                <input type="text" value={settings.footerPhone} onChange={e => updateSetting('footerPhone', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" value={settings.footerEmail} onChange={e => updateSetting('footerEmail', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">📋 Thông tin chiến dịch</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Thời gian" settingKey="footerCampaignTime" placeholder="05/01/2026 - 15/01/2026 (10 ngày cao điểm)" />
+                            <InputField label="Mục tiêu" settingKey="footerCampaignGoal" placeholder="500.000.000 VNĐ | Ngàn cây hoa Anh Đào cho Đà Lạt" />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Facebook URL</label>
-                            <input type="url" value={settings.footerFacebook} onChange={e => updateSetting('footerFacebook', e.target.value)} className="w-full px-3 py-2 border rounded-lg" />
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4">© Copyright</h3>
+                        <div className="grid gap-4">
+                            <InputField label="Dòng copyright" settingKey="footerCopyright" placeholder="© 2026 Chiến dịch NGÀN CÂY ANH ĐÀO - Hội DNT tỉnh Lâm Đồng." />
+                            <p className="text-sm text-gray-500">* Link Bizino.ai được giữ cố định</p>
                         </div>
                     </div>
                 </div>
@@ -406,11 +377,7 @@ export default function SiteContentPage() {
 
             {/* Floating Save Button */}
             <div className="fixed bottom-6 right-6">
-                <button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="btn-primary py-3 px-6 shadow-lg disabled:opacity-50"
-                >
+                <button onClick={handleSave} disabled={isSaving} className="btn-primary py-3 px-6 shadow-lg disabled:opacity-50">
                     {isSaving ? '⏳ Đang lưu...' : '💾 Lưu Tất Cả'}
                 </button>
             </div>
