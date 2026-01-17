@@ -249,11 +249,7 @@ export default function MapTreePage() {
                                         ) : (
                                             <div className="text-xs text-gray-400">Khu {tree.zone} • Chờ đóng góp</div>
                                         )}
-                                        {tree.donorAmount && tree.donorAmount > 0 && (
-                                            <div className="text-xs text-amber-600 font-medium mt-0.5">
-                                                💰 {formatCurrency(tree.donorAmount)}
-                                            </div>
-                                        )}
+
                                     </div>
                                     {/* Arrow */}
                                     <div className="text-gray-300">
