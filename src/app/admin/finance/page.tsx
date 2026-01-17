@@ -40,9 +40,11 @@ export default function FinancePage() {
         payment_method: 'transfer',
         vendor: '',
         note: '',
+        invoice_url: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -107,6 +109,7 @@ export default function FinancePage() {
                     payment_method: 'transfer',
                     vendor: '',
                     note: '',
+                    invoice_url: '',
                 });
                 fetchData();
             } else {
@@ -134,6 +137,31 @@ export default function FinancePage() {
             alert('Lỗi kết nối server');
         } finally {
             setDeletingId(null);
+        }
+    };
+
+    const handleInvoiceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'invoices');
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await res.json();
+            if (data.url) {
+                setExpenseForm(prev => ({ ...prev, invoice_url: data.url }));
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -190,8 +218,8 @@ export default function FinancePage() {
                 <button
                     onClick={() => setActiveTab('income')}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${activeTab === 'income'
-                            ? 'bg-green-500 text-white'
-                            : 'bg-white text-gray-600 hover:bg-gray-100'
+                        ? 'bg-green-500 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-100'
                         }`}
                 >
                     💵 Danh sách Thu ({incomes.length})
@@ -199,8 +227,8 @@ export default function FinancePage() {
                 <button
                     onClick={() => setActiveTab('expense')}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${activeTab === 'expense'
-                            ? 'bg-red-500 text-white'
-                            : 'bg-white text-gray-600 hover:bg-gray-100'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-100'
                         }`}
                 >
                     💸 Danh sách Chi ({expenses.length})
@@ -281,6 +309,7 @@ export default function FinancePage() {
                                     <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Số tiền</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Thanh toán</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Nhà cung cấp</th>
+                                    <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">HĐ</th>
                                     <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Thao tác</th>
                                 </tr>
                             </thead>
@@ -302,6 +331,18 @@ export default function FinancePage() {
                                                 expense.payment_method === 'cash' ? '💵 Tiền mặt' : expense.payment_method}
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-500">{expense.vendor || '-'}</td>
+                                        <td className="px-4 py-3 text-center">
+                                            {expense.invoice_url ? (
+                                                <a
+                                                    href={expense.invoice_url}
+                                                    target="_blank"
+                                                    className="text-blue-500 hover:text-blue-700"
+                                                    title="Xem hóa đơn"
+                                                >
+                                                    📎
+                                                </a>
+                                            ) : '-'}
+                                        </td>
                                         <td className="px-4 py-3 text-center">
                                             <button
                                                 onClick={() => handleDeleteExpense(expense.id, expense.title)}
@@ -417,6 +458,43 @@ export default function FinancePage() {
                                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500"
                                     rows={2}
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">📎 Hóa đơn (ảnh/PDF)</label>
+                                <div className="flex items-center gap-3">
+                                    {expenseForm.invoice_url && (
+                                        <a
+                                            href={expenseForm.invoice_url}
+                                            target="_blank"
+                                            className="w-16 h-16 border rounded-lg overflow-hidden flex items-center justify-center bg-gray-50"
+                                        >
+                                            {expenseForm.invoice_url.includes('.pdf') ? (
+                                                <span className="text-2xl">📄</span>
+                                            ) : (
+                                                <img src={expenseForm.invoice_url} alt="Hóa đơn" className="w-full h-full object-cover" />
+                                            )}
+                                        </a>
+                                    )}
+                                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                                        {isUploading ? '⏳ Đang tải...' : '📤 Tải hóa đơn lên'}
+                                        <input
+                                            type="file"
+                                            accept="image/*,.pdf"
+                                            onChange={handleInvoiceUpload}
+                                            className="hidden"
+                                            disabled={isUploading}
+                                        />
+                                    </label>
+                                    {expenseForm.invoice_url && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setExpenseForm({ ...expenseForm, invoice_url: '' })}
+                                            className="text-red-500 text-sm hover:underline"
+                                        >
+                                            🗑️ Xóa
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                         <div className="p-4 border-t flex gap-3">
