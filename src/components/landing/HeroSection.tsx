@@ -92,7 +92,7 @@ export function HeroSection({ stats, settings = {} }: HeroSectionProps) {
                             <div className="text-xs md:text-sm text-gray-600">{settings.statDaysLabel || 'Ngày cao điểm'}</div>
                         </div>
                         <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 text-center shadow-lg border border-white/50">
-                            <div className="text-xl md:text-2xl font-bold text-pink-600">{settings.statWaiting || (200 - stats.treesSponsored)}</div>
+                            <div className="text-xl md:text-2xl font-bold text-pink-600">{stats.treesAvailable}</div>
                             <div className="text-xs md:text-sm text-gray-600">{settings.statWaitingLabel || 'Cây chờ đóng góp'}</div>
                         </div>
                     </div>

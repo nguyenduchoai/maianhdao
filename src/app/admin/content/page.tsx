@@ -153,7 +153,12 @@ export default function SiteContentPage() {
                                 <InputField label="Ô 3: Label" settingKey="statDaysLabel" placeholder="Ngày cao điểm" />
                             </div>
                             <div className="border rounded-lg p-3">
-                                <InputField label="Ô 4: Số" settingKey="statWaiting" placeholder="199" />
+                                <div className="mb-3">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ô 4: Số</label>
+                                    <div className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-600">
+                                        <span className="text-pink-600 font-semibold">Tự động tính</span> (Cây mục tiêu - Cây đã gán)
+                                    </div>
+                                </div>
                                 <InputField label="Ô 4: Label" settingKey="statWaitingLabel" placeholder="Cây chờ đóng góp" />
                             </div>
                         </div>
