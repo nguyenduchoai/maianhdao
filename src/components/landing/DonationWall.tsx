@@ -11,14 +11,22 @@ interface DonationWallProps {
 export function DonationWall({ donations }: DonationWallProps) {
     const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
 
-    // Group donations by the 4 tiers
-    const kientao = donations.filter(d => d.tier === 'kientao' || d.tier === 'diamond' || (d.amount && d.amount >= 5000000));
-    const dauun = donations.filter(d => d.tier === 'dauun' || d.tier === 'gold' || (d.amount && d.amount >= 1000000 && d.amount < 5000000));
-    const guitrao = donations.filter(d => d.tier === 'guitrao' || d.tier === 'silver' || (d.amount && d.amount >= 200000 && d.amount < 1000000));
+    // Group donations by the 4 tiers - prioritize tier field over amount
+    const kientao = donations.filter(d =>
+        d.tier === 'kientao' || d.tier === 'diamond' ||
+        (!d.tier && d.amount && d.amount >= 5000000)
+    );
+    const dauun = donations.filter(d =>
+        d.tier === 'dauun' || d.tier === 'gold' ||
+        (!d.tier && d.amount && d.amount >= 1000000 && d.amount < 5000000)
+    );
+    const guitrao = donations.filter(d =>
+        d.tier === 'guitrao' || d.tier === 'silver' ||
+        (!d.tier && d.amount && d.amount >= 200000 && d.amount < 1000000)
+    );
     const gieomam = donations.filter(d =>
         d.tier === 'gieomam' || d.tier === 'green' || d.tier === 'imprint' || d.tier === 'entrust' ||
-        (d.amount && d.amount < 200000) ||
-        !d.tier
+        (!d.tier && (!d.amount || d.amount < 200000))
     );
 
     // Remove duplicates
