@@ -236,6 +236,120 @@ export default function AdminSettingsPage() {
 
 
 
+            {/* Webhook Integration */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h3 className="font-semibold text-gray-800 mb-4">🔗 Webhook - Tích Hợp Google Sheets</h3>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Webhook URL</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={typeof window !== 'undefined' ? `${window.location.origin}/api/webhook/donations` : '/api/webhook/donations'}
+                                readOnly
+                                className="flex-1 px-3 py-2 bg-gray-100 border rounded-lg font-mono text-sm"
+                            />
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(`${window.location.origin}/api/webhook/donations`);
+                                    alert('✅ Đã copy Webhook URL!');
+                                }}
+                                className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600"
+                            >
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Cấu trúc cột Excel/Sheet</label>
+                        <div className="bg-gray-50 p-3 rounded-lg font-mono text-sm">
+                            <p><span className="text-pink-600">Người gửi</span> | <span className="text-pink-600">Nội dung ghi chú</span> | <span className="text-pink-600">Số tiền (VND)</span></p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Google Apps Script (Paste vào Sheet)</label>
+                        <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto max-h-64">
+                            {`function onEdit(e) {
+  sendToWebhook();
+}
+
+function sendToWebhook() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var donations = [];
+  
+  for (var i = 1; i < data.length; i++) {
+    var row = {};
+    for (var j = 0; j < headers.length; j++) {
+      row[headers[j]] = data[i][j];
+    }
+    if (row['Người gửi']) donations.push(row);
+  }
+  
+  var options = {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(donations),
+    muteHttpExceptions: true
+  };
+  
+  UrlFetchApp.fetch('${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhook/donations', options);
+}`}
+                        </pre>
+                        <button
+                            onClick={() => {
+                                const code = `function onEdit(e) {
+  sendToWebhook();
+}
+
+function sendToWebhook() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var donations = [];
+  
+  for (var i = 1; i < data.length; i++) {
+    var row = {};
+    for (var j = 0; j < headers.length; j++) {
+      row[headers[j]] = data[i][j];
+    }
+    if (row['Người gửi']) donations.push(row);
+  }
+  
+  var options = {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(donations),
+    muteHttpExceptions: true
+  };
+  
+  UrlFetchApp.fetch('${window.location.origin}/api/webhook/donations', options);
+}`;
+                                navigator.clipboard.writeText(code);
+                                alert('✅ Đã copy Apps Script!');
+                            }}
+                            className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm"
+                        >
+                            📋 Copy Apps Script
+                        </button>
+                    </div>
+
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                        <h4 className="font-medium text-yellow-800 mb-2">📖 Hướng dẫn:</h4>
+                        <ol className="text-sm text-yellow-700 space-y-1 list-decimal list-inside">
+                            <li>Mở Google Sheet → Extensions → Apps Script</li>
+                            <li>Xóa code cũ, paste Apps Script ở trên vào</li>
+                            <li>Nhấn Save (Ctrl+S)</li>
+                            <li>Mỗi khi edit Sheet, dữ liệu sẽ tự động gửi về hệ thống</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
             <button
                 onClick={handleSave}
                 disabled={isSaving}
