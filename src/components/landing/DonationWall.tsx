@@ -37,7 +37,7 @@ export function DonationWall({ donations }: DonationWallProps) {
                     </p>
                 </div>
 
-                {/* KIẾN TẠO - Cao nhất, size lớn nhất */}
+                {/* KIẾN TẠO - 5 columns, square logo */}
                 {kientao.length > 0 && (
                     <div className="mb-16">
                         <h3 className="text-center mb-8">
@@ -45,32 +45,29 @@ export function DonationWall({ donations }: DonationWallProps) {
                                 🏆 KIẾN TẠO ({kientao.length})
                             </span>
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
                             {kientao.map((donation) => (
                                 <div
                                     key={donation.id}
                                     onClick={() => setSelectedDonation(donation)}
-                                    className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer"
+                                    className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer text-center"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-3xl shadow-lg overflow-hidden">
-                                            {donation.logoUrl ? (
-                                                <img src={donation.logoUrl} alt={donation.name} className="w-full h-full rounded-full object-cover" />
-                                            ) : (
-                                                donation.isOrganization ? '🏢' : '👤'
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="font-bold text-xl text-gray-800">{donation.name}</h4>
-                                            {donation.treeCode && (
-                                                <p className="text-amber-600 font-medium">🌸 Cây {donation.treeCode}</p>
-                                            )}
-                                            <p className="text-lg font-bold text-amber-600 mt-1">
-                                                {formatCurrency(donation.amount)}
-                                            </p>
-                                        </div>
-                                        <span className="text-3xl">🏆</span>
+                                    {/* Square Logo */}
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-2xl shadow-md overflow-hidden">
+                                        {donation.logoUrl ? (
+                                            <img src={donation.logoUrl} alt={donation.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            donation.isOrganization ? '🏢' : '👤'
+                                        )}
                                     </div>
+                                    {/* Name - single line */}
+                                    <h4 className="font-bold text-sm text-gray-800 truncate" title={donation.name}>{donation.name}</h4>
+                                    {donation.treeCode && (
+                                        <p className="text-amber-600 text-xs mt-1">🌸 Cây {donation.treeCode}</p>
+                                    )}
+                                    <p className="text-amber-600 font-bold text-sm mt-1">
+                                        {formatCurrency(donation.amount)}
+                                    </p>
                                 </div>
                             ))}
                         </div>
