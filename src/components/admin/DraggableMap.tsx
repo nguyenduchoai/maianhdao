@@ -23,13 +23,19 @@ export default function DraggableMap({ lat, lng, onLocationChange }: DraggableMa
     useEffect(() => {
         if (!L || !mapRef.current || mapInstanceRef.current) return;
 
-        // Initialize map with max zoom
+        // Initialize map with max zoom, zoom control at bottom right
         const map = L.map(mapRef.current, {
             center: [lat, lng],
             zoom: 20, // Max zoom for detail
             maxZoom: 22,
             minZoom: 15,
+            zoomControl: false, // Disable default
         });
+
+        // Add zoom control at bottom right to avoid marker overlap
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
 
         // Add tile layer with max zoom support
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
