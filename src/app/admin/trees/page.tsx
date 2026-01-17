@@ -375,7 +375,8 @@ export default function AdminTreesPage() {
                                     {isMapReady && L ? (
                                         <MapContainer
                                             center={[newTree.lat, newTree.lng]}
-                                            zoom={17}
+                                            zoom={20}
+                                            maxZoom={22}
                                             style={{ height: '100%', width: '100%', minHeight: '400px' }}
                                             scrollWheelZoom={true}
                                             zoomControl={false}
@@ -383,6 +384,7 @@ export default function AdminTreesPage() {
                                             <TileLayer
                                                 attribution='&copy; OpenStreetMap'
                                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                maxZoom={22}
                                             />
                                             <Marker
                                                 position={[newTree.lat, newTree.lng]}
