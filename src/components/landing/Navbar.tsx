@@ -20,6 +20,7 @@ export function Navbar() {
         { href: '#donate', label: 'Đóng Góp' },
         { href: '#sponsors', label: 'Ban Tổ Chức' },
         { href: '#donors', label: 'Bảng Vinh Danh' },
+        { href: '/minh-bach-tai-chinh', label: '📊 Minh Bạch', isLink: true },
     ];
 
     return (
@@ -47,18 +48,33 @@ export function Navbar() {
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-6">
                         {navLinks.map((link) => (
-                            <a
-                                key={link.href}
-                                href={link.href}
-                                className={`
-                  font-medium transition-colors
-                  ${isScrolled
-                                        ? 'text-gray-700 hover:text-pink-600'
-                                        : 'text-white hover:text-pink-200'}
-                `}
-                            >
-                                {link.label}
-                            </a>
+                            link.isLink ? (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`
+                                        font-medium transition-colors
+                                        ${isScrolled
+                                            ? 'text-gray-700 hover:text-pink-600'
+                                            : 'text-white hover:text-pink-200'}
+                                    `}
+                                >
+                                    {link.label}
+                                </Link>
+                            ) : (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`
+                                        font-medium transition-colors
+                                        ${isScrolled
+                                            ? 'text-gray-700 hover:text-pink-600'
+                                            : 'text-white hover:text-pink-200'}
+                                    `}
+                                >
+                                    {link.label}
+                                </a>
+                            )
                         ))}
                         <a href="#donate" className="btn-primary py-2 px-4 text-sm">
                             💝 Đóng Góp
@@ -86,14 +102,25 @@ export function Navbar() {
                 {isMobileMenuOpen && (
                     <div className="md:hidden bg-white rounded-b-2xl shadow-lg py-4 px-4 mb-4">
                         {navLinks.map((link) => (
-                            <a
-                                key={link.href}
-                                href={link.href}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="block py-3 text-gray-700 font-medium hover:text-pink-600 border-b border-gray-100"
-                            >
-                                {link.label}
-                            </a>
+                            link.isLink ? (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block py-3 text-gray-700 font-medium hover:text-pink-600 border-b border-gray-100"
+                                >
+                                    {link.label}
+                                </Link>
+                            ) : (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block py-3 text-gray-700 font-medium hover:text-pink-600 border-b border-gray-100"
+                                >
+                                    {link.label}
+                                </a>
+                            )
                         ))}
                         <a
                             href="#donate"
