@@ -74,6 +74,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { href: '/admin', label: 'Dashboard', icon: '📊', exact: true },
         { href: '/admin/trees', label: 'Quản Lý Cây', icon: '🌸' },
         { href: '/admin/donations', label: 'Đóng Góp', icon: '💰' },
+        { href: '/admin/finance', label: 'Tài Chính', icon: '📈' },
         { href: '/admin/sponsors', label: 'Ban Tổ Chức', icon: '🏛️' },
         ...(isAdmin ? [
             { href: '/admin/users', label: 'Users', icon: '👥' },
