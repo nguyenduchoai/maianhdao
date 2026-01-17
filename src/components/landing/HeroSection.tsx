@@ -49,19 +49,19 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
                 {/* Progress Bar */}
                 {stats && (
-                    <div className="max-w-xl mx-auto mb-8">
-                        <div className="flex justify-between text-sm mb-2 text-pink-100">
-                            <span>Đã quyên góp</span>
-                            <span>{formatCurrency(stats.totalRaised)} / {formatCurrency(stats.targetAmount)}</span>
+                    <div className="max-w-xl mx-auto mb-8 bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-lg">
+                        <div className="flex justify-between text-sm mb-2 text-gray-700">
+                            <span className="font-medium">Đã quyên góp</span>
+                            <span className="font-bold text-pink-600">{formatCurrency(stats.totalRaised)} / {formatCurrency(stats.targetAmount)}</span>
                         </div>
-                        <div className="h-4 bg-white/20 rounded-full overflow-hidden">
+                        <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
                             <div
-                                className="progress-bar h-full transition-all duration-1000 ease-out"
+                                className="progress-bar h-full transition-all duration-1000 ease-out bg-gradient-to-r from-pink-500 to-pink-400"
                                 style={{ width: `${percentComplete}%` }}
                             />
                         </div>
-                        <p className="text-sm mt-2 text-pink-100">
-                            {percentComplete}% hoàn thành • {stats.totalDonors} người đóng góp • {stats.treesSponsored} cây đã có chủ
+                        <p className="text-sm mt-2 text-gray-600 text-center">
+                            <span className="font-bold text-pink-600">{percentComplete}%</span> hoàn thành • {stats.totalDonors} người đóng góp • {stats.treesSponsored} cây đã có chủ
                         </p>
                     </div>
                 )}
@@ -78,22 +78,22 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
                 {/* Stats Cards */}
                 {stats && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
-                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
-                            <div className="text-2xl md:text-3xl font-bold text-pink-600">{formatCurrency(stats.targetAmount)}</div>
-                            <div className="text-sm text-gray-600">Mục tiêu</div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-12 max-w-4xl mx-auto">
+                        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-lg md:text-xl font-bold text-pink-600 whitespace-nowrap">500 triệu</div>
+                            <div className="text-xs md:text-sm text-gray-600">Mục tiêu</div>
                         </div>
-                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
-                            <div className="text-2xl md:text-3xl font-bold text-pink-600">200</div>
-                            <div className="text-sm text-gray-600">Cây Mai Anh Đào</div>
+                        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-xl md:text-2xl font-bold text-pink-600">200</div>
+                            <div className="text-xs md:text-sm text-gray-600">Cây Mai Anh Đào</div>
                         </div>
-                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
-                            <div className="text-2xl md:text-3xl font-bold text-pink-600">10</div>
-                            <div className="text-sm text-gray-600">Ngày cao điểm</div>
+                        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-xl md:text-2xl font-bold text-pink-600">10</div>
+                            <div className="text-xs md:text-sm text-gray-600">Ngày cao điểm</div>
                         </div>
-                        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 text-center shadow-lg border border-white/50">
-                            <div className="text-2xl md:text-3xl font-bold text-pink-600">{stats.treesAvailable}</div>
-                            <div className="text-sm text-gray-600">Cây chờ đóng góp</div>
+                        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 text-center shadow-lg border border-white/50">
+                            <div className="text-xl md:text-2xl font-bold text-pink-600">{stats.treesAvailable}</div>
+                            <div className="text-xs md:text-sm text-gray-600">Cây chờ đóng góp</div>
                         </div>
                     </div>
                 )}
