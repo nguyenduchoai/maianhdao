@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     const checkAccess = () => {
         // Admin-only pages
-        const adminOnlyPages = ['/admin/settings', '/admin/users'];
+        const adminOnlyPages = ['/admin/settings', '/admin/users', '/admin/content'];
         const isAdminOnlyPage = adminOnlyPages.some(page => pathname.startsWith(page));
 
         if (isAdminOnlyPage && user?.role !== 'admin') {
@@ -77,6 +77,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { href: '/admin/finance', label: 'Tài Chính', icon: '📈' },
         { href: '/admin/sponsors', label: 'Ban Tổ Chức', icon: '🏛️' },
         ...(isAdmin ? [
+            { href: '/admin/content', label: 'Nội Dung Web', icon: '📝' },
             { href: '/admin/users', label: 'Users', icon: '👥' },
             { href: '/admin/settings', label: 'Cài Đặt', icon: '⚙️' },
         ] : []),
