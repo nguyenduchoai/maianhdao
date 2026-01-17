@@ -168,7 +168,7 @@ export function InteractiveMap({ trees }: InteractiveMapProps) {
                     <MapContainer
                         center={center}
                         zoom={18}
-                        style={{ height: '600px', width: '100%' }}
+                        style={{ height: '800px', width: '100%' }}
                         scrollWheelZoom={true}
                     >
                         <TileLayer
