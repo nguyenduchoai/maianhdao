@@ -638,7 +638,6 @@ export default function DonationDetailPage() {
                                     <option value="dauun">🌸 DẤU ẤN (1-2tr)</option>
                                     <option value="guitrao">💝 GỬI TRAO (200k-500k)</option>
                                     <option value="gieomam">🌱 GIEO MẦM (50k-100k)</option>
-                                    <option value="sponsor">🎁 TÀI TRỢ (Hiện vật/Dịch vụ)</option>
                                 </select>
                             </div>
                             <div>
