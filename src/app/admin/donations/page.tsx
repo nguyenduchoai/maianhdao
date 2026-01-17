@@ -284,18 +284,28 @@ export default function AdminDonationsPage() {
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     <div className="flex items-center justify-end gap-2">
+                                        {d.status === 'pending' && (
+                                            <button
+                                                onClick={async () => {
+                                                    if (!confirm(`Duyệt đóng góp của "${d.name}"?`)) return;
+                                                    const res = await fetch('/api/admin/donations', {
+                                                        method: 'PUT',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ id: d.id, status: 'approved' }),
+                                                    });
+                                                    if ((await res.json()).success) fetchDonations();
+                                                }}
+                                                className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
+                                            >
+                                                ✓ Duyệt
+                                            </button>
+                                        )}
                                         <Link
                                             href={`/admin/donations/${d.id}`}
                                             className="text-blue-600 hover:underline text-sm"
                                         >
                                             Chi tiết
                                         </Link>
-                                        <button
-                                            onClick={() => router.push(`/admin/donations/${d.id}`)}
-                                            className="text-green-600 hover:underline text-sm"
-                                        >
-                                            Sửa
-                                        </button>
                                         <button
                                             onClick={() => handleDelete(d.id, d.name)}
                                             disabled={isDeleting === d.id}

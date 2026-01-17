@@ -12,6 +12,17 @@ interface DonationFormProps {
     };
 }
 
+// Remove Vietnamese diacritics
+function removeVietnameseDiacritics(str: string): string {
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .toUpperCase();
+}
+
 export function DonationForm({ bankInfo }: DonationFormProps) {
     const [formData, setFormData] = useState({
         name: '',
@@ -20,9 +31,12 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
         amount: 5000000,
         message: '',
         isOrganization: false,
+        logoUrl: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isConfirmed, setIsConfirmed] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [uploadingLogo, setUploadingLogo] = useState(false);
 
     const presetAmounts = [
         { value: 2000000, label: '2 triệu' },
@@ -32,18 +46,59 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
         { value: 50000000, label: '50 triệu' },
     ];
 
-    // Generate VietQR content
-    const qrContent = `https://img.vietqr.io/image/${bankInfo.bankName}-${bankInfo.accountNumber}-compact.png?amount=${formData.amount}&addInfo=${encodeURIComponent(`DON GOP MAI ANH DAO - ${formData.name || 'KHACH HANG'}`)}&accountName=${encodeURIComponent(bankInfo.accountHolder)}`;
+    // Generate transfer content (no diacritics)
+    const transferContent = removeVietnameseDiacritics(
+        `MAI ANH DAO ${formData.name}${formData.message ? ' ' + formData.message : ''}`
+    ).slice(0, 50);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // Generate VietQR URL
+    const qrContent = `https://img.vietqr.io/image/${bankInfo.bankName}-${bankInfo.accountNumber}-compact.png?amount=${formData.amount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(bankInfo.accountHolder)}`;
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingLogo(true);
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', file);
+        formDataUpload.append('type', 'donors');
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formDataUpload,
+            });
+            const data = await res.json();
+            if (data.url) {
+                setFormData({ ...formData, logoUrl: data.url });
+            }
+        } catch (error) {
+            console.error('Error uploading logo:', error);
+        } finally {
+            setUploadingLogo(false);
+        }
+    };
+
+    const handleConfirm = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!formData.name) {
+            alert('Vui lòng nhập tên!');
+            return;
+        }
+        setIsConfirmed(true);
+    };
+
+    const handleSubmit = async () => {
         setIsSubmitting(true);
 
         try {
             const res = await fetch('/api/donations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    logo_url: formData.logoUrl,
+                }),
             });
 
             if (res.ok) {
@@ -69,7 +124,19 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                             Đóng góp của bạn đã được ghi nhận. Chúng tôi sẽ xác nhận sau khi nhận được thanh toán.
                         </p>
                         <button
-                            onClick={() => setSubmitted(false)}
+                            onClick={() => {
+                                setSubmitted(false);
+                                setIsConfirmed(false);
+                                setFormData({
+                                    name: '',
+                                    phone: '',
+                                    email: '',
+                                    amount: 5000000,
+                                    message: '',
+                                    isOrganization: false,
+                                    logoUrl: '',
+                                });
+                            }}
                             className="btn-primary"
                         >
                             Đóng Góp Thêm
@@ -97,7 +164,7 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                     <div className="glass-card p-6 md:p-8">
                         <h3 className="text-xl font-semibold text-gray-800 mb-6">Thông tin đóng góp</h3>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleConfirm} className="space-y-4">
                             {/* Name */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -106,9 +173,10 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                 <input
                                     type="text"
                                     required
+                                    disabled={isConfirmed}
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
                                     placeholder="Nguyễn Văn A"
                                 />
                             </div>
@@ -117,12 +185,58 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="checkbox"
+                                    disabled={isConfirmed}
                                     checked={formData.isOrganization}
                                     onChange={(e) => setFormData({ ...formData, isOrganization: e.target.checked })}
                                     className="w-4 h-4 rounded text-pink-600"
                                 />
                                 <span className="text-sm text-gray-600">Đây là đơn vị / doanh nghiệp</span>
                             </label>
+
+                            {/* Logo Upload */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Logo / Ảnh đại diện (không bắt buộc)
+                                </label>
+                                <div className="flex items-center gap-4">
+                                    {formData.logoUrl ? (
+                                        <div className="relative">
+                                            <img
+                                                src={formData.logoUrl}
+                                                alt="Logo"
+                                                className="w-16 h-16 object-cover rounded-lg border"
+                                            />
+                                            {!isConfirmed && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, logoUrl: '' })}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+                                                >
+                                                    ×
+                                                </button>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <label className={`flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 ${isConfirmed ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                            {uploadingLogo ? (
+                                                <span className="animate-spin">⏳</span>
+                                            ) : (
+                                                <>
+                                                    <span>📷</span>
+                                                    <span className="text-sm">Tải ảnh lên</span>
+                                                </>
+                                            )}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                disabled={isConfirmed || uploadingLogo}
+                                                onChange={handleLogoUpload}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
 
                             {/* Phone & Email */}
                             <div className="grid grid-cols-2 gap-4">
@@ -132,9 +246,10 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                     </label>
                                     <input
                                         type="tel"
+                                        disabled={isConfirmed}
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
                                         placeholder="0912345678"
                                     />
                                 </div>
@@ -144,9 +259,10 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                     </label>
                                     <input
                                         type="email"
+                                        disabled={isConfirmed}
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
                                         placeholder="email@example.com"
                                     />
                                 </div>
@@ -162,13 +278,15 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                         <button
                                             key={preset.value}
                                             type="button"
+                                            disabled={isConfirmed}
                                             onClick={() => setFormData({ ...formData, amount: preset.value })}
                                             className={`
-                        py-2 px-3 rounded-lg text-sm font-medium transition-all
-                        ${formData.amount === preset.value
+                                                py-2 px-3 rounded-lg text-sm font-medium transition-all
+                                                ${formData.amount === preset.value
                                                     ? 'bg-pink-600 text-white'
                                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
-                      `}
+                                                ${isConfirmed ? 'opacity-50 cursor-not-allowed' : ''}
+                                            `}
                                         >
                                             {preset.label}
                                         </button>
@@ -179,9 +297,10 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                     required
                                     min={100000}
                                     step={100000}
+                                    disabled={isConfirmed}
                                     value={formData.amount}
                                     onChange={(e) => setFormData({ ...formData, amount: parseInt(e.target.value) || 0 })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
                                 />
                                 <p className="text-sm text-gray-500 mt-1">
                                     {formatCurrency(formData.amount)} - {getTierLabel(getDonationTier(formData.amount))}
@@ -194,57 +313,84 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                     Lời nhắn (không bắt buộc)
                                 </label>
                                 <textarea
+                                    disabled={isConfirmed}
                                     value={formData.message}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     rows={3}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
                                     placeholder="Chúc chiến dịch thành công..."
                                 />
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full btn-primary py-3 text-lg disabled:opacity-50"
-                            >
-                                {isSubmitting ? 'Đang xử lý...' : 'Xác Nhận Thông Tin'}
-                            </button>
+                            {!isConfirmed ? (
+                                <button
+                                    type="submit"
+                                    className="w-full btn-primary py-3 text-lg"
+                                >
+                                    Xác Nhận Thông Tin
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsConfirmed(false)}
+                                    className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg text-lg"
+                                >
+                                    ✏️ Sửa thông tin
+                                </button>
+                            )}
                         </form>
                     </div>
 
-                    {/* QR Code */}
+                    {/* QR Code - Only show after confirmed */}
                     <div className="glass-card p-6 md:p-8 text-center">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-6">Quét mã QR để thanh toán</h3>
+                        {!isConfirmed ? (
+                            <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                                <div className="text-6xl mb-4">📋</div>
+                                <p className="text-lg">Vui lòng điền thông tin và nhấn<br /><strong>"Xác Nhận Thông Tin"</strong><br />để hiển thị mã QR thanh toán</p>
+                            </div>
+                        ) : (
+                            <>
+                                <h3 className="text-xl font-semibold text-gray-800 mb-6">Quét mã QR để thanh toán</h3>
 
-                        <div className="qr-container inline-block mb-6">
-                            <QRCode
-                                value={qrContent}
-                                size={200}
-                                level="M"
-                            />
-                        </div>
+                                <div className="qr-container inline-block mb-6">
+                                    <QRCode
+                                        value={qrContent}
+                                        size={200}
+                                        level="M"
+                                    />
+                                </div>
 
-                        <div className="text-left bg-gray-50 rounded-lg p-4 mb-6">
-                            <p className="text-sm text-gray-600 mb-2">
-                                <span className="font-medium">Ngân hàng:</span> {bankInfo.bankName}
-                            </p>
-                            <p className="text-sm text-gray-600 mb-2">
-                                <span className="font-medium">Số tài khoản:</span> {bankInfo.accountNumber}
-                            </p>
-                            <p className="text-sm text-gray-600 mb-2">
-                                <span className="font-medium">Chủ tài khoản:</span> {bankInfo.accountHolder}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                                <span className="font-medium">Số tiền:</span> {formatCurrency(formData.amount)}
-                            </p>
-                        </div>
+                                <div className="text-left bg-gray-50 rounded-lg p-4 mb-6">
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        <span className="font-medium">Ngân hàng:</span> {bankInfo.bankName}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        <span className="font-medium">Số tài khoản:</span> {bankInfo.accountNumber}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        <span className="font-medium">Chủ tài khoản:</span> {bankInfo.accountHolder}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <span className="font-medium">Số tiền:</span> {formatCurrency(formData.amount)}
+                                    </p>
+                                </div>
 
-                        <p className="text-sm text-gray-500">
-                            Nội dung chuyển khoản: <br />
-                            <code className="bg-pink-100 px-2 py-1 rounded text-pink-700">
-                                DON GOP MAI ANH DAO - {formData.name || 'TEN CUA BAN'}
-                            </code>
-                        </p>
+                                <div className="mb-6">
+                                    <p className="text-sm text-gray-500 mb-2">Nội dung chuyển khoản:</p>
+                                    <code className="block bg-pink-100 px-3 py-2 rounded text-pink-700 font-mono text-sm">
+                                        {transferContent}
+                                    </code>
+                                </div>
+
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={isSubmitting}
+                                    className="w-full btn-primary py-3 text-lg disabled:opacity-50"
+                                >
+                                    {isSubmitting ? '⏳ Đang gửi...' : '✅ Tôi Đã Chuyển Khoản'}
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
