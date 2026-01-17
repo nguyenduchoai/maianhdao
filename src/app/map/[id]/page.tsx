@@ -177,13 +177,13 @@ export default function MapTreePage() {
             {/* Main Content */}
             <div className="flex h-[calc(100vh-56px)]">
                 {/* Sidebar - Tree List */}
-                <aside className="w-80 bg-white border-r border-gray-200 flex flex-col">
+                <aside className="w-80 bg-white border-r border-pink-100 flex flex-col">
                     {/* Filters */}
-                    <div className="p-3 border-b space-y-2">
+                    <div className="p-3 space-y-2">
                         <select
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
-                            className="w-full px-2 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-pink-500"
+                            className="w-full px-3 py-2 bg-pink-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 text-gray-700"
                         >
                             <option value="all">Tất cả ({stats.total})</option>
                             <option value="sponsored">Đã có chủ ({stats.sponsored})</option>
@@ -193,8 +193,8 @@ export default function MapTreePage() {
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Tìm mã cây, tên người..."
-                            className="w-full px-2 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-pink-500"
+                            placeholder="🔍 Tìm mã cây, tên người..."
+                            className="w-full px-3 py-2 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 placeholder-gray-400"
                         />
                     </div>
 
