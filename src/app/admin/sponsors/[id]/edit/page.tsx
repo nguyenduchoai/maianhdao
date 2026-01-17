@@ -159,17 +159,10 @@ export default function EditSponsorPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Cấp độ tài trợ</label>
-                            <select
-                                value={formData.tier}
-                                onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
-                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
-                            >
-                                <option value="organizer">🏆 Đơn vị tổ chức</option>
-                                <option value="diamond">💎 Kim cương</option>
-                                <option value="gold">🥇 Vàng</option>
-                                <option value="silver">🥈 Bạc</option>
-                            </select>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Loại</label>
+                            <div className="px-3 py-2 bg-pink-50 border border-pink-200 rounded-lg text-pink-700 font-medium">
+                                🏛️ Đơn vị Ban Tổ Chức
+                            </div>
                         </div>
 
                         <div>

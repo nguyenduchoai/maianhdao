@@ -35,7 +35,7 @@ export default function AdminSponsorsPage() {
     };
 
     const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Bạn có chắc muốn xóa nhà tài trợ "${name}"?`)) return;
+        if (!confirm(`Bạn có chắc muốn xóa "${name}" khỏi Ban Tổ Chức?`)) return;
         setIsDeleting(id);
         try {
             const res = await fetch(`/api/admin/sponsors?id=${id}`, { method: 'DELETE' });
@@ -69,9 +69,9 @@ export default function AdminSponsorsPage() {
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">🏢 Nhà Tài Trợ ({sponsors.length})</h2>
+                <h2 className="text-2xl font-bold text-gray-800">🏛️ Ban Tổ Chức ({sponsors.length})</h2>
                 <Link href="/admin/sponsors/new" className="btn-primary py-2 px-4">
-                    + Thêm Nhà Tài Trợ
+                    + Thêm Đơn Vị
                 </Link>
             </div>
 
@@ -89,8 +89,8 @@ export default function AdminSponsorsPage() {
                             </div>
                             <div className="flex-1">
                                 <div className="font-medium text-gray-800">{s.name}</div>
-                                <span className={`tier-badge tier-${s.tier} text-xs`}>
-                                    {s.tier === 'organizer' ? 'Đơn vị tổ chức' : getTierLabel(s.tier)}
+                                <span className="text-xs text-pink-600 font-medium uppercase">
+                                    Đơn vị tổ chức
                                 </span>
                             </div>
                         </div>
