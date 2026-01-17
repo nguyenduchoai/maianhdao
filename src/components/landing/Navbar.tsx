@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export function Navbar() {
+interface NavbarProps {
+    settings?: Record<string, string>;
+}
+
+export function Navbar({ settings = {} }: NavbarProps) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

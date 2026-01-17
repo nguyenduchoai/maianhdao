@@ -1,6 +1,10 @@
 'use client';
 
-export function DonationTiersSection() {
+interface DonationTiersSectionProps {
+    settings?: Record<string, string>;
+}
+
+export function DonationTiersSection({ settings = {} }: DonationTiersSectionProps) {
     const tiers = [
         {
             level: 1,

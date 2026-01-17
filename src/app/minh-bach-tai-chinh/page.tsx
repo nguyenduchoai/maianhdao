@@ -118,6 +118,7 @@ export default function FinanceTransparencyPage() {
                                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Người đóng góp</th>
                                         <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">Số tiền</th>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Cấp độ</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ghi chú</th>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ngày</th>
                                     </tr>
                                 </thead>
@@ -137,6 +138,9 @@ export default function FinanceTransparencyPage() {
                                                 <span className={`tier-badge tier-${donation.tier}`}>
                                                     {tierLabels[donation.tier] || donation.tier}
                                                 </span>
+                                            </td>
+                                            <td className="py-4 px-4 text-sm text-gray-600 max-w-xs">
+                                                {donation.message || '—'}
                                             </td>
                                             <td className="py-4 px-4 text-sm text-gray-500">
                                                 {new Date(donation.createdAt).toLocaleDateString('vi-VN')}

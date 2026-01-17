@@ -1,6 +1,10 @@
 'use client';
 
-export function EventSection() {
+interface EventSectionProps {
+    settings?: Record<string, string>;
+}
+
+export function EventSection({ settings = {} }: EventSectionProps) {
     return (
         <section id="event" className="py-16 bg-gradient-to-b from-white to-pink-50">
             <div className="container mx-auto px-4">
@@ -10,15 +14,15 @@ export function EventSection() {
                     <div className="text-center mb-8">
                         <span className="text-5xl mb-4 block">🎉</span>
                         <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                            Lễ Phát Động & Ra Quân
+                            {settings.eventTitle || 'Lễ Phát Động & Ra Quân'}
                         </h2>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                         <div className="bg-gradient-to-r from-pink-500 to-pink-600 text-white p-8 text-center">
                             <div className="text-lg opacity-90 mb-2">Thời gian</div>
-                            <div className="text-3xl md:text-4xl font-bold mb-2">07:30 Sáng, Thứ Năm</div>
-                            <div className="text-2xl md:text-3xl font-heading">Ngày 18 Tháng 01, 2026</div>
+                            <div className="text-3xl md:text-4xl font-bold mb-2">{settings.eventTime || '07:30 Sáng, Thứ Năm'}</div>
+                            <div className="text-2xl md:text-3xl font-heading">{settings.eventDate || 'Ngày 18 Tháng 01, 2026'}</div>
                         </div>
 
                         <div className="p-8">
@@ -28,7 +32,7 @@ export function EventSection() {
                                         <span className="text-2xl">📍</span> Địa điểm
                                     </h4>
                                     <p className="text-gray-600">
-                                        Khu vực bãi cỏ/công viên ven Hồ Xuân Hương thuộc địa bàn Phường
+                                        {settings.eventLocation || 'Khu vực bãi cỏ/công viên ven Hồ Xuân Hương thuộc địa bàn Phường'}
                                     </p>
                                 </div>
                                 <div>
@@ -36,7 +40,7 @@ export function EventSection() {
                                         <span className="text-2xl">👥</span> Thành phần
                                     </h4>
                                     <p className="text-gray-600">
-                                        Lãnh đạo Tỉnh, Lãnh đạo Phường, Doanh nghiệp, Đại diện nhân dân
+                                        {settings.eventParticipants || 'Lãnh đạo Tỉnh, Lãnh đạo Phường, Doanh nghiệp, Đại diện nhân dân'}
                                     </p>
                                 </div>
                             </div>
@@ -49,19 +53,19 @@ export function EventSection() {
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-xl">
                                     <span className="text-pink-500 font-bold">1</span>
-                                    <p className="text-gray-700">Báo cáo nhanh kết quả 10 ngày thần tốc</p>
+                                    <p className="text-gray-700">{settings.eventProgram1 || 'Báo cáo nhanh kết quả 10 ngày thần tốc'}</p>
                                 </div>
                                 <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-xl">
                                     <span className="text-pink-500 font-bold">2</span>
-                                    <p className="text-gray-700">Trao Giấy khen/Thư cảm ơn cho Doanh nghiệp "Kiến Tạo"</p>
+                                    <p className="text-gray-700">{settings.eventProgram2 || 'Trao Giấy khen/Thư cảm ơn cho Doanh nghiệp "Kiến Tạo"'}</p>
                                 </div>
                                 <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-xl">
                                     <span className="text-pink-500 font-bold">3</span>
-                                    <p className="text-gray-700">Nghi thức trồng cây: Đại diện vun đất và treo biển tên</p>
+                                    <p className="text-gray-700">{settings.eventProgram3 || 'Nghi thức trồng cây: Đại diện vun đất và treo biển tên'}</p>
                                 </div>
                                 <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-xl">
                                     <span className="text-pink-500 font-bold">4</span>
-                                    <p className="text-gray-700">Check-in quảng bá cùng cây của mình</p>
+                                    <p className="text-gray-700">{settings.eventProgram4 || 'Check-in quảng bá cùng cây của mình'}</p>
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,10 @@
 'use client';
 
-export function Footer() {
+interface FooterProps {
+    settings?: Record<string, string>;
+}
+
+export function Footer({ settings = {} }: FooterProps) {
     return (
         <footer className="bg-gray-900 text-white py-12">
             <div className="container mx-auto px-4">

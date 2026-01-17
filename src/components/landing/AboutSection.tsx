@@ -1,6 +1,10 @@
 'use client';
 
-export function AboutSection() {
+interface AboutSectionProps {
+    settings?: Record<string, string>;
+}
+
+export function AboutSection({ settings = {} }: AboutSectionProps) {
     return (
         <section id="about" className="py-16 bg-gradient-to-b from-pink-50 to-white">
             <div className="container mx-auto px-4">
@@ -8,10 +12,10 @@ export function AboutSection() {
                 <div className="text-center mb-12">
                     <span className="text-5xl mb-4 block">🌸</span>
                     <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                        Về Chiến Dịch
+                        {settings.aboutTitle || 'Về Chiến Dịch'}
                     </h2>
                     <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                        Xã hội hóa cảnh quan & Gây quỹ cộng đồng – Ngàn Cây Anh Đào quanh Hồ Xuân Hương
+                        {settings.aboutSubtitle || 'Xã hội hóa cảnh quan & Gây quỹ cộng đồng – Ngàn Cây Anh Đào quanh Hồ Xuân Hương'}
                     </p>
                 </div>
 

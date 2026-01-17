@@ -168,19 +168,19 @@ export default async function HomePage() {
       <CherryBlossomPetals />
 
       {/* Navigation */}
-      <Navbar />
+      <Navbar settings={settings} />
 
       {/* Hero Section with Stats */}
-      <HeroSection stats={stats} />
+      <HeroSection stats={stats} settings={settings} />
 
       {/* About Campaign Section */}
-      <AboutSection />
+      <AboutSection settings={settings} />
 
       {/* Donation Tiers */}
-      <DonationTiersSection />
+      <DonationTiersSection settings={settings} />
 
       {/* Event & Financial Transparency */}
-      <EventSection />
+      <EventSection settings={settings} />
 
       {/* Interactive Map */}
       <InteractiveMap trees={trees} />
@@ -195,7 +195,7 @@ export default async function HomePage() {
       <DonationWall donations={donations} />
 
       {/* Footer */}
-      <Footer />
+      <Footer settings={settings} />
     </main>
   );
 }
