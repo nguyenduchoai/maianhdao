@@ -6,9 +6,10 @@ import { Donation } from '@/types';
 
 interface DonationWallProps {
     donations: Donation[];
+    settings?: Record<string, string>;
 }
 
-export function DonationWall({ donations }: DonationWallProps) {
+export function DonationWall({ donations, settings = {} }: DonationWallProps) {
     const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
 
     // Group donations by the 4 tiers - prioritize tier field over amount
@@ -38,10 +39,10 @@ export function DonationWall({ donations }: DonationWallProps) {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="font-heading text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-                        🌸 Bảng Vinh Danh
+                        {settings.donorsTitle || '🌸 Bảng Vinh Danh'}
                     </h2>
                     <p className="text-gray-600 max-w-2xl mx-auto">
-                        Cảm ơn tất cả các cá nhân và đơn vị đã đóng góp cho chiến dịch
+                        {settings.donorsSubtitle || 'Cảm ơn tất cả các cá nhân và đơn vị đã đóng góp cho chiến dịch'}
                     </p>
                 </div>
 

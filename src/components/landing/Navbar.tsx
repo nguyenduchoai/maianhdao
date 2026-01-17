@@ -20,11 +20,11 @@ export function Navbar({ settings = {} }: NavbarProps) {
     }, []);
 
     const navLinks = [
-        { href: '#map', label: 'Bản Đồ' },
-        { href: '#donate', label: 'Đóng Góp' },
-        { href: '#sponsors', label: 'Ban Tổ Chức' },
-        { href: '#donors', label: 'Bảng Vinh Danh' },
-        { href: '/minh-bach-tai-chinh', label: '📊 Minh Bạch', isLink: true },
+        { href: '#map', label: settings.navLinkMap || 'Bản Đồ' },
+        { href: '#donate', label: settings.navLinkDonate || 'Đóng Góp' },
+        { href: '#sponsors', label: settings.navLinkSponsors || 'Ban Tổ Chức' },
+        { href: '#donors', label: settings.navLinkDonors || 'Bảng Vinh Danh' },
+        { href: '/minh-bach-tai-chinh', label: settings.navLinkTransparency || '📊 Minh Bạch', isLink: true },
     ];
 
     return (
@@ -33,8 +33,7 @@ export function Navbar({ settings = {} }: NavbarProps) {
         fixed top-0 left-0 right-0 z-50 transition-all duration-300
         ${isScrolled
                     ? 'bg-white/90 backdrop-blur-md shadow-lg'
-                    : 'bg-transparent'}
-      `}
+                    : 'bg-transparent'}`}
         >
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-16 md:h-20">
@@ -45,7 +44,7 @@ export function Navbar({ settings = {} }: NavbarProps) {
               font-heading font-bold text-lg md:text-xl
               ${isScrolled ? 'text-pink-600' : 'text-white'}
             `}>
-                            Ngàn Cây Anh Đào
+                            {settings.navLogoText || 'Ngàn Cây Anh Đào'}
                         </span>
                     </Link>
 
@@ -80,7 +79,10 @@ export function Navbar({ settings = {} }: NavbarProps) {
                                 </a>
                             )
                         ))}
-                        <a href="#donate" className="btn-primary py-2 px-4 text-sm">
+                        <a
+                            href="#donate"
+                            className="bg-pink-600 text-white px-4 py-2 rounded-full font-medium hover:bg-pink-700 transition-colors"
+                        >
                             💝 Đóng Góp
                         </a>
                     </div>
@@ -88,30 +90,28 @@ export function Navbar({ settings = {} }: NavbarProps) {
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className={`md:hidden p-2 ${isScrolled ? 'text-gray-800' : 'text-white'}`}
+                        className={`md:hidden p-2 ${isScrolled ? 'text-gray-700' : 'text-white'}`}
                     >
-                        {isMobileMenuOpen ? (
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {isMobileMenuOpen ? (
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        ) : (
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ) : (
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        )}
+                            )}
+                        </svg>
                     </button>
                 </div>
 
                 {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden bg-white rounded-b-2xl shadow-lg py-4 px-4 mb-4">
+                    <div className="md:hidden bg-white rounded-lg shadow-lg mt-2 p-4">
                         {navLinks.map((link) => (
                             link.isLink ? (
                                 <Link
                                     key={link.href}
                                     href={link.href}
+                                    className="block py-2 text-gray-700 hover:text-pink-600"
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block py-3 text-gray-700 font-medium hover:text-pink-600 border-b border-gray-100"
                                 >
                                     {link.label}
                                 </Link>
@@ -119,8 +119,8 @@ export function Navbar({ settings = {} }: NavbarProps) {
                                 <a
                                     key={link.href}
                                     href={link.href}
+                                    className="block py-2 text-gray-700 hover:text-pink-600"
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block py-3 text-gray-700 font-medium hover:text-pink-600 border-b border-gray-100"
                                 >
                                     {link.label}
                                 </a>
@@ -128,10 +128,10 @@ export function Navbar({ settings = {} }: NavbarProps) {
                         ))}
                         <a
                             href="#donate"
+                            className="block mt-2 bg-pink-600 text-white text-center py-2 rounded-full"
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="block mt-4 btn-primary text-center py-3"
                         >
-                            💝 Đóng Góp Ngay
+                            💝 Đóng Góp
                         </a>
                     </div>
                 )}

@@ -5,9 +5,10 @@ import Image from 'next/image';
 
 interface SponsorsSectionProps {
     sponsors: Sponsor[];
+    settings?: Record<string, string>;
 }
 
-export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
+export function SponsorsSection({ sponsors, settings = {} }: SponsorsSectionProps) {
     // Chỉ lấy organizers (Ban Tổ Chức)
     const organizers = sponsors.filter(s => s.tier === 'organizer');
 
@@ -20,10 +21,10 @@ export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="font-heading text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-                        🏛️ Ban Tổ Chức
+                        {settings.sponsorsTitle || '🏛️ Ban Tổ Chức'}
                     </h2>
                     <p className="text-gray-600 max-w-2xl mx-auto">
-                        Chiến dịch được tổ chức bởi các đơn vị uy tín tại Lâm Đồng
+                        {settings.sponsorsSubtitle || 'Chiến dịch được tổ chức bởi các đơn vị uy tín tại Lâm Đồng'}
                     </p>
                 </div>
 

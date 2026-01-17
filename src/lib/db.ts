@@ -222,6 +222,25 @@ function getDb(): Database.Database {
     ['footerCampaignTime', '05/01/2026 - 15/01/2026 (10 ngày cao điểm)'],
     ['footerCampaignGoal', '500.000.000 VNĐ | Ngàn cây hoa Anh Đào cho Đà Lạt'],
     ['footerCopyright', '© 2026 Chiến dịch NGÀN CÂY ANH ĐÀO - Hội DNT tỉnh Lâm Đồng.'],
+    // Navbar
+    ['navLogoText', 'Ngàn Cây Anh Đào'],
+    ['navLinkMap', 'Bản Đồ'],
+    ['navLinkDonate', 'Đóng Góp'],
+    ['navLinkSponsors', 'Ban Tổ Chức'],
+    ['navLinkDonors', 'Bảng Vinh Danh'],
+    ['navLinkTransparency', '📊 Minh Bạch'],
+    // Sponsors Section
+    ['sponsorsTitle', '🏛️ Ban Tổ Chức'],
+    ['sponsorsSubtitle', 'Chiến dịch được tổ chức bởi các đơn vị uy tín tại Lâm Đồng'],
+    // Donation Wall
+    ['donorsTitle', '🌸 Bảng Vinh Danh'],
+    ['donorsSubtitle', 'Cảm ơn tất cả các cá nhân và đơn vị đã đóng góp cho chiến dịch'],
+    // Map Section
+    ['mapTitle', '🗺️ Bản Đồ Cây Anh Đào'],
+    ['mapSubtitle', 'Khám phá vị trí các cây Mai Anh Đào quanh Hồ Xuân Hương'],
+    // Donation Form
+    ['donationFormTitle', '💝 Đóng Góp'],
+    ['donationFormSubtitle', 'Để lại dấu ấn của bạn tại trái tim Đà Lạt'],
   ];
 
   const insertSetting = _db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');

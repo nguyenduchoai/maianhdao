@@ -190,10 +190,10 @@ export default async function HomePage() {
       <DonationForm bankInfo={bankInfo} />
 
       {/* Sponsors Section */}
-      <SponsorsSection sponsors={sponsors} />
+      <SponsorsSection sponsors={sponsors} settings={settings} />
 
       {/* Donation Wall */}
-      <DonationWall donations={donations} />
+      <DonationWall donations={donations} settings={settings} />
 
       {/* Footer */}
       <Footer settings={settings} />
