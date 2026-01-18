@@ -247,13 +247,33 @@ export function InteractiveMap({ trees }: InteractiveMapProps) {
     );
 }
 
-// Tree Popup Component - Enhanced like festival map
+// Tree Popup Component - Enhanced with Multi-Donor Support
 function TreePopup({ tree }: { tree: Tree }) {
     const defaultImages = [
         '/images/hero-bg.jpg',
         '/images/og-image.jpg'
     ];
     const treeImages = tree.images && tree.images.length > 0 ? tree.images : defaultImages;
+
+    // Get all donors from donors array or fallback to primary donor
+    const donors = tree.donors || (tree.donorName ? [{
+        id: tree.donorId || '',
+        name: tree.donorName,
+        logo_url: tree.donorLogo || null,
+        amount: tree.donorAmount || 0,
+        tier: 'kientao',
+        message: tree.donorMessage || null,
+    }] : []);
+
+    const getTierLabel = (tier: string) => {
+        switch (tier) {
+            case 'kientao': return '🏆 KIẾN TẠO';
+            case 'dauun': return '🌸 DẤU ẤN';
+            case 'guitrao': return '💝 GỬI TRAO';
+            case 'gieomam': return '🌱 GIEO MẦM';
+            default: return tier;
+        }
+    };
 
     return (
         <div className="min-w-[480px] max-w-[600px]">
@@ -274,39 +294,61 @@ function TreePopup({ tree }: { tree: Tree }) {
 
             {/* Content */}
             <div className="p-5 bg-white">
-                {tree.status === 'sponsored' && tree.donorName ? (
+                {tree.status === 'sponsored' && donors.length > 0 ? (
                     <>
-                        {/* Sponsor Logo/Banner - shown first */}
-                        <div className="flex items-center gap-4 mb-4 p-4 bg-gradient-to-r from-pink-50 to-white rounded-xl border border-pink-100">
-                            {tree.donorLogo ? (
-                                <div className="w-16 h-16 rounded-xl bg-white border-2 border-pink-200 flex items-center justify-center overflow-hidden shadow-sm">
-                                    <img
-                                        src={tree.donorLogo}
-                                        alt={tree.donorName}
-                                        className="w-14 h-14 object-contain"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center text-3xl border-2 border-pink-200">
-                                    🏢
-                                </div>
-                            )}
-                            <div className="flex-1">
-                                <h3 className="text-lg font-bold text-gray-800">{tree.donorName}</h3>
-                                {tree.donorAmount && (
-                                    <p className="text-pink-600 font-semibold">{formatCurrency(tree.donorAmount)}</p>
-                                )}
+                        {/* Multiple Donors Section */}
+                        <div className="mb-4">
+                            <h4 className="text-sm font-medium text-gray-500 mb-2">
+                                👥 Người sở hữu ({donors.length})
+                            </h4>
+                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                                {donors.map((donor, index) => (
+                                    <div
+                                        key={donor.id}
+                                        className={`flex items-center gap-3 p-3 rounded-xl border ${index === 0
+                                            ? 'bg-gradient-to-r from-pink-50 to-white border-pink-200'
+                                            : 'bg-gray-50 border-gray-100'
+                                            }`}
+                                    >
+                                        {donor.logo_url ? (
+                                            <div className="w-12 h-12 rounded-lg bg-white border border-pink-100 flex items-center justify-center overflow-hidden">
+                                                <img
+                                                    src={donor.logo_url}
+                                                    alt={donor.name}
+                                                    className="w-10 h-10 object-contain"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center text-xl">
+                                                🌸
+                                            </div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-gray-800 truncate">{donor.name}</span>
+                                                {index === 0 && (
+                                                    <span className="px-1.5 py-0.5 bg-pink-500 text-white text-xs rounded">Chính</span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className="text-pink-600 font-medium">{formatCurrency(donor.amount)}</span>
+                                                <span className="text-gray-400">•</span>
+                                                <span className="text-xs text-gray-500">{getTierLabel(donor.tier)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Donor Message / Ghi chú */}
-                        {tree.donorMessage && (
+                        {/* Primary Donor Message */}
+                        {donors[0]?.message && (
                             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <div className="flex items-start gap-2">
                                     <span className="text-lg">💬</span>
                                     <div>
                                         <p className="text-xs text-gray-500 font-medium mb-1">Ghi chú:</p>
-                                        <p className="text-gray-700 text-sm">{tree.donorMessage}</p>
+                                        <p className="text-gray-700 text-sm">{donors[0].message}</p>
                                     </div>
                                 </div>
                             </div>
@@ -367,16 +409,19 @@ function TreePopup({ tree }: { tree: Tree }) {
                         📍 Chỉ đường
                     </a>
                     <button
-                        className="py-2.5 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                        className="py-2.5 px-4 bg-pink-100 text-pink-700 rounded-lg text-sm hover:bg-pink-200 transition-colors font-medium"
                         onClick={() => {
-                            const shareText = `🌸 Cây ${tree.code} - Đảo Mai Anh Đào, Đà Lạt\n${tree.donorName ? `Nhà tài trợ: ${tree.donorName}` : 'Đang chờ người đóng góp!'}\nhttps://maianhdao.lamdong.vn`;
+                            const shareUrl = `https://maianhdao.lamdong.vn/map/${tree.id}`;
+                            const shareText = `🌸 Cây ${tree.code} - Đảo Mai Anh Đào, Đà Lạt\n${donors.length > 0 ? `Nhà tài trợ: ${donors.map(d => d.name).join(', ')}` : 'Đang chờ người đóng góp!'}\n${shareUrl}`;
                             navigator.clipboard.writeText(shareText);
+                            alert('Đã copy link chia sẻ!');
                         }}
                     >
-                        Đóng
+                        🔗 Chia sẻ
                     </button>
                 </div>
             </div>
         </div>
     );
 }
+

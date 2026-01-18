@@ -14,6 +14,7 @@ export default function NewDonationPage() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [trees, setTrees] = useState<Tree[]>([]);
+    const [treeSearch, setTreeSearch] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -21,7 +22,7 @@ export default function NewDonationPage() {
         amount: '',
         tier: 'kientao',
         message: '',
-        tree_id: '',
+        tree_ids: [] as string[],
         is_organization: false,
         logo_url: '',
     });
@@ -63,6 +64,15 @@ export default function NewDonationPage() {
         }
     };
 
+    const toggleTreeSelection = (treeId: string) => {
+        setFormData(prev => ({
+            ...prev,
+            tree_ids: prev.tree_ids.includes(treeId)
+                ? prev.tree_ids.filter(id => id !== treeId)
+                : [...prev.tree_ids, treeId]
+        }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.name || !formData.amount) {
@@ -84,7 +94,7 @@ export default function NewDonationPage() {
 
             const data = await res.json();
             if (data.success) {
-                alert('Đã thêm đóng góp thành công!');
+                alert(`Đã thêm đóng góp thành công! Gán ${formData.tree_ids.length} cây.`);
                 router.push('/admin/donations');
             } else {
                 alert(data.error || 'Có lỗi xảy ra');
@@ -103,6 +113,12 @@ export default function NewDonationPage() {
         { value: 'guitrao', label: '💝 GỬI TRAO (200.000 - 1.000.000đ)' },
         { value: 'gieomam', label: '🌱 GIEO MẦM (<200.000đ)' },
     ];
+
+    const filteredTrees = trees.filter(tree =>
+        treeSearch === '' ||
+        tree.code.toLowerCase().includes(treeSearch.toLowerCase()) ||
+        tree.zone.toLowerCase().includes(treeSearch.toLowerCase())
+    );
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -187,24 +203,77 @@ export default function NewDonationPage() {
                     </div>
                 </div>
 
-                {/* Tree Selection */}
+                {/* Multi-Tree Selection */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Gán cây (nếu có)
+                        Gán cây (có thể chọn nhiều) - Đã chọn: {formData.tree_ids.length}
                     </label>
-                    <select
-                        value={formData.tree_id}
-                        onChange={(e) => setFormData(prev => ({ ...prev, tree_id: e.target.value }))}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    >
-                        <option value="">-- Chưa gán cây --</option>
-                        {trees.map(tree => (
-                            <option key={tree.id} value={tree.id}>
-                                {tree.code} - Khu {tree.zone}
-                            </option>
-                        ))}
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">Chỉ hiển thị cây còn trống</p>
+
+                    {/* Selected trees display */}
+                    {formData.tree_ids.length > 0 && (
+                        <div className="mb-3 p-3 bg-pink-50 rounded-lg">
+                            <div className="flex flex-wrap gap-2">
+                                {formData.tree_ids.map(tid => {
+                                    const tree = trees.find(t => t.id === tid);
+                                    return tree ? (
+                                        <span key={tid} className="inline-flex items-center gap-1 px-2 py-1 bg-pink-200 text-pink-800 rounded text-sm">
+                                            {tree.code}
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleTreeSelection(tid)}
+                                                className="hover:text-pink-600"
+                                            >
+                                                ✕
+                                            </button>
+                                        </span>
+                                    ) : null;
+                                })}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, tree_ids: [] }))}
+                                className="mt-2 text-sm text-pink-600 hover:underline"
+                            >
+                                Bỏ chọn tất cả
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Search */}
+                    <input
+                        type="text"
+                        value={treeSearch}
+                        onChange={(e) => setTreeSearch(e.target.value)}
+                        placeholder="🔍 Tìm kiếm theo mã cây hoặc khu..."
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 mb-2"
+                    />
+
+                    {/* Tree list with checkboxes */}
+                    <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-lg">
+                        {filteredTrees.length > 0 ? (
+                            filteredTrees.map(tree => (
+                                <label
+                                    key={tree.id}
+                                    className={`flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-50 border-b last:border-b-0
+                                        ${formData.tree_ids.includes(tree.id) ? 'bg-pink-50' : ''}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.tree_ids.includes(tree.id)}
+                                        onChange={() => toggleTreeSelection(tree.id)}
+                                        className="w-4 h-4 text-pink-500 rounded focus:ring-pink-500"
+                                    />
+                                    <span className="font-medium">{tree.code}</span>
+                                    <span className="text-gray-500">- Khu {tree.zone}</span>
+                                </label>
+                            ))
+                        ) : (
+                            <p className="p-3 text-gray-500 text-center">Không có cây trống</p>
+                        )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Hiển thị {filteredTrees.length} / {trees.length} cây trống
+                    </p>
                 </div>
 
                 {/* Is Organization */}
@@ -269,7 +338,7 @@ export default function NewDonationPage() {
                         disabled={isSubmitting}
                         className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 text-white py-3 rounded-lg font-medium"
                     >
-                        {isSubmitting ? 'Đang lưu...' : '✅ Thêm đóng góp'}
+                        {isSubmitting ? 'Đang lưu...' : `✅ Thêm đóng góp (${formData.tree_ids.length} cây)`}
                     </button>
                     <button
                         type="button"

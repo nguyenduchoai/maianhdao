@@ -8,6 +8,15 @@ import { formatCurrency } from '@/lib/utils';
 
 const DraggableMap = dynamic(() => import('@/components/admin/DraggableMap'), { ssr: false });
 
+interface DonorInfo {
+    id: string;
+    name: string;
+    logo_url: string | null;
+    amount: number;
+    tier: string;
+    message: string | null;
+}
+
 interface Tree {
     id: string;
     code: string;
@@ -19,6 +28,7 @@ interface Tree {
     donorId?: string;
     donorName?: string;
     donorAmount?: number;
+    donors?: DonorInfo[]; // Multiple donors!
 }
 
 export default function TreeDetailPage() {
@@ -91,6 +101,16 @@ export default function TreeDetailPage() {
         }
     };
 
+    const getTierLabel = (tier: string) => {
+        switch (tier) {
+            case 'kientao': return '🏆 KIẾN TẠO';
+            case 'dauun': return '🌸 DẤU ẤN';
+            case 'guitrao': return '💝 GỬI TRAO';
+            case 'gieomam': return '🌱 GIEO MẦM';
+            default: return tier;
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="bg-white rounded-lg shadow-sm p-12 text-center">
@@ -110,6 +130,9 @@ export default function TreeDetailPage() {
             </div>
         );
     }
+
+    // Get all donors for this tree
+    const donors = tree.donors || [];
 
     return (
         <div>
@@ -280,24 +303,75 @@ export default function TreeDetailPage() {
                     </div>
                 </div>
 
-                {/* Donor Info */}
-                {tree.donorName && (
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="font-semibold text-gray-800 mb-4">👤 Người sở hữu</h3>
+                {/* MULTIPLE DONORS - NEW SECTION */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="font-semibold text-gray-800 mb-4">
+                        👥 Người sở hữu ({donors.length})
+                    </h3>
 
-                        <div className="flex items-center gap-4 p-4 bg-pink-50 rounded-lg">
-                            <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center text-3xl">
-                                🌸
-                            </div>
-                            <div>
-                                <p className="font-bold text-gray-800 text-lg">{tree.donorName}</p>
-                                {tree.donorAmount && (
-                                    <p className="text-pink-600 font-medium">{formatCurrency(tree.donorAmount)}</p>
-                                )}
-                            </div>
+                    {donors.length > 0 ? (
+                        <div className="space-y-3">
+                            {donors.map((donor, index) => (
+                                <div
+                                    key={donor.id}
+                                    className={`flex items-center gap-4 p-4 rounded-lg ${index === 0 ? 'bg-pink-50 border-2 border-pink-200' : 'bg-gray-50'
+                                        }`}
+                                >
+                                    <div className="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                        {donor.logo_url ? (
+                                            <img
+                                                src={donor.logo_url}
+                                                alt={donor.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-2xl">🌸</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <p className="font-bold text-gray-800">{donor.name}</p>
+                                            {index === 0 && (
+                                                <span className="px-2 py-0.5 bg-pink-500 text-white text-xs rounded">
+                                                    Chính
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-3 mt-1">
+                                            {donor.amount > 0 && (
+                                                <span className="text-pink-600 font-medium">
+                                                    {formatCurrency(donor.amount)}
+                                                </span>
+                                            )}
+                                            <span className="text-xs text-gray-500">
+                                                {getTierLabel(donor.tier)}
+                                            </span>
+                                        </div>
+                                        {donor.message && (
+                                            <p className="text-sm text-gray-500 mt-1 italic truncate">
+                                                "{donor.message}"
+                                            </p>
+                                        )}
+                                    </div>
+                                    <Link
+                                        href={`/admin/donations/${donor.id}`}
+                                        className="text-pink-600 hover:underline text-sm flex-shrink-0"
+                                    >
+                                        Chi tiết →
+                                    </Link>
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div className="text-center py-8 bg-gray-50 rounded-lg">
+                            <p className="text-3xl mb-2">🌱</p>
+                            <p className="text-gray-500">Cây chưa có người sở hữu</p>
+                            <p className="text-sm text-gray-400 mt-1">
+                                Gán cây cho donation trong mục "Đóng góp"
+                            </p>
+                        </div>
+                    )}
+                </div>
 
                 {/* Images */}
                 <div className="bg-white rounded-lg shadow-sm p-6">

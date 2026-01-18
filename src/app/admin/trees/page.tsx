@@ -3,8 +3,29 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Tree } from '@/types';
 import { formatCurrency } from '@/lib/utils';
+
+interface DonorInfo {
+    id: string;
+    name: string;
+    logo_url: string | null;
+    amount: number;
+    tier: string;
+}
+
+interface Tree {
+    id: string;
+    code: string;
+    zone: string;
+    lat: number;
+    lng: number;
+    status: string;
+    images: string[];
+    donorId?: string;
+    donorName?: string;
+    donorAmount?: number;
+    donors?: DonorInfo[];
+}
 
 // Dynamic import for map in modal
 const MapContainer = dynamic(
@@ -219,8 +240,8 @@ export default function AdminTreesPage() {
                             <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Mã cây</th>
                             <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Khu</th>
                             <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Trạng thái</th>
-                            <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Người đóng góp</th>
-                            <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Số tiền</th>
+                            <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Người sở hữu</th>
+                            <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Tổng đóng góp</th>
                             <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Vị trí</th>
                             <th className="text-center px-4 py-3 text-sm font-medium text-gray-700">Thao tác</th>
                         </tr>
@@ -244,14 +265,27 @@ export default function AdminTreesPage() {
                                     )}
                                 </td>
                                 <td className="px-4 py-3">
-                                    {tree.donorName ? (
+                                    {tree.donors && tree.donors.length > 0 ? (
+                                        <div>
+                                            <span className="text-pink-600 font-medium">{tree.donors[0].name}</span>
+                                            {tree.donors.length > 1 && (
+                                                <span className="ml-2 px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full text-xs">
+                                                    +{tree.donors.length - 1} người
+                                                </span>
+                                            )}
+                                        </div>
+                                    ) : tree.donorName ? (
                                         <span className="text-pink-600 font-medium">{tree.donorName}</span>
                                     ) : (
                                         <span className="text-gray-400">-</span>
                                     )}
                                 </td>
                                 <td className="px-4 py-3">
-                                    {tree.donorAmount ? (
+                                    {tree.donors && tree.donors.length > 0 ? (
+                                        <span className="text-green-600 font-medium">
+                                            {formatCurrency(tree.donors.reduce((sum, d) => sum + d.amount, 0))}
+                                        </span>
+                                    ) : tree.donorAmount ? (
                                         <span className="text-green-600 font-medium">{formatCurrency(tree.donorAmount)}</span>
                                     ) : (
                                         <span className="text-gray-400">-</span>

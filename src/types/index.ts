@@ -5,6 +5,16 @@ export type DonationStatus = 'pending' | 'approved' | 'rejected';
 export type DonationTier = 'kientao' | 'dauun' | 'guitrao' | 'gieomam' | 'diamond' | 'gold' | 'silver' | 'green' | 'imprint' | 'entrust';
 export type SponsorTier = 'organizer' | 'diamond' | 'gold' | 'silver';
 
+// Donor info for multi-donor trees
+export interface DonorInfo {
+    id: string;
+    name: string;
+    logo_url: string | null;
+    amount: number;
+    tier: string;
+    message: string | null;
+}
+
 export interface Tree {
     id: string;
     code: string; // A1, A2, B1...
@@ -13,11 +23,14 @@ export interface Tree {
     lng: number;
     status: TreeStatus;
     images?: string[];
+    // Primary donor (highest amount) - backwards compatible
     donorId?: string;
     donorName?: string;
     donorLogo?: string;
     donorAmount?: number;
     donorMessage?: string;
+    // All donors for multi-donor trees
+    donors?: DonorInfo[];
     createdAt?: string;
     updatedAt?: string;
 }

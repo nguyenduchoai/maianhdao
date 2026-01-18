@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # ==============================================================================
-# 🔄 BIZINO AI DEV v3.0 - Universal Auto-Update
+# 🔄 BIZINO AI DEV v3.1 - Universal Auto-Update
 # ==============================================================================
 # Automatically pull latest changes and update your selected platform
-# Version: 3.0.0
+# Version: 3.1.0
+# Updated: 2026-01-18
 # ==============================================================================
 
 set -e
@@ -43,7 +44,7 @@ show_header() {
     clear
     echo -e "${CYAN}"
     echo "╔═══════════════════════════════════════════════════════════════════╗"
-    echo "║   🔄 BIZINO AI DEV v3.0 - Auto Update                             ║"
+    echo "║   🔄 BIZINO AI DEV v3.1 - Auto Update                             ║"
     echo "╚═══════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
     echo ""
@@ -75,7 +76,7 @@ load_config() {
 }
 
 clone_or_update_repo() {
-    echo -e "${MAGENTA}[1/3] Fetching latest version...${NC}"
+    echo -e "${MAGENTA}[1/4] Fetching latest version...${NC}"
     
     # Construct authenticated URL
     if [ -n "$GITHUB_TOKEN" ]; then
@@ -121,33 +122,213 @@ clone_or_update_repo() {
 
 update_platform() {
     local PLATFORM=$1
+    local PLATFORM_SRC=""
+    local CONFIG_DIR=""
+    local GLOBAL_WORKFLOWS_DIR=""
+    local GLOBAL_SKILLS_DIR=""
+    local GLOBAL_AGENTS_DIR=""
+    local GLOBAL_ROLES_DIR=""
+    local CONFIG_SOURCE=""
+    local CONFIG_GLOBAL=""
     
     case $PLATFORM in
         "antigravity")
             echo -e "${CYAN}  → Antigravity / Gemini${NC}"
-            SOURCE_DIR="$CACHE_DIR/antigravity/.agent/workflows"
-            GLOBAL_DIR="$GEMINI_GLOBAL_WORKFLOWS"
+            PLATFORM_SRC="$CACHE_DIR/antigravity"
+            CONFIG_DIR=".agent"
+            GLOBAL_WORKFLOWS_DIR="$GEMINI_GLOBAL_WORKFLOWS"
+            GLOBAL_SKILLS_DIR="$HOME/.gemini/antigravity/skills"
+            GLOBAL_AGENTS_DIR="$HOME/.gemini/antigravity/agents"
+            GLOBAL_ROLES_DIR="$HOME/.gemini/antigravity/roles"
+            CONFIG_SOURCE="$PLATFORM_SRC/GEMINI.md"
+            CONFIG_GLOBAL="$HOME/.gemini/GEMINI.md"
             ;;
         "claudekit")
             echo -e "${CYAN}  → Claude Code${NC}"
-            SOURCE_DIR="$CACHE_DIR/claudekit/.claude/workflows"
-            GLOBAL_DIR="$CLAUDE_GLOBAL_COMMANDS"
-            # Also update global CLAUDE.md
+            PLATFORM_SRC="$CACHE_DIR/claudekit"
+            CONFIG_DIR=".claude"
+            GLOBAL_WORKFLOWS_DIR="$CLAUDE_GLOBAL_COMMANDS"
+            GLOBAL_SKILLS_DIR="$HOME/.claude/skills"
+            GLOBAL_AGENTS_DIR="$HOME/.claude/agents"
+            GLOBAL_ROLES_DIR=""  # Claude doesn't use roles
+            CONFIG_SOURCE="$PLATFORM_SRC/CLAUDE.md"
+            CONFIG_GLOBAL="$CLAUDE_GLOBAL_CONFIG/CLAUDE.md"
             mkdir -p "$CLAUDE_GLOBAL_CONFIG"
-            cp "$CACHE_DIR/claudekit/CLAUDE.md" "$CLAUDE_GLOBAL_CONFIG/CLAUDE.md" 2>/dev/null || true
             ;;
         "vscode-copilot")
             echo -e "${CYAN}  → VS Code Copilot${NC}"
-            SOURCE_DIR="$CACHE_DIR/vscode-copilot/.agent/workflows"
-            GLOBAL_DIR="$VSCODE_GLOBAL_DIR"
+            PLATFORM_SRC="$CACHE_DIR/vscode-copilot"
+            CONFIG_DIR=".agent"
+            GLOBAL_WORKFLOWS_DIR="$VSCODE_GLOBAL_DIR"
+            GLOBAL_SKILLS_DIR="$HOME/.vscode-copilot/skills"
+            GLOBAL_AGENTS_DIR="$HOME/.vscode-copilot/agents"
+            GLOBAL_ROLES_DIR="$HOME/.vscode-copilot/roles"
+            CONFIG_SOURCE="$PLATFORM_SRC/GEMINI.md"
+            CONFIG_GLOBAL="$HOME/.vscode-copilot/GEMINI.md"
             ;;
     esac
     
-    if [ -n "$GLOBAL_DIR" ] && [ -d "$SOURCE_DIR" ]; then
-        mkdir -p "$GLOBAL_DIR"
-        cp "$SOURCE_DIR/"*.md "$GLOBAL_DIR/" 2>/dev/null || true
-        WORKFLOW_COUNT=$(ls "$GLOBAL_DIR/"*.md 2>/dev/null | wc -l | tr -d ' ')
-        echo -e "${GREEN}     ✓ $WORKFLOW_COUNT items → $GLOBAL_DIR${NC}"
+    # Update workflows
+    local WORKFLOWS_SRC="$PLATFORM_SRC/$CONFIG_DIR/workflows"
+    if [ -d "$WORKFLOWS_SRC" ] && [ -n "$GLOBAL_WORKFLOWS_DIR" ]; then
+        mkdir -p "$GLOBAL_WORKFLOWS_DIR"
+        cp "$WORKFLOWS_SRC/"*.md "$GLOBAL_WORKFLOWS_DIR/" 2>/dev/null || true
+        local WF_COUNT=$(ls "$GLOBAL_WORKFLOWS_DIR/"*.md 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Workflows: $WF_COUNT items${NC}"
+    fi
+    
+    # Update skills (full rsync for incremental updates)
+    local SKILLS_SRC="$PLATFORM_SRC/$CONFIG_DIR/skills"
+    # VS Code Copilot has skills at root level
+    [ "$PLATFORM" = "vscode-copilot" ] && SKILLS_SRC="$PLATFORM_SRC/skills"
+    if [ -d "$SKILLS_SRC" ] && [ -n "$GLOBAL_SKILLS_DIR" ]; then
+        mkdir -p "$GLOBAL_SKILLS_DIR"
+        if command -v rsync &> /dev/null; then
+            rsync -a --delete "$SKILLS_SRC/" "$GLOBAL_SKILLS_DIR/" 2>/dev/null
+        else
+            rm -rf "$GLOBAL_SKILLS_DIR"/*
+            cp -R "$SKILLS_SRC/"* "$GLOBAL_SKILLS_DIR/" 2>/dev/null || true
+        fi
+        local SK_COUNT=$(ls -d "$GLOBAL_SKILLS_DIR"/*/ 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Skills: $SK_COUNT items${NC}"
+    fi
+    
+    # Update agents
+    local AGENTS_SRC="$PLATFORM_SRC/$CONFIG_DIR/agents"
+    if [ -d "$AGENTS_SRC" ] && [ -n "$GLOBAL_AGENTS_DIR" ]; then
+        mkdir -p "$GLOBAL_AGENTS_DIR"
+        if command -v rsync &> /dev/null; then
+            rsync -a --delete "$AGENTS_SRC/" "$GLOBAL_AGENTS_DIR/" 2>/dev/null
+        else
+            cp -R "$AGENTS_SRC/"* "$GLOBAL_AGENTS_DIR/" 2>/dev/null || true
+        fi
+        local AG_COUNT=$(ls "$GLOBAL_AGENTS_DIR/"*.md 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Agents: $AG_COUNT items${NC}"
+    fi
+    
+    # Update roles
+    local ROLES_SRC="$PLATFORM_SRC/$CONFIG_DIR/roles"
+    if [ -d "$ROLES_SRC" ] && [ -n "$GLOBAL_ROLES_DIR" ]; then
+        mkdir -p "$GLOBAL_ROLES_DIR"
+        if command -v rsync &> /dev/null; then
+            rsync -a --delete "$ROLES_SRC/" "$GLOBAL_ROLES_DIR/" 2>/dev/null
+        else
+            cp -R "$ROLES_SRC/"* "$GLOBAL_ROLES_DIR/" 2>/dev/null || true
+        fi
+        local RL_COUNT=$(ls "$GLOBAL_ROLES_DIR/"*.md 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Roles: $RL_COUNT items${NC}"
+    fi
+    
+    # Update main config file (GEMINI.md / CLAUDE.md)
+    if [ -f "$CONFIG_SOURCE" ] && [ -n "$CONFIG_GLOBAL" ]; then
+        mkdir -p "$(dirname "$CONFIG_GLOBAL")"
+        cp "$CONFIG_SOURCE" "$CONFIG_GLOBAL" 2>/dev/null || true
+        echo -e "${GREEN}     ✓ Config: $(basename "$CONFIG_GLOBAL")${NC}"
+    fi
+}
+
+# Update project directory (local .agent/ or .claude/)
+update_project_directory() {
+    local PLATFORM=$1
+    local PROJECT_DIR="${2:-$(pwd)}"
+    local UPDATED=false
+    local PLATFORM_SRC=""
+    local CONFIG_DIR=""
+    
+    case $PLATFORM in
+        "antigravity")
+            PLATFORM_SRC="$CACHE_DIR/antigravity"
+            CONFIG_DIR=".agent"
+            ;;
+        "vscode-copilot")
+            PLATFORM_SRC="$CACHE_DIR/vscode-copilot"
+            CONFIG_DIR=".agent"
+            ;;
+        "claudekit")
+            PLATFORM_SRC="$CACHE_DIR/claudekit"
+            CONFIG_DIR=".claude"
+            ;;
+    esac
+    
+    local TARGET_CONFIG_DIR="$PROJECT_DIR/$CONFIG_DIR"
+    
+    # Check if project has the config directory
+    if [ ! -d "$TARGET_CONFIG_DIR" ]; then
+        echo -e "${YELLOW}  ⚠ No project detected in current directory${NC}"
+        echo -e "${YELLOW}    (Run from a project with $CONFIG_DIR/ to update project files)${NC}"
+        return
+    fi
+    
+    echo -e "${CYAN}  📁 Project: $PROJECT_DIR${NC}"
+    
+    # Update workflows
+    local WORKFLOWS_SRC="$PLATFORM_SRC/$CONFIG_DIR/workflows"
+    if [ -d "$WORKFLOWS_SRC" ] && [ -d "$TARGET_CONFIG_DIR/workflows" ]; then
+        cp "$WORKFLOWS_SRC/"*.md "$TARGET_CONFIG_DIR/workflows/" 2>/dev/null || true
+        local WF_COUNT=$(ls "$TARGET_CONFIG_DIR/workflows/"*.md 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Workflows: $WF_COUNT items${NC}"
+        UPDATED=true
+    fi
+    
+    # Update skills
+    local SKILLS_SRC="$PLATFORM_SRC/$CONFIG_DIR/skills"
+    [ "$PLATFORM" = "vscode-copilot" ] && SKILLS_SRC="$PLATFORM_SRC/skills"
+    if [ -d "$SKILLS_SRC" ] && [ -d "$TARGET_CONFIG_DIR/skills" ]; then
+        if command -v rsync &> /dev/null; then
+            rsync -a --delete "$SKILLS_SRC/" "$TARGET_CONFIG_DIR/skills/" 2>/dev/null
+        else
+            rm -rf "$TARGET_CONFIG_DIR/skills"/*
+            cp -R "$SKILLS_SRC/"* "$TARGET_CONFIG_DIR/skills/" 2>/dev/null || true
+        fi
+        local SK_COUNT=$(ls -d "$TARGET_CONFIG_DIR/skills"/*/ 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Skills: $SK_COUNT items${NC}"
+        UPDATED=true
+    fi
+    
+    # Update agents
+    local AGENTS_SRC="$PLATFORM_SRC/$CONFIG_DIR/agents"
+    if [ -d "$AGENTS_SRC" ] && [ -d "$TARGET_CONFIG_DIR/agents" ]; then
+        if command -v rsync &> /dev/null; then
+            rsync -a --delete "$AGENTS_SRC/" "$TARGET_CONFIG_DIR/agents/" 2>/dev/null
+        else
+            cp -R "$AGENTS_SRC/"* "$TARGET_CONFIG_DIR/agents/" 2>/dev/null || true
+        fi
+        local AG_COUNT=$(ls "$TARGET_CONFIG_DIR/agents/"*.md 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Agents: $AG_COUNT items${NC}"
+        UPDATED=true
+    fi
+    
+    # Update roles
+    local ROLES_SRC="$PLATFORM_SRC/$CONFIG_DIR/roles"
+    if [ -d "$ROLES_SRC" ] && [ -d "$TARGET_CONFIG_DIR/roles" ]; then
+        if command -v rsync &> /dev/null; then
+            rsync -a --delete "$ROLES_SRC/" "$TARGET_CONFIG_DIR/roles/" 2>/dev/null
+        else
+            cp -R "$ROLES_SRC/"* "$TARGET_CONFIG_DIR/roles/" 2>/dev/null || true
+        fi
+        local RL_COUNT=$(ls "$TARGET_CONFIG_DIR/roles/"*.md 2>/dev/null | wc -l | tr -d ' ')
+        echo -e "${GREEN}     ✓ Roles: $RL_COUNT items${NC}"
+        UPDATED=true
+    fi
+    
+    # Update main config file (GEMINI.md / CLAUDE.md)
+    local CONFIG_NAME="GEMINI.md"
+    [ "$PLATFORM" = "claudekit" ] && CONFIG_NAME="CLAUDE.md"
+    if [ -f "$PLATFORM_SRC/$CONFIG_NAME" ] && [ -f "$PROJECT_DIR/$CONFIG_NAME" ]; then
+        cp "$PLATFORM_SRC/$CONFIG_NAME" "$PROJECT_DIR/$CONFIG_NAME" 2>/dev/null || true
+        echo -e "${GREEN}     ✓ $CONFIG_NAME${NC}"
+        UPDATED=true
+    fi
+    
+    # Update project update.sh if exists
+    if [ -f "$CACHE_DIR/update.sh" ] && [ -f "$PROJECT_DIR/update.sh" ]; then
+        cp "$CACHE_DIR/update.sh" "$PROJECT_DIR/update.sh" 2>/dev/null || true
+        chmod +x "$PROJECT_DIR/update.sh" 2>/dev/null || true
+        echo -e "${GREEN}     ✓ update.sh${NC}"
+    fi
+    
+    if [ "$UPDATED" = true ]; then
+        echo -e "${GREEN}     ✓ Project fully updated!${NC}"
     fi
 }
 
@@ -157,6 +338,9 @@ update_platform() {
 
 show_header
 check_git
+
+# Save original directory BEFORE any cd operations
+ORIGINAL_DIR="$(pwd)"
 
 # Get token
 if get_token; then
@@ -172,7 +356,7 @@ clone_or_update_repo
 # ==============================================================================
 # Load saved platform or ask
 # ==============================================================================
-echo -e "${MAGENTA}[2/3] Checking configuration...${NC}"
+echo -e "${MAGENTA}[2/4] Checking configuration...${NC}"
 
 if load_config; then
     echo -e "${GREEN}  ✓ Found saved platform: ${WHITE}$PLATFORM${NC}"
@@ -231,7 +415,7 @@ else
 fi
 
 echo ""
-echo -e "${MAGENTA}[3/3] Updating Global Workflows...${NC}"
+echo -e "${MAGENTA}[3/4] Updating Global Files...${NC}"
 
 for PLATFORM in "${PLATFORMS[@]}"; do
     update_platform "$PLATFORM"
@@ -241,6 +425,99 @@ done
 cp "$CACHE_DIR/update.sh" "$BIZINO_HOME/update.sh" 2>/dev/null || true
 chmod +x "$BIZINO_HOME/update.sh" 2>/dev/null || true
 
+echo ""
+echo -e "${MAGENTA}[4/4] Updating Project Directory...${NC}"
+
+# Use ORIGINAL_DIR saved at script start (before any cd operations)
+for PLATFORM in "${PLATFORMS[@]}"; do
+    update_project_directory "$PLATFORM" "$ORIGINAL_DIR"
+done
+
+echo ""
+
+# ==============================================================================
+# VERIFICATION - Check if files were actually updated
+# ==============================================================================
+echo -e "${MAGENTA}[VERIFY] Kiểm tra cập nhật...${NC}"
+VERIFY_PASSED=true
+VERIFY_ERRORS=()
+
+verify_dir() {
+    local dir="$1"
+    local desc="$2"
+    local min_count="${3:-1}"
+    if [ -d "$dir" ]; then
+        local count=$(ls "$dir" 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$count" -ge "$min_count" ]; then
+            echo -e "  ${GREEN}✓${NC} $desc ($count items)"
+            return 0
+        else
+            echo -e "  ${YELLOW}⚠${NC} $desc ($count items, expected >=$min_count)"
+            return 1
+        fi
+    else
+        echo -e "  ${RED}✗${NC} $desc - MISSING!"
+        VERIFY_ERRORS+=("$desc")
+        VERIFY_PASSED=false
+        return 1
+    fi
+}
+
+verify_file() {
+    local file="$1"
+    local desc="$2"
+    if [ -f "$file" ]; then
+        local size=$(ls -lh "$file" 2>/dev/null | awk '{print $5}')
+        echo -e "  ${GREEN}✓${NC} $desc (${size})"
+        return 0
+    else
+        echo -e "  ${RED}✗${NC} $desc - MISSING!"
+        VERIFY_ERRORS+=("$desc")
+        VERIFY_PASSED=false
+        return 1
+    fi
+}
+
+echo ""
+for P in "${PLATFORMS[@]}"; do
+    case $P in
+        "antigravity")
+            echo -e "${CYAN}Antigravity / Gemini:${NC}"
+            verify_dir "$GEMINI_GLOBAL_WORKFLOWS" "Global Workflows" 10
+            verify_dir "$HOME/.gemini/antigravity/skills" "Global Skills" 40
+            verify_file "$HOME/.gemini/GEMINI.md" "Global GEMINI.md"
+            # v3.1 check: react-best-practices
+            verify_dir "$HOME/.gemini/antigravity/skills/react-best-practices/rules" "react-best-practices (v3.1)" 40
+            ;;
+        "claudekit")
+            echo -e "${CYAN}Claude Code:${NC}"
+            verify_dir "$CLAUDE_GLOBAL_COMMANDS" "Global Commands" 10
+            verify_dir "$HOME/.claude/skills" "Global Skills" 40
+            verify_file "$CLAUDE_GLOBAL_CONFIG/CLAUDE.md" "Global CLAUDE.md"
+            verify_dir "$HOME/.claude/skills/react-best-practices/rules" "react-best-practices (v3.1)" 40
+            ;;
+        "vscode-copilot")
+            echo -e "${CYAN}VS Code Copilot:${NC}"
+            verify_dir "$VSCODE_GLOBAL_DIR" "Global Workflows" 10
+            verify_dir "$HOME/.vscode-copilot/skills" "Global Skills" 40
+            verify_file "$HOME/.vscode-copilot/GEMINI.md" "Global GEMINI.md"
+            verify_dir "$HOME/.vscode-copilot/skills/react-best-practices/rules" "react-best-practices (v3.1)" 40
+            ;;
+    esac
+    echo ""
+done
+
+verify_file "$BIZINO_HOME/update.sh" "update.sh (self-update)"
+echo ""
+
+if [ "$VERIFY_PASSED" = true ]; then
+    echo -e "${GREEN}✅ Verification PASSED - Update successful!${NC}"
+else
+    echo -e "${RED}⚠️ Verification FAILED - Some items missing:${NC}"
+    for err in "${VERIFY_ERRORS[@]}"; do
+        echo -e "   ${RED}• $err${NC}"
+    done
+fi
 echo ""
 
 # ==============================================================================
@@ -267,6 +544,6 @@ echo -e "   ${CYAN}(Your platform choice is saved, no need to select again!)${NC
 echo ""
 
 echo -e "${MAGENTA}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${WHITE}  Bizino AI DEV v3.0 - Premium Software Development, Automated${NC}"
+echo -e "${WHITE}  Bizino AI DEV v3.1 - Premium Software Development, Automated${NC}"
 echo -e "${MAGENTA}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""

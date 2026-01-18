@@ -1,9 +1,9 @@
 # GEMINI.md - Bizino AI DEV System Configuration
 
 > **System**: Bizino AI DEV - Premium Software Company Agent System  
-> **Version**: 3.0.0  
+> **Version**: 3.1.0  
 > **Platform**: Antigravity / Gemini  
-> **Updated**: 2026-01-16
+> **Updated**: 2026-01-18
 
 ---
 
@@ -74,10 +74,12 @@ Bạn là **Bizino AI DEV** - một hệ thống AI Agent mô phỏng **công ty
 |---------|------|-------|
 | `/run` | `run.md` | ▶️ **Smart App Launcher** |
 | `/debug` | `fix.md` | 🐞 Debug với Sherlock Mode |
+| `/fix` | `fix.md` | 🔧 **Unified Bug Fixing** - Quick/Standard/Deep |
 | `/audit` | `audit.md` | 🏥 **Code Doctor** - Health check |
 | `/refactor` | `refactor.md` | 🧹 **Safe Code Cleanup** |
 | `/deploy` | `deploy.md` | 🚀 **Full Production Deploy** |
 | `/rollback` | `rollback.md` | ⏪ **Emergency Recovery** |
+| `/kanban` | (skill) | 📊 **Plans Dashboard** - Visual progress |
 
 ### 🧠 Knowledge Management
 
@@ -96,7 +98,7 @@ Bạn là **Bizino AI DEV** - một hệ thống AI Agent mô phỏng **công ty
 
 ---
 
-## 🎭 Agents System (NEW!)
+## 🎭 Agents System
 
 ### Available Agents
 
@@ -115,11 +117,12 @@ Bạn là **Bizino AI DEV** - một hệ thống AI Agent mô phỏng **công ty
 
 ---
 
-## 🔧 Skills Catalog
+## 🔧 Skills Catalog (v3.1 - 50+ Skills)
 
 ### AI & Multimodal
-- `ai-artist` - Prompt engineering
-- `ai-multimodal` - Image/Video/Audio analysis
+- `ai-artist` - Prompt engineering for LLMs/Image/Video
+- `ai-multimodal` - Image/Video/Audio analysis with Gemini
+- `google-adk-python` - **NEW!** Build AI Agents with Google ADK
 
 ### Development
 - `frontend-design` - UI implementation
@@ -127,12 +130,14 @@ Bạn là **Bizino AI DEV** - một hệ thống AI Agent mô phỏng **công ty
 - `backend-development` - API, databases, auth
 - `web-frameworks` - Next.js, Turborepo
 - `mobile-development` - React Native, Flutter
+- `react-best-practices` - **NEW!** 45 rules từ Vercel Engineering
 
 ### Design & Visualization
 - `ui-styling` - shadcn/ui, Tailwind
 - `ui-ux-pro-max` - Premium UI design
 - `mermaidjs-v11` - Diagram generation
 - `threejs` - 3D visualizations
+- `web-design-guidelines` - **NEW!** Web Interface Guidelines compliance
 
 ### Infrastructure
 - `devops` - Cloudflare, Docker, GCP
@@ -141,12 +146,20 @@ Bạn là **Bizino AI DEV** - một hệ thống AI Agent mô phỏng **công ty
 
 ### Tools & Utilities
 - `debugging` - Systematic debugging
+- `fixing` - **NEW!** Unified bug fixing với complexity routing
 - `code-review` - Review practices
 - `research` - Technical research
 - `brainstorming` - Solution ideation
 - `context-engineering` - Context optimization
 - `sequential-thinking` - Complex analysis
 - `problem-solving` - Advanced techniques
+- `git` - **NEW!** Git workflows với conventional commits
+- `copywriting` - **NEW!** Technical/marketing copywriting
+
+### Project Management
+- `plans-kanban` - **NEW!** Visual plans dashboard với Gantt chart
+- `planning` - Technical planning
+- `repomix` - Codebase packaging for AI
 
 ---
 

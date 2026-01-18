@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Tree } from '@/types';
@@ -24,7 +24,9 @@ const Marker = dynamic(
 
 export default function MapTreePage() {
     const params = useParams();
+    const searchParams = useSearchParams();
     const treeId = params.id as string;
+    const highlightedDonorId = searchParams.get('donor'); // For personalized view
 
     const [trees, setTrees] = useState<Tree[]>([]);
     const [organizers, setOrganizers] = useState<{ id: string, name: string, logoUrl: string }[]>([]);
@@ -329,43 +331,136 @@ export default function MapTreePage() {
 
                                 {/* Content */}
                                 <div className="p-5">
-                                    {selectedTree.status === 'sponsored' && selectedTree.donorName ? (
+                                    {selectedTree.status === 'sponsored' && (selectedTree.donors?.length || selectedTree.donorName) ? (
                                         <>
-                                            {/* Sponsor Logo/Banner - shown first */}
-                                            <div className="flex items-center gap-4 mb-4 p-4 bg-gradient-to-r from-pink-50 to-white rounded-xl border border-pink-100">
-                                                {selectedTree.donorLogo ? (
-                                                    <div className="w-20 h-20 rounded-xl bg-white border-2 border-pink-200 flex items-center justify-center overflow-hidden shadow-sm">
-                                                        <img
-                                                            src={selectedTree.donorLogo}
-                                                            alt={selectedTree.donorName}
-                                                            className="w-16 h-16 object-contain"
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-20 h-20 rounded-xl bg-pink-100 flex items-center justify-center text-4xl border-2 border-pink-200">
-                                                        🏢
-                                                    </div>
-                                                )}
-                                                <div className="flex-1">
-                                                    <h3 className="text-xl font-bold text-gray-800">{selectedTree.donorName}</h3>
-                                                    {selectedTree.donorAmount && (
-                                                        <p className="text-pink-600 font-semibold text-lg">{formatCurrency(selectedTree.donorAmount)}</p>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            {/* Multiple Donors Section */}
+                                            {(() => {
+                                                // Get all donors from donors array or fallback to primary donor
+                                                let donors = selectedTree.donors || (selectedTree.donorName ? [{
+                                                    id: selectedTree.donorId || '',
+                                                    name: selectedTree.donorName,
+                                                    logo_url: selectedTree.donorLogo || null,
+                                                    amount: selectedTree.donorAmount || 0,
+                                                    tier: 'kientao',
+                                                    message: selectedTree.donorMessage || null,
+                                                }] : []);
 
-                                            {/* Donor Message / Ghi chú */}
-                                            {selectedTree.donorMessage && (
-                                                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                                    <div className="flex items-start gap-2">
-                                                        <span className="text-lg">💬</span>
-                                                        <div>
-                                                            <p className="text-sm text-gray-500 font-medium mb-1">Ghi chú:</p>
-                                                            <p className="text-gray-700">{selectedTree.donorMessage}</p>
+                                                // If highlightedDonorId is set, reorder donors to put that one first
+                                                if (highlightedDonorId) {
+                                                    const highlightedIndex = donors.findIndex(d => d.id === highlightedDonorId);
+                                                    if (highlightedIndex > 0) {
+                                                        const highlighted = donors[highlightedIndex];
+                                                        donors = [highlighted, ...donors.filter((_, i) => i !== highlightedIndex)];
+                                                    }
+                                                }
+
+                                                const getTierLabel = (tier: string) => {
+                                                    switch (tier) {
+                                                        case 'kientao': return '🏆 KIẾN TẠO';
+                                                        case 'dauun': return '🌸 DẤU ẤN';
+                                                        case 'guitrao': return '💝 GỬI TRAO';
+                                                        case 'gieomam': return '🌱 GIEO MẦM';
+                                                        default: return tier;
+                                                    }
+                                                };
+
+                                                const isHighlighted = (donorId: string) => highlightedDonorId === donorId;
+
+                                                return (
+                                                    <>
+                                                        {/* Personalized Header */}
+                                                        {highlightedDonorId && donors.length > 0 && donors[0].id === highlightedDonorId && (
+                                                            <div className="mb-4 p-3 bg-gradient-to-r from-pink-500 to-pink-400 text-white rounded-xl text-center">
+                                                                <p className="text-sm">🌸 Cây của bạn</p>
+                                                                <p className="font-bold text-lg">{donors[0].name}</p>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="mb-4">
+                                                            <h4 className="text-sm font-medium text-gray-500 mb-2">
+                                                                👥 {highlightedDonorId ? 'Đồng sở hữu' : 'Người sở hữu'} ({donors.length})
+                                                            </h4>
+                                                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                                                                {donors.map((donor, index) => {
+                                                                    const isMyDonor = isHighlighted(donor.id);
+                                                                    const isFirst = index === 0;
+
+                                                                    return (
+                                                                        <div
+                                                                            key={donor.id || index}
+                                                                            className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isMyDonor
+                                                                                    ? 'bg-gradient-to-r from-pink-100 to-pink-50 border-pink-300 ring-2 ring-pink-400 shadow-md'
+                                                                                    : isFirst && !highlightedDonorId
+                                                                                        ? 'bg-gradient-to-r from-pink-50 to-white border-pink-200'
+                                                                                        : highlightedDonorId
+                                                                                            ? 'bg-gray-50 border-gray-100 opacity-60'
+                                                                                            : 'bg-gray-50 border-gray-100'
+                                                                                }`}
+                                                                        >
+                                                                            {donor.logo_url ? (
+                                                                                <div className={`w-14 h-14 rounded-lg bg-white border flex items-center justify-center overflow-hidden ${isMyDonor ? 'border-pink-300' : 'border-pink-100'
+                                                                                    }`}>
+                                                                                    <img
+                                                                                        src={donor.logo_url}
+                                                                                        alt={donor.name}
+                                                                                        className="w-12 h-12 object-contain"
+                                                                                    />
+                                                                                </div>
+                                                                            ) : (
+                                                                                <div className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${isMyDonor ? 'bg-pink-200' : 'bg-pink-100'
+                                                                                    }`}>
+                                                                                    🌸
+                                                                                </div>
+                                                                            )}
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <div className="flex items-center gap-2 flex-wrap">
+                                                                                    <span className={`font-bold ${isMyDonor ? 'text-pink-700' : 'text-gray-800'}`}>
+                                                                                        {donor.name}
+                                                                                    </span>
+                                                                                    {isMyDonor && (
+                                                                                        <span className="px-2 py-0.5 bg-pink-500 text-white text-xs rounded animate-pulse">
+                                                                                            ⭐ Của bạn
+                                                                                        </span>
+                                                                                    )}
+                                                                                    {isFirst && !highlightedDonorId && (
+                                                                                        <span className="px-2 py-0.5 bg-pink-500 text-white text-xs rounded">Chính</span>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="flex items-center gap-2 text-sm mt-1">
+                                                                                    <span className={`font-semibold ${isMyDonor ? 'text-pink-600' : 'text-pink-600'}`}>
+                                                                                        {formatCurrency(donor.amount)}
+                                                                                    </span>
+                                                                                    <span className="text-gray-400">•</span>
+                                                                                    <span className="text-xs text-gray-500">{getTierLabel(donor.tier)}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            )}
+
+                                                        {/* Show highlighted donor's message first, or primary donor message */}
+                                                        {(() => {
+                                                            const messageToShow = highlightedDonorId
+                                                                ? donors.find(d => d.id === highlightedDonorId)?.message
+                                                                : donors[0]?.message;
+
+                                                            return messageToShow ? (
+                                                                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                                    <div className="flex items-start gap-2">
+                                                                        <span className="text-lg">💬</span>
+                                                                        <div>
+                                                                            <p className="text-sm text-gray-500 font-medium mb-1">Ghi chú:</p>
+                                                                            <p className="text-gray-700">{messageToShow}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ) : null;
+                                                        })()}
+                                                    </>
+                                                );
+                                            })()}
 
                                             {/* Info Grid */}
                                             <div className="space-y-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg">

@@ -15,6 +15,37 @@ interface Donation {
     tier: string;
 }
 
+// Helper: Get tree_ids for a donation from junction table
+function getTreeIdsForDonation(donationId: string): string[] {
+    const rows = db.prepare(
+        'SELECT tree_id FROM donation_trees WHERE donation_id = ?'
+    ).all(donationId) as { tree_id: string }[];
+    return rows.map(r => r.tree_id);
+}
+
+// Helper: Get tree codes for display
+function getTreeCodesForDonation(donationId: string): string[] {
+    const rows = db.prepare(`
+        SELECT t.code FROM donation_trees dt
+        JOIN trees t ON dt.tree_id = t.id
+        WHERE dt.donation_id = ?
+        ORDER BY t.code
+    `).all(donationId) as { code: string }[];
+    return rows.map(r => r.code);
+}
+
+// Helper: Update tree status based on donation count
+function updateTreeStatus(treeId: string) {
+    const count = db.prepare(`
+        SELECT COUNT(*) as count FROM donation_trees dt
+        JOIN donations d ON dt.donation_id = d.id
+        WHERE dt.tree_id = ? AND d.status = 'approved'
+    `).get(treeId) as { count: number };
+
+    const newStatus = count.count > 0 ? 'sponsored' : 'available';
+    db.prepare('UPDATE trees SET status = ? WHERE id = ?').run(newStatus, treeId);
+}
+
 // GET /api/admin/donations - Get all donations (for admin)
 export async function GET(request: NextRequest) {
     try {
@@ -22,9 +53,8 @@ export async function GET(request: NextRequest) {
         const status = searchParams.get('status');
 
         let query = `
-            SELECT d.*, t.code as tree_code
+            SELECT d.*
             FROM donations d
-            LEFT JOIN trees t ON d.tree_id = t.id
         `;
 
         if (status && status !== 'all') {
@@ -33,8 +63,22 @@ export async function GET(request: NextRequest) {
 
         query += ` ORDER BY d.created_at DESC`;
 
-        const donations = db.prepare(query).all();
-        return NextResponse.json({ success: true, data: donations });
+        const donations = db.prepare(query).all() as Donation[];
+
+        // Enrich with tree codes from junction table
+        const enrichedDonations = donations.map(d => {
+            const treeCodes = getTreeCodesForDonation(d.id);
+            const treeIds = getTreeIdsForDonation(d.id);
+            return {
+                ...d,
+                tree_codes: treeCodes,
+                tree_code: treeCodes.join(', ') || null, // Backwards compatibility
+                tree_ids: treeIds,
+                tree_id: treeIds[0] || null, // Backwards compatibility
+            };
+        });
+
+        return NextResponse.json({ success: true, data: enrichedDonations });
     } catch (error) {
         console.error('Error fetching donations:', error);
         return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
@@ -45,19 +89,19 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tier } = body;
+        const { name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tree_ids, tier } = body;
 
-        if (!name || !amount) {
+        if (!name || amount === undefined) {
             return NextResponse.json({ error: 'Tên và số tiền là bắt buộc' }, { status: 400 });
         }
 
         // Generate unique ID
         const id = `d-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-        // Insert donation
+        // Insert donation (without tree_id - use junction table)
         db.prepare(`
-            INSERT INTO donations (id, name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tier, created_at, approved_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO donations (id, name, phone, email, amount, message, logo_url, is_organization, status, tier, created_at, approved_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             id,
             name,
@@ -68,16 +112,28 @@ export async function POST(request: NextRequest) {
             logo_url || null,
             is_organization ? 1 : 0,
             status || 'pending',
-            tree_id || null,
             tier || 'gieomam',
             new Date().toISOString(),
             status === 'approved' ? new Date().toISOString() : null
         );
 
-        // If tree_id is provided, update tree status (multiple donors allowed)
-        if (tree_id) {
-            db.prepare('UPDATE trees SET status = ? WHERE id = ?')
-                .run('sponsored', tree_id);
+        // Handle tree assignments (support both single tree_id and array tree_ids)
+        const treesToAssign: string[] = tree_ids || (tree_id ? [tree_id] : []);
+
+        if (treesToAssign.length > 0) {
+            const insertRelation = db.prepare(
+                'INSERT OR IGNORE INTO donation_trees (donation_id, tree_id) VALUES (?, ?)'
+            );
+
+            for (const tid of treesToAssign) {
+                if (tid) {
+                    insertRelation.run(id, tid);
+                    // Update tree status if donation is approved
+                    if (status === 'approved') {
+                        updateTreeStatus(tid);
+                    }
+                }
+            }
         }
 
         return NextResponse.json({ success: true, message: 'Tạo đóng góp thành công', id });
@@ -91,7 +147,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();
-        const { id, name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tier } = body;
+        const { id, name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tree_ids, tier } = body;
 
         if (!id) {
             return NextResponse.json({ error: 'ID là bắt buộc' }, { status: 400 });
@@ -105,7 +161,7 @@ export async function PUT(request: NextRequest) {
 
         // Build update query
         const updates: string[] = [];
-        const values: any[] = [];
+        const values: unknown[] = [];
 
         if (name !== undefined) { updates.push('name = ?'); values.push(name); }
         if (phone !== undefined) { updates.push('phone = ?'); values.push(phone); }
@@ -124,49 +180,53 @@ export async function PUT(request: NextRequest) {
         }
         if (tier !== undefined) { updates.push('tier = ?'); values.push(tier); }
 
-        // Handle tree assignment
-        if (tree_id !== undefined) {
-            // If assigning to a tree
-            if (tree_id) {
-                // If changing from one tree to another, check if old tree has other donors
-                if (existing.tree_id && existing.tree_id !== tree_id) {
-                    const otherDonors = db.prepare(
-                        'SELECT COUNT(*) as count FROM donations WHERE tree_id = ? AND id != ? AND status = ?'
-                    ).get(existing.tree_id, id, 'approved') as { count: number };
+        // Handle tree assignment changes using junction table
+        // Support both tree_id (single) and tree_ids (array)
+        const newTreeIds: string[] | undefined = tree_ids !== undefined
+            ? tree_ids
+            : (tree_id !== undefined ? (tree_id ? [tree_id] : []) : undefined);
 
-                    // Only set to available if no other donors
-                    if (otherDonors.count === 0) {
-                        db.prepare('UPDATE trees SET status = ? WHERE id = ?')
-                            .run('available', existing.tree_id);
+        if (newTreeIds !== undefined) {
+            // Get current tree IDs
+            const currentTreeIds = getTreeIdsForDonation(id);
+
+            // Find trees to remove and add
+            const toRemove = currentTreeIds.filter(t => !newTreeIds.includes(t));
+            const toAdd = newTreeIds.filter(t => !currentTreeIds.includes(t));
+
+            // Remove old assignments
+            if (toRemove.length > 0) {
+                const deleteStmt = db.prepare('DELETE FROM donation_trees WHERE donation_id = ? AND tree_id = ?');
+                for (const tid of toRemove) {
+                    deleteStmt.run(id, tid);
+                    updateTreeStatus(tid); // Update removed tree's status
+                }
+            }
+
+            // Add new assignments
+            if (toAdd.length > 0) {
+                const insertStmt = db.prepare('INSERT OR IGNORE INTO donation_trees (donation_id, tree_id) VALUES (?, ?)');
+                for (const tid of toAdd) {
+                    if (tid) {
+                        insertStmt.run(id, tid);
+                        updateTreeStatus(tid); // Update added tree's status
                     }
                 }
-
-                // Mark new tree as sponsored (don't overwrite donor_id - multiple donors allowed)
-                db.prepare('UPDATE trees SET status = ? WHERE id = ?')
-                    .run('sponsored', tree_id);
-
-                updates.push('tree_id = ?');
-                values.push(tree_id);
-            } else {
-                // Unassigning from tree - check if tree has other donors
-                if (existing.tree_id) {
-                    const otherDonors = db.prepare(
-                        'SELECT COUNT(*) as count FROM donations WHERE tree_id = ? AND id != ? AND status = ?'
-                    ).get(existing.tree_id, id, 'approved') as { count: number };
-
-                    // Only set to available if no other donors
-                    if (otherDonors.count === 0) {
-                        db.prepare('UPDATE trees SET status = ? WHERE id = ?')
-                            .run('available', existing.tree_id);
-                    }
-                }
-                updates.push('tree_id = NULL');
             }
         }
 
+        // Execute update if there are changes
         if (updates.length > 0) {
             values.push(id);
             db.prepare(`UPDATE donations SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+        }
+
+        // If status changed, update all associated trees
+        if (status !== undefined && status !== existing.status) {
+            const associatedTrees = getTreeIdsForDonation(id);
+            for (const tid of associatedTrees) {
+                updateTreeStatus(tid);
+            }
         }
 
         return NextResponse.json({ success: true, message: 'Cập nhật thành công' });
@@ -186,26 +246,19 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'ID là bắt buộc' }, { status: 400 });
         }
 
-        // Check if donation exists and get tree_id
-        const existing = db.prepare('SELECT tree_id FROM donations WHERE id = ?').get(id) as { tree_id: string | null } | undefined;
-        if (!existing) {
-            return NextResponse.json({ error: 'Đóng góp không tồn tại' }, { status: 404 });
-        }
+        // Get associated trees before deletion
+        const associatedTrees = getTreeIdsForDonation(id);
 
-        // Unassign tree if any - but only set to available if no other donors
-        if (existing.tree_id) {
-            const otherDonors = db.prepare(
-                'SELECT COUNT(*) as count FROM donations WHERE tree_id = ? AND id != ? AND status = ?'
-            ).get(existing.tree_id, id, 'approved') as { count: number };
-
-            if (otherDonors.count === 0) {
-                db.prepare('UPDATE trees SET status = ? WHERE id = ?')
-                    .run('available', existing.tree_id);
-            }
-        }
+        // Delete from junction table first (cascade should handle this, but be explicit)
+        db.prepare('DELETE FROM donation_trees WHERE donation_id = ?').run(id);
 
         // Delete donation
         db.prepare('DELETE FROM donations WHERE id = ?').run(id);
+
+        // Update status of previously associated trees
+        for (const tid of associatedTrees) {
+            updateTreeStatus(tid);
+        }
 
         return NextResponse.json({ success: true, message: 'Xóa thành công' });
     } catch (error) {

@@ -18,14 +18,15 @@ export const revalidate = 0;
 
 async function getPageData() {
   try {
-    // Get trees with donor info (join via tree_id, get highest amount donor per tree)
+    // Get trees with donor info via junction table (get highest amount donor per tree)
     const treesRows = db.prepare(`
       SELECT 
         t.id, t.code, t.zone, t.lat, t.lng, t.status, t.images,
         d.id as donorId, d.name as donorName, d.amount as donorAmount, 
         d.logo_url as donorLogo, d.message as donorMessage
       FROM trees t
-      LEFT JOIN donations d ON d.tree_id = t.id AND d.status = 'approved'
+      LEFT JOIN donation_trees dt ON dt.tree_id = t.id
+      LEFT JOIN donations d ON d.id = dt.donation_id AND d.status = 'approved'
       ORDER BY t.zone, t.code
     `).all() as any[];
 
@@ -72,14 +73,16 @@ async function getPageData() {
       isActive: row.is_active === 1,
     }));
 
-    // Get approved donations
+    // Get approved donations with tree codes from junction table
     const donationsRows = db.prepare(`
       SELECT d.id, d.name, d.phone, d.email, d.amount, d.logo_url, d.message, 
              d.is_organization, d.status, d.tier, d.created_at,
-             t.code as tree_code
+             GROUP_CONCAT(t.code, ', ') as tree_codes
       FROM donations d
-      LEFT JOIN trees t ON d.tree_id = t.id
+      LEFT JOIN donation_trees dt ON dt.donation_id = d.id
+      LEFT JOIN trees t ON t.id = dt.tree_id
       WHERE d.status = 'approved'
+      GROUP BY d.id
       ORDER BY d.amount DESC, d.created_at DESC
     `).all() as any[];
 
@@ -94,7 +97,7 @@ async function getPageData() {
       isOrganization: row.is_organization === 1,
       status: row.status,
       tier: row.tier,
-      treeCode: row.tree_code,
+      treeCode: row.tree_codes, // Now contains comma-separated tree codes
       createdAt: row.created_at,
     }));
 

@@ -91,7 +91,37 @@ function getDb(): Database.Database {
     CREATE INDEX IF NOT EXISTS idx_trees_status ON trees(status);
     CREATE INDEX IF NOT EXISTS idx_donations_status ON donations(status);
     CREATE INDEX IF NOT EXISTS idx_sponsors_tier ON sponsors(tier);
+
+    -- Junction table for Many-to-Many: Donations <-> Trees
+    -- 1 cây có thể có nhiều người đóng góp
+    -- 1 đóng góp có thể sở hữu nhiều cây
+    CREATE TABLE IF NOT EXISTS donation_trees (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      donation_id TEXT NOT NULL,
+      tree_id TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (donation_id) REFERENCES donations(id) ON DELETE CASCADE,
+      FOREIGN KEY (tree_id) REFERENCES trees(id) ON DELETE CASCADE,
+      UNIQUE(donation_id, tree_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_donation_trees_donation ON donation_trees(donation_id);
+    CREATE INDEX IF NOT EXISTS idx_donation_trees_tree ON donation_trees(tree_id);
   `);
+
+  // Migrate existing tree_id data to donation_trees junction table
+  const existingRelations = _db.prepare(`
+    SELECT id as donation_id, tree_id FROM donations 
+    WHERE tree_id IS NOT NULL AND tree_id != ''
+  `).all() as { donation_id: string; tree_id: string }[];
+
+  if (existingRelations.length > 0) {
+    const insertRelation = _db.prepare(`
+      INSERT OR IGNORE INTO donation_trees (donation_id, tree_id) VALUES (?, ?)
+    `);
+    for (const rel of existingRelations) {
+      insertRelation.run(rel.donation_id, rel.tree_id);
+    }
+  }
 
   // Insert default settings if not exists
   const defaultSettings = [
