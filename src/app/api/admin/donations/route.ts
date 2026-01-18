@@ -52,18 +52,23 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
 
+        // Validate status against whitelist to prevent SQL injection
+        const validStatuses = ['pending', 'approved', 'rejected'];
+        const params: string[] = [];
+
         let query = `
             SELECT d.*
             FROM donations d
         `;
 
-        if (status && status !== 'all') {
-            query += ` WHERE d.status = '${status}'`;
+        if (status && status !== 'all' && validStatuses.includes(status)) {
+            query += ` WHERE d.status = ?`;
+            params.push(status);
         }
 
         query += ` ORDER BY d.created_at DESC`;
 
-        const donations = db.prepare(query).all() as Donation[];
+        const donations = db.prepare(query).all(...params) as Donation[];
 
         // Enrich with tree codes from junction table
         const enrichedDonations = donations.map(d => {
