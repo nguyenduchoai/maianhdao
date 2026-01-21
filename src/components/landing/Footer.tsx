@@ -63,6 +63,16 @@ export function Footer({ settings = {} }: FooterProps) {
                                 </a>
                             </li>
                             <li>
+                                <a href="/thu-vien-anh" className="hover:text-pink-400 transition-colors">
+                                    🖼️ Thư viện ảnh
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/minh-bach-tai-chinh" className="hover:text-pink-400 transition-colors">
+                                    📊 Minh bạch tài chính
+                                </a>
+                            </li>
+                            <li>
                                 <a href="/admin" className="hover:text-pink-400 transition-colors">
                                     Quản trị
                                 </a>

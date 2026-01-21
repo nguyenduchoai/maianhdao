@@ -94,10 +94,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tree_ids, tier } = body;
+        const { name, phone, email, amount, message, logo_url, is_organization, is_sponsor, status, tree_id, tree_ids, tier } = body;
 
-        if (!name || amount === undefined) {
-            return NextResponse.json({ error: 'Tên và số tiền là bắt buộc' }, { status: 400 });
+        // Name is required, amount is required only for non-sponsors
+        if (!name) {
+            return NextResponse.json({ error: 'Tên là bắt buộc' }, { status: 400 });
+        }
+        
+        if (!is_sponsor && (amount === undefined || amount === null)) {
+            return NextResponse.json({ error: 'Số tiền là bắt buộc' }, { status: 400 });
         }
 
         // Generate unique ID
@@ -105,17 +110,18 @@ export async function POST(request: NextRequest) {
 
         // Insert donation (without tree_id - use junction table)
         db.prepare(`
-            INSERT INTO donations (id, name, phone, email, amount, message, logo_url, is_organization, status, tier, created_at, approved_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO donations (id, name, phone, email, amount, message, logo_url, is_organization, is_sponsor, status, tier, created_at, approved_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             id,
             name,
             phone || null,
             email || null,
-            amount,
+            is_sponsor ? 0 : amount, // Sponsors have 0 amount
             message || null,
             logo_url || null,
             is_organization ? 1 : 0,
+            is_sponsor ? 1 : 0,
             status || 'pending',
             tier || 'gieomam',
             new Date().toISOString(),

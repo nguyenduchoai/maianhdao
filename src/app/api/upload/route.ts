@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import db from '@/lib/db';
 
 // POST /api/upload - Upload file
 export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
         const file = formData.get('file') as File;
-        const type = formData.get('type') as string || 'donors'; // donors, sponsors, trees
+        const type = formData.get('type') as string || 'donors'; // donors, sponsors, trees, gallery
+        const category = formData.get('category') as string || 'general'; // For gallery
 
         if (!file) {
             return NextResponse.json({ error: 'Không có file' }, { status: 400 });
@@ -41,6 +43,30 @@ export async function POST(request: NextRequest) {
 
         // Return public URL
         const publicUrl = `/uploads/${type}/${filename}`;
+
+        // If gallery type, also add to gallery database
+        if (type === 'gallery') {
+            try {
+                // Ensure table exists
+                db.exec(`
+                    CREATE TABLE IF NOT EXISTS gallery (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        url TEXT NOT NULL UNIQUE,
+                        title TEXT,
+                        category TEXT DEFAULT 'general',
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                `);
+                
+                db.prepare(`
+                    INSERT INTO gallery (url, title, category)
+                    VALUES (?, ?, ?)
+                `).run(publicUrl, file.name.replace(/\.[^/.]+$/, ''), category);
+            } catch (dbError) {
+                console.error('Gallery DB error:', dbError);
+                // Continue anyway - file is uploaded
+            }
+        }
 
         return NextResponse.json({
             success: true,

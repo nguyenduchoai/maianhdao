@@ -7,6 +7,7 @@ import QRCode from 'react-qr-code';
 interface DonationFormProps {
     bankInfo: {
         bankName: string;
+        bankBin: string; // VietQR BIN code (e.g., 970426 for MSB)
         accountNumber: string;
         accountHolder: string;
     };
@@ -51,8 +52,10 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
         `MAI ANH DAO ${formData.name}${formData.message ? ' ' + formData.message : ''}`
     ).slice(0, 50);
 
-    // Generate VietQR URL
-    const qrContent = `https://img.vietqr.io/image/${bankInfo.bankName}-${bankInfo.accountNumber}-compact.png?amount=${formData.amount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(bankInfo.accountHolder)}`;
+    // Generate VietQR Quick Link (Official API)
+    // Format: https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<DESCRIPTION>&accountName=<ACCOUNT_NAME>
+    // BANK_ID can be: BIN code (970426) OR shortName (MSB) OR code (MSB)
+    const qrContent = `https://img.vietqr.io/image/${bankInfo.bankName}-${bankInfo.accountNumber}-compact2.png?amount=${formData.amount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(bankInfo.accountHolder)}`;
 
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -238,8 +241,8 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                 </div>
                             </div>
 
-                            {/* Phone & Email */}
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Phone & Email - Stack on mobile */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Số điện thoại
@@ -249,7 +252,7 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                         disabled={isConfirmed}
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100 text-base"
                                         placeholder="0912345678"
                                     />
                                 </div>
@@ -262,7 +265,7 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                         disabled={isConfirmed}
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100 text-base"
                                         placeholder="email@example.com"
                                     />
                                 </div>
@@ -273,7 +276,7 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Số tiền đóng góp *
                                 </label>
-                                <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-3">
+                                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
                                     {presetAmounts.map((preset) => (
                                         <button
                                             key={preset.value}
@@ -300,7 +303,7 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                     disabled={isConfirmed}
                                     value={formData.amount}
                                     onChange={(e) => setFormData({ ...formData, amount: parseInt(e.target.value) || 0 })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100 text-base"
                                 />
                                 <p className="text-sm text-gray-500 mt-1">
                                     {formatCurrency(formData.amount)} - {getTierLabel(getDonationTier(formData.amount))}
@@ -352,11 +355,13 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                             <>
                                 <h3 className="text-xl font-semibold text-gray-800 mb-6">Quét mã QR để thanh toán</h3>
 
-                                <div className="qr-container inline-block mb-6">
-                                    <QRCode
-                                        value={qrContent}
-                                        size={200}
-                                        level="M"
+                                <div className="qr-container inline-block mb-6 bg-white p-2 rounded-lg shadow-md">
+                                    <img 
+                                        src={qrContent} 
+                                        alt="VietQR Payment" 
+                                        width={220}
+                                        height={220}
+                                        className="rounded"
                                     />
                                 </div>
 

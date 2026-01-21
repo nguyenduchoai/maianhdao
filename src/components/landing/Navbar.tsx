@@ -24,6 +24,7 @@ export function Navbar({ settings = {} }: NavbarProps) {
         { href: '#donate', label: settings.navLinkDonate || 'Đóng Góp' },
         { href: '#sponsors', label: settings.navLinkSponsors || 'Ban Tổ Chức' },
         { href: '#donors', label: settings.navLinkDonors || 'Bảng Vinh Danh' },
+        { href: '/thu-vien-anh', label: '🖼️ Thư Viện', isLink: true },
         { href: '/minh-bach-tai-chinh', label: settings.navLinkTransparency || '📊 Minh Bạch', isLink: true },
     ];
 

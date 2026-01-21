@@ -123,12 +123,20 @@ function getDb(): Database.Database {
     }
   }
 
+  // Migration: Add is_sponsor column to donations table (for in-kind sponsors)
+  try {
+    _db.exec(`ALTER TABLE donations ADD COLUMN is_sponsor INTEGER DEFAULT 0`);
+  } catch (e) {
+    // Column already exists, ignore
+  }
+
   // Insert default settings if not exists
   const defaultSettings = [
     // Bank & Campaign
-    ['bankName', 'Vietcombank'],
-    ['accountNumber', '0123456789'],
-    ['accountHolder', 'Quỹ Mai Anh Đào Đà Lạt'],
+    ['bankName', 'MSB'],
+    ['bankBin', '970426'], // VietQR BIN code for MSB
+    ['accountNumber', '991977'],
+    ['accountHolder', 'Hội Doanh nhân trẻ tỉnh Lâm Đồng'],
     ['targetAmount', '500000000'],
     ['campaignStart', '2026-01-05'],
     ['campaignEnd', '2026-01-15'],

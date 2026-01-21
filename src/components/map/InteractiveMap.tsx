@@ -177,7 +177,8 @@ export function InteractiveMap({ trees }: InteractiveMapProps) {
                     <MapContainer
                         center={center}
                         zoom={18}
-                        style={{ height: '800px', width: '100%' }}
+                        style={{ height: '500px', width: '100%' }}
+                        className="sm:!h-[600px] md:!h-[700px] lg:!h-[800px]"
                         scrollWheelZoom={true}
                     >
                         <TileLayer
@@ -276,64 +277,64 @@ function TreePopup({ tree }: { tree: Tree }) {
     };
 
     return (
-        <div className="min-w-[480px] max-w-[600px]">
+        <div className="w-[280px] sm:w-[360px] md:w-[420px] max-w-[90vw]">
             {/* Header with status indicator */}
             <div className={`
-                px-5 py-4 flex items-center gap-3
+                px-4 py-3 sm:px-5 sm:py-4 flex items-center gap-2 sm:gap-3
                 ${tree.status === 'sponsored' ? 'bg-gradient-to-r from-pink-500 to-pink-400' : 'bg-gray-400'}
                 text-white rounded-t-lg
             `}>
-                <span className="text-3xl">🌸</span>
-                <div>
-                    <h3 className="text-xl font-bold">
+                <span className="text-2xl sm:text-3xl">🌸</span>
+                <div className="min-w-0">
+                    <h3 className="text-base sm:text-xl font-bold truncate">
                         {tree.status === 'sponsored' ? 'Địa điểm cây Mai anh đào' : 'Cây còn trống'}
                     </h3>
-                    <p className="text-pink-100">{tree.code} - Khu {tree.zone}</p>
+                    <p className="text-pink-100 text-sm">{tree.code} - Khu {tree.zone}</p>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-5 bg-white">
+            <div className="p-3 sm:p-5 bg-white">
                 {tree.status === 'sponsored' && donors.length > 0 ? (
                     <>
                         {/* Multiple Donors Section */}
-                        <div className="mb-4">
-                            <h4 className="text-sm font-medium text-gray-500 mb-2">
+                        <div className="mb-3 sm:mb-4">
+                            <h4 className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
                                 👥 Người sở hữu ({donors.length})
                             </h4>
-                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                            <div className="space-y-2 max-h-32 sm:max-h-48 overflow-y-auto">
                                 {donors.map((donor, index) => (
                                     <div
                                         key={donor.id}
-                                        className={`flex items-center gap-3 p-3 rounded-xl border ${index === 0
+                                        className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border ${index === 0
                                             ? 'bg-gradient-to-r from-pink-50 to-white border-pink-200'
                                             : 'bg-gray-50 border-gray-100'
                                             }`}
                                     >
                                         {donor.logo_url ? (
-                                            <div className="w-12 h-12 rounded-lg bg-white border border-pink-100 flex items-center justify-center overflow-hidden">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white border border-pink-100 flex items-center justify-center overflow-hidden flex-shrink-0">
                                                 <img
                                                     src={donor.logo_url}
                                                     alt={donor.name}
-                                                    className="w-10 h-10 object-contain"
+                                                    className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
                                                 />
                                             </div>
                                         ) : (
-                                            <div className="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center text-xl">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-pink-100 flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
                                                 🌸
                                             </div>
                                         )}
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-bold text-gray-800 truncate">{donor.name}</span>
+                                            <div className="flex items-center gap-1 sm:gap-2">
+                                                <span className="font-bold text-gray-800 truncate text-sm sm:text-base">{donor.name}</span>
                                                 {index === 0 && (
-                                                    <span className="px-1.5 py-0.5 bg-pink-500 text-white text-xs rounded">Chính</span>
+                                                    <span className="px-1 py-0.5 bg-pink-500 text-white text-[10px] sm:text-xs rounded flex-shrink-0">Chính</span>
                                                 )}
                                             </div>
-                                            <div className="flex items-center gap-2 text-sm">
+                                            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                                                 <span className="text-pink-600 font-medium">{formatCurrency(donor.amount)}</span>
-                                                <span className="text-gray-400">•</span>
-                                                <span className="text-xs text-gray-500">{getTierLabel(donor.tier)}</span>
+                                                <span className="text-gray-400 hidden sm:inline">•</span>
+                                                <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:inline">{getTierLabel(donor.tier)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -343,39 +344,39 @@ function TreePopup({ tree }: { tree: Tree }) {
 
                         {/* Primary Donor Message */}
                         {donors[0]?.message && (
-                            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <div className="flex items-start gap-2">
-                                    <span className="text-lg">💬</span>
-                                    <div>
-                                        <p className="text-xs text-gray-500 font-medium mb-1">Ghi chú:</p>
-                                        <p className="text-gray-700 text-sm">{donors[0].message}</p>
+                                    <span className="text-base sm:text-lg">💬</span>
+                                    <div className="min-w-0">
+                                        <p className="text-[10px] sm:text-xs text-gray-500 font-medium mb-1">Ghi chú:</p>
+                                        <p className="text-gray-700 text-xs sm:text-sm break-words">{donors[0].message}</p>
                                     </div>
                                 </div>
                             </div>
                         )}
 
                         {/* Info Grid */}
-                        <div className="space-y-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg">
+                        <div className="space-y-1 sm:space-y-2 mb-3 sm:mb-4 text-xs sm:text-sm bg-gray-50 p-2 sm:p-3 rounded-lg">
                             <div className="flex items-center gap-2 text-gray-600">
                                 <span>📅</span>
                                 <span>Thời gian trồng: 18/01/2026</span>
                             </div>
                             <div className="flex items-center gap-2 text-gray-600">
                                 <span>📍</span>
-                                <span>Đảo Mai Anh Đào, Hồ Xuân Hương</span>
+                                <span className="truncate">Đảo Mai Anh Đào, Hồ Xuân Hương</span>
                             </div>
                         </div>
 
                         {/* Images Gallery */}
-                        <div className="mb-4">
-                            <p className="text-sm text-gray-500 mb-2">🖼️ Hình ảnh ({treeImages.length}) - bấm để xem lớn</p>
-                            <div className="grid grid-cols-2 gap-2">
+                        <div className="mb-3 sm:mb-4">
+                            <p className="text-xs sm:text-sm text-gray-500 mb-2">🖼️ Hình ảnh ({treeImages.length})</p>
+                            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                                 {treeImages.slice(0, 4).map((img, i) => (
                                     <img
                                         key={i}
                                         src={img}
                                         alt={`Cây ${tree.code}`}
-                                        className="w-full h-24 object-cover rounded-lg border border-gray-200 hover:opacity-80 hover:shadow-md cursor-pointer transition-all"
+                                        className="w-full h-16 sm:h-24 object-cover rounded-lg border border-gray-200 hover:opacity-80 hover:shadow-md cursor-pointer transition-all active:scale-95"
                                         onClick={() => window.dispatchEvent(new CustomEvent('openLightbox', { detail: img }))}
                                     />
                                 ))}
@@ -383,33 +384,33 @@ function TreePopup({ tree }: { tree: Tree }) {
                         </div>
                     </>
                 ) : (
-                    <div className="text-center py-6">
-                        <div className="text-5xl mb-3">🌱</div>
-                        <h4 className="font-bold text-gray-800 mb-2">Cây này đang chờ bạn!</h4>
-                        <p className="text-gray-500 text-sm mb-4">
+                    <div className="text-center py-4 sm:py-6">
+                        <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🌱</div>
+                        <h4 className="font-bold text-gray-800 mb-2 text-sm sm:text-base">Cây này đang chờ bạn!</h4>
+                        <p className="text-gray-500 text-xs sm:text-sm mb-3 sm:mb-4">
                             Đóng góp để sở hữu cây Mai Anh Đào và để lại dấu ấn tại Đà Lạt
                         </p>
                         <a
                             href="#donate"
-                            className="inline-block btn-primary text-sm py-2 px-6 rounded-full"
+                            className="inline-block btn-primary text-xs sm:text-sm py-2 px-4 sm:px-6 rounded-full"
                         >
                             💝 Đóng Góp Ngay
                         </a>
                     </div>
                 )}
 
-                {/* Actions */}
-                <div className="flex gap-2 pt-3 border-t border-gray-100">
+                {/* Actions - Touch friendly */}
+                <div className="flex gap-2 pt-2 sm:pt-3 border-t border-gray-100">
                     <a
                         href={`https://www.google.com/maps/dir/?api=1&destination=${tree.lat},${tree.lng}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 text-center py-2.5 px-3 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                        className="flex-1 text-center py-2.5 sm:py-3 px-2 sm:px-3 bg-blue-500 text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-blue-600 active:bg-blue-700 transition-colors"
                     >
                         📍 Chỉ đường
                     </a>
                     <button
-                        className="py-2.5 px-4 bg-pink-100 text-pink-700 rounded-lg text-sm hover:bg-pink-200 transition-colors font-medium"
+                        className="py-2.5 sm:py-3 px-3 sm:px-4 bg-pink-100 text-pink-700 rounded-lg text-xs sm:text-sm hover:bg-pink-200 active:bg-pink-300 transition-colors font-medium"
                         onClick={() => {
                             const shareUrl = `https://maianhdao.lamdong.vn/map/${tree.id}`;
                             const shareText = `🌸 Cây ${tree.code} - Đảo Mai Anh Đào, Đà Lạt\n${donors.length > 0 ? `Nhà tài trợ: ${donors.map(d => d.name).join(', ')}` : 'Đang chờ người đóng góp!'}\n${shareUrl}`;
@@ -417,7 +418,7 @@ function TreePopup({ tree }: { tree: Tree }) {
                             alert('Đã copy link chia sẻ!');
                         }}
                     >
-                        🔗 Chia sẻ
+                        🔗
                     </button>
                 </div>
             </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
+import { SubpageHeader } from '@/components/landing/SubpageHeader';
 
 interface Donation {
     id: string;
@@ -70,92 +71,122 @@ export default function FinanceTransparencyPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
-            {/* Header */}
-            <header className="bg-white shadow-sm sticky top-0 z-50">
-                <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
-                        <span className="text-2xl">🌸</span>
-                        <span className="font-heading font-bold text-xl text-gray-800">Mai Anh Đào</span>
-                    </Link>
-                    <nav className="flex items-center gap-6">
-                        <Link href="/" className="text-gray-600 hover:text-pink-600">Trang chủ</Link>
-                        <Link href="/minh-bach-tai-chinh" className="text-pink-600 font-medium">Minh bạch tài chính</Link>
-                    </nav>
-                </div>
-            </header>
+            {/* Full Navigation Header */}
+            <SubpageHeader currentPage="minh-bach-tai-chinh" />
 
-            <main className="container mx-auto px-4 py-12">
-                {/* Title */}
-                <div className="text-center mb-12">
-                    <h1 className="font-heading text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            {/* Spacer for fixed header */}
+            <div className="h-16 md:h-20" />
+
+            <main className="container mx-auto px-4 py-6 sm:py-12">
+                {/* Title - Mobile Optimized */}
+                <div className="text-center mb-6 sm:mb-12">
+                    <h1 className="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-2 sm:mb-4">
                         📊 Minh Bạch Tài Chính
                     </h1>
-                    <p className="text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base px-2">
                         Danh sách đóng góp cho chiến dịch <strong>NGÀN CÂY ANH ĐÀO</strong> được công khai minh bạch
                     </p>
                 </div>
 
-                {/* Stats Card */}
-                <div className="max-w-md mx-auto mb-12">
-                    <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-8 text-white shadow-lg text-center">
-                        <div className="text-lg opacity-80 mb-2">💰 Tổng số tiền đã nhận</div>
-                        <div className="text-4xl md:text-5xl font-bold mb-2">{formatCurrency(data.totalIncome)}</div>
-                        <div className="text-lg opacity-70">{data.incomeCount} lượt đóng góp</div>
+                {/* Stats Card - Mobile Optimized */}
+                <div className="max-w-md mx-auto mb-6 sm:mb-12">
+                    <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white shadow-lg text-center">
+                        <div className="text-sm sm:text-lg opacity-80 mb-2">💰 Tổng số tiền đã nhận</div>
+                        <div className="text-2xl sm:text-4xl md:text-5xl font-bold mb-2">{formatCurrency(data.totalIncome)}</div>
+                        <div className="text-sm sm:text-lg opacity-70">{data.incomeCount} lượt đóng góp</div>
                     </div>
                 </div>
 
-                {/* Donations List */}
-                <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6">💰 Danh sách đóng góp ({data.donations?.length || 0})</h2>
+                {/* Donations List - Mobile Responsive */}
+                <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-8 mb-6 sm:mb-8">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">
+                        💰 Danh sách đóng góp ({data.donations?.length || 0})
+                    </h2>
 
                     {!data.donations || data.donations.length === 0 ? (
                         <p className="text-center text-gray-500 py-8">Chưa có đóng góp nào</p>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Người đóng góp</th>
-                                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">Số tiền</th>
-                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Cấp độ</th>
-                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ghi chú</th>
-                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ngày</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data.donations.map((donation) => (
-                                        <tr key={donation.id} className="border-b hover:bg-gray-50">
-                                            <td className="py-4 px-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span>{donation.isOrganization ? '🏢' : '👤'}</span>
-                                                    <span className="font-medium text-gray-800">{donation.name}</span>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-4 text-right font-bold text-green-600">
-                                                +{formatCurrency(donation.amount)}
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                <span className={`tier-badge tier-${donation.tier}`}>
-                                                    {tierLabels[donation.tier] || donation.tier}
-                                                </span>
-                                            </td>
-                                            <td className="py-4 px-4 text-sm text-gray-600 max-w-xs">
-                                                {donation.message || '—'}
-                                            </td>
-                                            <td className="py-4 px-4 text-sm text-gray-500">
-                                                {new Date(donation.createdAt).toLocaleDateString('vi-VN')}
-                                            </td>
+                        <>
+                            {/* Desktop Table - Hidden on Mobile */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Người đóng góp</th>
+                                            <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">Số tiền</th>
+                                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Cấp độ</th>
+                                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ghi chú</th>
+                                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Ngày</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {data.donations.map((donation) => (
+                                            <tr key={donation.id} className="border-b hover:bg-gray-50">
+                                                <td className="py-4 px-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <span>{donation.isOrganization ? '🏢' : '👤'}</span>
+                                                        <span className="font-medium text-gray-800">{donation.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-4 text-right font-bold text-green-600">
+                                                    +{formatCurrency(donation.amount)}
+                                                </td>
+                                                <td className="py-4 px-4">
+                                                    <span className={`tier-badge tier-${donation.tier}`}>
+                                                        {tierLabels[donation.tier] || donation.tier}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 px-4 text-sm text-gray-600 max-w-xs">
+                                                    {donation.message || '—'}
+                                                </td>
+                                                <td className="py-4 px-4 text-sm text-gray-500">
+                                                    {new Date(donation.createdAt).toLocaleDateString('vi-VN')}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile Cards - Hidden on Desktop */}
+                            <div className="md:hidden space-y-3">
+                                {data.donations.map((donation) => (
+                                    <div 
+                                        key={donation.id} 
+                                        className="bg-gray-50 rounded-lg p-4 border border-gray-100"
+                                    >
+                                        <div className="flex items-start justify-between mb-2">
+                                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                <span className="text-lg">{donation.isOrganization ? '🏢' : '👤'}</span>
+                                                <span className="font-medium text-gray-800 truncate">{donation.name}</span>
+                                            </div>
+                                            <span className="font-bold text-green-600 flex-shrink-0 ml-2">
+                                                +{formatCurrency(donation.amount)}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className={`tier-badge tier-${donation.tier} text-xs px-2 py-0.5`}>
+                                                {tierLabels[donation.tier] || donation.tier}
+                                            </span>
+                                            <span className="text-gray-500 text-xs">
+                                                {new Date(donation.createdAt).toLocaleDateString('vi-VN')}
+                                            </span>
+                                        </div>
+                                        {donation.message && (
+                                            <p className="text-xs text-gray-500 mt-2 italic line-clamp-2">
+                                                "{donation.message}"
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </div>
 
                 {/* Back to home */}
                 <div className="text-center">
-                    <Link href="/" className="btn-primary inline-block">
+                    <Link href="/" className="btn-primary inline-block text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6">
                         ← Quay về trang chủ
                     </Link>
                 </div>

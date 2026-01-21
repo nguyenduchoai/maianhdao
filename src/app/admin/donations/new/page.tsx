@@ -24,6 +24,7 @@ export default function NewDonationPage() {
         message: '',
         tree_ids: [] as string[],
         is_organization: false,
+        is_sponsor: false, // Nhà tài trợ (tài trợ hiện vật, không có số tiền)
         logo_url: '',
     });
     const [isUploading, setIsUploading] = useState(false);
@@ -75,8 +76,13 @@ export default function NewDonationPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.name || !formData.amount) {
-            alert('Vui lòng nhập tên và số tiền');
+        if (!formData.name) {
+            alert('Vui lòng nhập tên');
+            return;
+        }
+        // Nhà tài trợ không cần số tiền, các loại khác bắt buộc
+        if (!formData.is_sponsor && !formData.amount) {
+            alert('Vui lòng nhập số tiền');
             return;
         }
 
@@ -87,7 +93,7 @@ export default function NewDonationPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
-                    amount: parseInt(formData.amount),
+                    amount: formData.is_sponsor ? 0 : parseInt(formData.amount || '0'),
                     status: 'approved', // Auto approve
                 }),
             });
@@ -172,25 +178,60 @@ export default function NewDonationPage() {
                     </div>
                 </div>
 
+                {/* Sponsor Checkbox */}
+                <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={formData.is_sponsor}
+                            onChange={(e) => setFormData(prev => ({ 
+                                ...prev, 
+                                is_sponsor: e.target.checked,
+                                amount: e.target.checked ? '' : prev.amount // Clear amount when switching to sponsor
+                            }))}
+                            className="w-5 h-5 text-amber-500 rounded focus:ring-amber-500"
+                        />
+                        <div>
+                            <span className="font-medium text-amber-800">🏅 Nhà Tài Trợ (Tài trợ hiện vật)</span>
+                            <p className="text-sm text-amber-600">Đánh dấu nếu đây là nhà tài trợ hiện vật, không có số tiền đóng góp</p>
+                        </div>
+                    </label>
+                </div>
+
                 {/* Amount & Tier */}
                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Số tiền đóng góp (VNĐ) *
-                        </label>
-                        <input
-                            type="number"
-                            value={formData.amount}
-                            onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                            placeholder="10000000"
-                            min="0"
-                            required
-                        />
-                    </div>
+                    {/* Amount - Hidden for Sponsors */}
+                    {!formData.is_sponsor && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Số tiền đóng góp (VNĐ) *
+                            </label>
+                            <input
+                                type="number"
+                                value={formData.amount}
+                                onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                placeholder="10000000"
+                                min="0"
+                                required={!formData.is_sponsor}
+                            />
+                        </div>
+                    )}
+
+                    {/* Sponsor note when is_sponsor is true */}
+                    {formData.is_sponsor && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Số tiền</label>
+                            <div className="px-4 py-2 bg-gray-100 rounded-lg text-gray-500 italic">
+                                Không áp dụng (Tài trợ hiện vật)
+                            </div>
+                        </div>
+                    )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Hạng đóng góp</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Hạng đóng góp {formData.is_sponsor && <span className="text-amber-600">(tương đương)</span>}
+                        </label>
                         <select
                             value={formData.tier}
                             onChange={(e) => setFormData(prev => ({ ...prev, tier: e.target.value }))}
@@ -200,6 +241,9 @@ export default function NewDonationPage() {
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
                         </select>
+                        {formData.is_sponsor && (
+                            <p className="text-xs text-amber-600 mt-1">Chọn hạng tương đương với giá trị hiện vật tài trợ</p>
+                        )}
                     </div>
                 </div>
 

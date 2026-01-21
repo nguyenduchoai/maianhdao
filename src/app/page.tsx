@@ -7,6 +7,7 @@ import { EventSection } from '@/components/landing/EventSection';
 import { SponsorsSection } from '@/components/landing/SponsorsSection';
 import { DonationForm } from '@/components/landing/DonationForm';
 import { DonationWall } from '@/components/landing/DonationWall';
+import { GallerySection } from '@/components/landing/GallerySection';
 import { Footer } from '@/components/landing/Footer';
 import { InteractiveMap } from '@/components/map/InteractiveMap';
 import db, { getAllSettings } from '@/lib/db';
@@ -162,6 +163,7 @@ export default async function HomePage() {
 
   const bankInfo = {
     bankName: settings.bankName || 'MSB',
+    bankBin: settings.bankBin || '970426', // VietQR BIN code for MSB
     accountNumber: settings.accountNumber || '991977',
     accountHolder: settings.accountHolder || 'Hội DNT tỉnh Lâm Đồng',
   };
@@ -194,6 +196,9 @@ export default async function HomePage() {
 
       {/* Sponsors Section */}
       <SponsorsSection sponsors={sponsors} settings={settings} />
+
+      {/* Gallery Section */}
+      <GallerySection settings={settings} />
 
       {/* Donation Wall */}
       <DonationWall donations={donations} settings={settings} />
