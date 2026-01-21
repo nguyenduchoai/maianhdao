@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { formatCurrency, getDonationTier, getTierLabel } from '@/lib/utils';
-import QRCode from 'react-qr-code';
+import { Tree } from '@/types';
+import { TreePickerModal } from './TreePickerModal';
 
 interface DonationFormProps {
     bankInfo: {
@@ -38,6 +39,10 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [uploadingLogo, setUploadingLogo] = useState(false);
+    
+    // Tree selection for organizations
+    const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
+    const [showTreePicker, setShowTreePicker] = useState(false);
 
     const presetAmounts = [
         { value: 2000000, label: '2 triệu' },
@@ -101,6 +106,8 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                 body: JSON.stringify({
                     ...formData,
                     logo_url: formData.logoUrl,
+                    // Include selected tree for organizations
+                    selected_tree_id: selectedTree?.id || null,
                 }),
             });
 
@@ -130,6 +137,7 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                             onClick={() => {
                                 setSubmitted(false);
                                 setIsConfirmed(false);
+                                setSelectedTree(null);
                                 setFormData({
                                     name: '',
                                     phone: '',
@@ -190,11 +198,58 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                                     type="checkbox"
                                     disabled={isConfirmed}
                                     checked={formData.isOrganization}
-                                    onChange={(e) => setFormData({ ...formData, isOrganization: e.target.checked })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, isOrganization: e.target.checked });
+                                        if (!e.target.checked) {
+                                            setSelectedTree(null); // Clear tree selection when unchecked
+                                        }
+                                    }}
                                     className="w-4 h-4 rounded text-pink-600"
                                 />
                                 <span className="text-sm text-gray-600">Đây là đơn vị / doanh nghiệp</span>
                             </label>
+
+                            {/* Tree Selection for Organizations */}
+                            {formData.isOrganization && (
+                                <div className="p-4 bg-gradient-to-r from-pink-50 to-amber-50 border border-pink-200 rounded-xl">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-700 mb-1">
+                                                🌳 Chọn vị trí cây (tùy chọn)
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                Doanh nghiệp có thể chọn trước vị trí cây muốn sở hữu
+                                            </p>
+                                        </div>
+                                        {selectedTree ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-green-100 border border-green-300 rounded-lg px-3 py-2 flex items-center gap-2">
+                                                    <span className="text-green-600">✓</span>
+                                                    <span className="font-bold text-green-700">{selectedTree.code}</span>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    disabled={isConfirmed}
+                                                    onClick={() => setShowTreePicker(true)}
+                                                    className="text-pink-600 hover:text-pink-700 text-sm font-medium disabled:opacity-50"
+                                                >
+                                                    Đổi
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                disabled={isConfirmed}
+                                                onClick={() => setShowTreePicker(true)}
+                                                className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            >
+                                                <span>🗺️</span>
+                                                <span>Chọn vị trí cây</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Logo Upload */}
                             <div>
@@ -399,6 +454,17 @@ export function DonationForm({ bankInfo }: DonationFormProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Tree Picker Modal for Organizations */}
+            <TreePickerModal
+                isOpen={showTreePicker}
+                onClose={() => setShowTreePicker(false)}
+                onSelect={(tree) => {
+                    setSelectedTree(tree);
+                    setShowTreePicker(false);
+                }}
+                selectedTreeId={selectedTree?.id}
+            />
         </section>
     );
 }

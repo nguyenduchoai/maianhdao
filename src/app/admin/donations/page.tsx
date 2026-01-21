@@ -14,6 +14,8 @@ interface Donation {
     tier: string;
     status: string;
     tree_code?: string;
+    selected_tree_code?: string; // Tree that organization requested
+    is_organization?: number;
     message?: string;
     created_at?: string;
 }
@@ -265,6 +267,12 @@ export default function AdminDonationsPage() {
                                     {d.tree_code ? (
                                         <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded text-sm">
                                             {d.tree_code}
+                                        </span>
+                                    ) : d.selected_tree_code ? (
+                                        <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm flex items-center gap-1">
+                                            <span>🎯</span>
+                                            <span>{d.selected_tree_code}</span>
+                                            <span className="text-xs">(yêu cầu)</span>
                                         </span>
                                     ) : (
                                         <span className="text-gray-400 text-sm">Chưa gán</span>

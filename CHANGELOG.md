@@ -2,6 +2,22 @@
 
 All notable changes to the NGÀN CÂY ANH ĐÀO campaign website.
 
+## [v9.12] - 2026-01-21
+
+### Added
+- 🎯 **Tree Selection for Organizations** - Businesses can now select their preferred tree
+  - New `TreePickerModal` component with map + list selection
+  - `selected_tree_id` column in donations table
+  - Visual indicator in admin (🎯 A1 (yêu cầu)) for pending requests
+  - Auto-assignment of selected tree upon approval
+
+### Changed
+- 📝 Admin donations table shows requested tree with amber badge
+- 🤖 API enriches donation response with `selected_tree_code`
+- 📦 Gallery populated with 3 event photos from tree ceremony
+
+---
+
 ## [v9.11] - 2026-01-21
 
 ### Fixed

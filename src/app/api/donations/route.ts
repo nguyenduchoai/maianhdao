@@ -36,7 +36,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { name, phone, email, amount, message, isOrganization } = body;
+        const { name, phone, email, amount, message, isOrganization, logo_url, selected_tree_id } = body;
 
         // Validate required fields
         if (!name || !amount) {
@@ -50,14 +50,16 @@ export async function POST(request: NextRequest) {
         const tier = getDonationTier(amount);
 
         db.prepare(`
-      INSERT INTO donations (id, name, phone, email, amount, message, is_organization, tier, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-    `).run(id, name, phone || '', email || '', amount, message || '', isOrganization ? 1 : 0, tier);
+      INSERT INTO donations (id, name, phone, email, amount, message, is_organization, tier, status, logo_url, selected_tree_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+    `).run(id, name, phone || '', email || '', amount, message || '', isOrganization ? 1 : 0, tier, logo_url || '', selected_tree_id || null);
 
         return NextResponse.json({
             success: true,
-            message: 'Cảm ơn bạn đã đóng góp! Chúng tôi sẽ xác nhận sau khi nhận được thanh toán.',
-            data: { id, tier },
+            message: selected_tree_id 
+                ? `Cảm ơn bạn đã đóng góp! Bạn đã chọn cây tại vị trí được yêu cầu. Chúng tôi sẽ xác nhận sau khi nhận được thanh toán.`
+                : 'Cảm ơn bạn đã đóng góp! Chúng tôi sẽ xác nhận sau khi nhận được thanh toán.',
+            data: { id, tier, selectedTreeId: selected_tree_id },
         });
     } catch (error) {
         console.error('Error creating donation:', error);

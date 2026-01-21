@@ -12,6 +12,7 @@ interface Donation {
     is_organization: number;
     status: string;
     tree_id: string | null;
+    selected_tree_id: string | null; // Tree that organization requested
     tier: string;
 }
 
@@ -32,6 +33,12 @@ function getTreeCodesForDonation(donationId: string): string[] {
         ORDER BY t.code
     `).all(donationId) as { code: string }[];
     return rows.map(r => r.code);
+}
+
+// Helper: Get tree code by ID
+function getTreeCodeById(treeId: string): string | null {
+    const row = db.prepare('SELECT code FROM trees WHERE id = ?').get(treeId) as { code: string } | undefined;
+    return row?.code || null;
 }
 
 // Helper: Update tree status based on donation count
@@ -74,12 +81,17 @@ export async function GET(request: NextRequest) {
         const enrichedDonations = donations.map(d => {
             const treeCodes = getTreeCodesForDonation(d.id);
             const treeIds = getTreeIdsForDonation(d.id);
+            
+            // Get selected tree code if exists
+            const selectedTreeCode = d.selected_tree_id ? getTreeCodeById(d.selected_tree_id) : null;
+            
             return {
                 ...d,
                 tree_codes: treeCodes,
                 tree_code: treeCodes.join(', ') || null, // Backwards compatibility
                 tree_ids: treeIds,
                 tree_id: treeIds[0] || null, // Backwards compatibility
+                selected_tree_code: selectedTreeCode, // New: tree code that org requested
             };
         });
 
@@ -193,9 +205,18 @@ export async function PUT(request: NextRequest) {
 
         // Handle tree assignment changes using junction table
         // Support both tree_id (single) and tree_ids (array)
-        const newTreeIds: string[] | undefined = tree_ids !== undefined
+        let newTreeIds: string[] | undefined = tree_ids !== undefined
             ? tree_ids
             : (tree_id !== undefined ? (tree_id ? [tree_id] : []) : undefined);
+
+        // AUTO-ASSIGN: If approving and has selected_tree_id but no trees assigned, use selected tree
+        if (status === 'approved' && existing.status !== 'approved') {
+            const currentTreeIds = getTreeIdsForDonation(id);
+            if (currentTreeIds.length === 0 && existing.selected_tree_id && newTreeIds === undefined) {
+                // Auto-assign the tree that organization requested
+                newTreeIds = [existing.selected_tree_id];
+            }
+        }
 
         if (newTreeIds !== undefined) {
             // Get current tree IDs
