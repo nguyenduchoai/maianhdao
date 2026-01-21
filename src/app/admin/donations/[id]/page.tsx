@@ -20,6 +20,8 @@ interface Donation {
     tree_ids?: string[];
     tree_code?: string;
     tree_codes?: string[];
+    selected_tree_id?: string;      // Tree that organization requested
+    selected_tree_code?: string;    // Tree code that organization requested
     created_at?: string;
 }
 
@@ -79,7 +81,12 @@ export default function DonationDetailPage() {
     };
 
     const handleApprove = async () => {
-        if (!confirm('Duyệt đóng góp này?')) return;
+        // Build confirmation message
+        let confirmMsg = 'Duyệt đóng góp này?';
+        if (donation?.selected_tree_code && (!donation?.tree_ids || donation.tree_ids.length === 0)) {
+            confirmMsg = `Duyệt đóng góp này?\n\n⚠️ Cây yêu cầu: ${donation.selected_tree_code}\nCây này sẽ được tự động gán cho người đóng góp.`;
+        }
+        if (!confirm(confirmMsg)) return;
         setIsSaving(true);
         try {
             const res = await fetch('/api/admin/donations', {
@@ -89,7 +96,10 @@ export default function DonationDetailPage() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('Đã duyệt thành công!');
+                const msg = donation?.selected_tree_code && (!donation?.tree_ids || donation.tree_ids.length === 0)
+                    ? `Đã duyệt thành công! Cây ${donation.selected_tree_code} đã được gán.`
+                    : 'Đã duyệt thành công!';
+                alert(msg);
                 fetchDonation();
             } else {
                 alert(data.error || 'Có lỗi xảy ra');
@@ -403,6 +413,20 @@ export default function DonationDetailPage() {
                                 </p>
                             </div>
                         </div>
+
+                        {/* Requested Tree Section */}
+                        {donation.selected_tree_code && currentTreeCodes.length === 0 && (
+                            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-2xl">🎯</span>
+                                    <div>
+                                        <label className="block text-sm text-amber-700 font-medium">Cây được yêu cầu (chờ duyệt)</label>
+                                        <p className="text-lg font-bold text-amber-800">{donation.selected_tree_code}</p>
+                                        <p className="text-xs text-amber-600 mt-1">Khi duyệt, cây này sẽ được tự động gán</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
