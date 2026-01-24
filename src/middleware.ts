@@ -18,6 +18,7 @@ const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 100; // 100 requests per minute for general
 const RATE_LIMIT_MAX_LOGIN = 5; // 5 login attempts per minute
 const RATE_LIMIT_MAX_WEBHOOK = 30; // 30 webhook calls per minute
+const RATE_LIMIT_MAX_PUBLIC_DONATION = 10; // 10 donation submissions per minute per IP
 
 // Blocked paths for security (common attack vectors)
 const BLOCKED_PATHS = [
@@ -110,6 +111,18 @@ export function middleware(request: NextRequest) {
             console.warn(`🚫 Rate limited webhook: ${clientIP}`);
             return new NextResponse(
                 JSON.stringify({ error: 'Too many requests' }),
+                { status: 429, headers: { 'Content-Type': 'application/json', ...securityHeaders } }
+            );
+        }
+    }
+
+    // Rate limiting for public donations API (prevent spam)
+    if (pathname === '/api/donations' && request.method === 'POST') {
+        const { allowed } = checkRateLimit(`donation:${clientIP}`, RATE_LIMIT_MAX_PUBLIC_DONATION);
+        if (!allowed) {
+            console.warn(`🚫 Rate limited donation spam: ${clientIP}`);
+            return new NextResponse(
+                JSON.stringify({ error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.' }),
                 { status: 429, headers: { 'Content-Type': 'application/json', ...securityHeaders } }
             );
         }
