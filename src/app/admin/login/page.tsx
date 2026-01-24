@@ -128,13 +128,7 @@ export default function AdminLoginPage() {
                                 '🔐 Đăng Nhập'
                             )}
                         </button>
-                    </form>
-
-                    {/* Help */}
-                    <div className="mt-6 text-center text-sm text-gray-500">
-                        <p>Tài khoản mặc định:</p>
-                        <code className="bg-gray-100 px-2 py-1 rounded">admin / admin123</code>
-                    </div>
+                </form>
                 </div>
 
                 {/* Back to Home */}

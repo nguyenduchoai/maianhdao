@@ -286,17 +286,32 @@ function getDb(): Database.Database {
     insertSetting.run(key, value);
   }
 
-  // Check if admin exists, if not create default
+  // Check if admin exists, if not create default with SECURE password
+  // Password must be reset via environment or direct DB update
   const adminExists = _db.prepare('SELECT COUNT(*) as count FROM admin_users').get() as { count: number };
   if (adminExists.count === 0) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const bcrypt = require('bcryptjs');
-    const hashedPassword = bcrypt.hashSync('admin123', 10);
-    _db.prepare('INSERT INTO admin_users (id, username, password) VALUES (?, ?, ?)').run(
+    const crypto = require('crypto');
+    
+    // Generate secure random password if not provided via env
+    const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || crypto.randomBytes(16).toString('hex');
+    const hashedPassword = bcrypt.hashSync(defaultPassword, 12);
+    
+    _db.prepare('INSERT INTO admin_users (id, username, password, role) VALUES (?, ?, ?, ?)').run(
       `admin-${Date.now()}`,
       'admin',
-      hashedPassword
+      hashedPassword,
+      'admin'
     );
+    
+    // Log the password ONCE for initial setup (only visible in server logs)
+    if (!process.env.ADMIN_DEFAULT_PASSWORD) {
+      console.log('🔐 INITIAL ADMIN SETUP:');
+      console.log(`   Username: admin`);
+      console.log(`   Password: ${defaultPassword}`);
+      console.log('   ⚠️  CHANGE THIS PASSWORD IMMEDIATELY!');
+    }
   }
 
   return _db;
