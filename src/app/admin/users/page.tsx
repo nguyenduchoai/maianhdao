@@ -14,14 +14,23 @@ export default function AdminUsersPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
     const [newUser, setNewUser] = useState({
         username: '',
         password: '',
         confirmPassword: '',
         role: 'editor',
     });
+    const [editPassword, setEditPassword] = useState({
+        password: '',
+        confirmPassword: '',
+        role: '',
+    });
     const [isAdding, setIsAdding] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
     const [error, setError] = useState('');
+    const [editError, setEditError] = useState('');
 
     useEffect(() => {
         fetchUsers();
@@ -85,6 +94,69 @@ export default function AdminUsersPage() {
             setError('Lỗi kết nối server');
         } finally {
             setIsAdding(false);
+        }
+    };
+
+    const handleEditUser = (user: User) => {
+        setEditingUser(user);
+        setEditPassword({
+            password: '',
+            confirmPassword: '',
+            role: user.role,
+        });
+        setEditError('');
+        setShowEditModal(true);
+    };
+
+    const handleUpdateUser = async () => {
+        if (!editingUser) return;
+        setEditError('');
+
+        // Validate password if provided
+        if (editPassword.password) {
+            if (editPassword.password.length < 6) {
+                setEditError('Mật khẩu phải ít nhất 6 ký tự');
+                return;
+            }
+            if (editPassword.password !== editPassword.confirmPassword) {
+                setEditError('Mật khẩu xác nhận không khớp');
+                return;
+            }
+        }
+
+        setIsUpdating(true);
+        try {
+            const updateData: { id: string; password?: string; role?: string } = {
+                id: editingUser.id,
+            };
+
+            if (editPassword.password) {
+                updateData.password = editPassword.password;
+            }
+
+            if (editPassword.role !== editingUser.role) {
+                updateData.role = editPassword.role;
+            }
+
+            const res = await fetch('/api/admin/users', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                setShowEditModal(false);
+                setEditingUser(null);
+                fetchUsers();
+                alert('✅ Cập nhật thành công!');
+            } else {
+                setEditError(data.error || 'Không thể cập nhật user');
+            }
+        } catch (error) {
+            setEditError('Lỗi kết nối server');
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -212,6 +284,12 @@ export default function AdminUsersPage() {
                                     <td className="px-4 py-3 text-center">
                                         <div className="flex items-center justify-center gap-2">
                                             <button
+                                                onClick={() => handleEditUser(user)}
+                                                className="text-green-600 hover:underline text-sm font-medium"
+                                            >
+                                                ✏️ Sửa
+                                            </button>
+                                            <button
                                                 onClick={() => handleToggleActive(user)}
                                                 className="text-blue-600 hover:underline text-sm"
                                             >
@@ -327,6 +405,92 @@ export default function AdminUsersPage() {
                                 className="py-2 px-6 bg-pink-500 text-white rounded-lg hover:bg-pink-600 disabled:opacity-50"
                             >
                                 {isAdding ? 'Đang tạo...' : '✅ Tạo User'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit User Modal */}
+            {showEditModal && editingUser && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-green-500 to-green-400 text-white px-6 py-4 flex items-center justify-between">
+                            <h3 className="text-xl font-bold">✏️ Sửa User: {editingUser.username}</h3>
+                            <button
+                                onClick={() => { setShowEditModal(false); setEditError(''); }}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-4">
+                            {editError && (
+                                <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                                    ❌ {editError}
+                                </div>
+                            )}
+
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+                                💡 Để trống mật khẩu nếu không muốn thay đổi
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Mật khẩu mới
+                                </label>
+                                <input
+                                    type="password"
+                                    value={editPassword.password}
+                                    onChange={(e) => setEditPassword({ ...editPassword, password: e.target.value })}
+                                    placeholder="Để trống nếu không đổi"
+                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Xác nhận mật khẩu mới
+                                </label>
+                                <input
+                                    type="password"
+                                    value={editPassword.confirmPassword}
+                                    onChange={(e) => setEditPassword({ ...editPassword, confirmPassword: e.target.value })}
+                                    placeholder="Nhập lại mật khẩu mới"
+                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Quyền</label>
+                                <select
+                                    value={editPassword.role}
+                                    onChange={(e) => setEditPassword({ ...editPassword, role: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                                >
+                                    <option value="editor">Editor (Nhập liệu)</option>
+                                    <option value="admin">Admin (Toàn quyền)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
+                            <button
+                                onClick={() => { setShowEditModal(false); setEditError(''); }}
+                                className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleUpdateUser}
+                                disabled={isUpdating}
+                                className="py-2 px-6 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
+                            >
+                                {isUpdating ? 'Đang cập nhật...' : '✅ Cập Nhật'}
                             </button>
                         </div>
                     </div>
