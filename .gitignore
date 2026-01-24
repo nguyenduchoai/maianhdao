@@ -45,3 +45,7 @@ Thumbs.db
 
 # BT Panel
 .user.ini
+
+# Security - NEVER commit these
+data/.admin-setup-credentials
+*.backup.*

@@ -25,6 +25,8 @@ interface AdminUser {
 }
 
 // Audit log for security events
+// In production: logs only to persistent database
+// In development: also logs to console for debugging
 export function logSecurityEvent(event: string, details: Record<string, unknown>) {
     const timestamp = new Date().toISOString();
     const logEntry = {
@@ -32,9 +34,14 @@ export function logSecurityEvent(event: string, details: Record<string, unknown>
         event,
         ...details,
     };
-    console.log(`🔐 SECURITY: ${JSON.stringify(logEntry)}`);
     
-    // Store in database for persistent audit trail
+    // Only log to console in development mode
+    if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.log(`🔐 SECURITY: ${JSON.stringify(logEntry)}`);
+    }
+    
+    // Always store in database for persistent audit trail
     try {
         db.exec(`
             CREATE TABLE IF NOT EXISTS security_logs (
@@ -50,9 +57,9 @@ export function logSecurityEvent(event: string, details: Record<string, unknown>
             INSERT INTO security_logs (event, details, ip, user_id)
             VALUES (?, ?, ?, ?)
         `).run(event, JSON.stringify(details), details.ip || null, details.userId || null);
-    } catch (e) {
+    } catch {
         // Silently fail - don't break auth if logging fails
-        console.error('Failed to log security event:', e);
+        // In production, consider using an external logging service
     }
 }
 

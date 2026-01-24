@@ -305,12 +305,28 @@ function getDb(): Database.Database {
       'admin'
     );
     
-    // Log the password ONCE for initial setup (only visible in server logs)
+    // SECURITY: Never log passwords to console
+    // If ADMIN_DEFAULT_PASSWORD is not set, write to a secure file for one-time retrieval
     if (!process.env.ADMIN_DEFAULT_PASSWORD) {
-      console.log('🔐 INITIAL ADMIN SETUP:');
-      console.log(`   Username: admin`);
-      console.log(`   Password: ${defaultPassword}`);
-      console.log('   ⚠️  CHANGE THIS PASSWORD IMMEDIATELY!');
+      const fs = require('fs');
+      const path = require('path');
+      const setupFile = path.join(process.cwd(), 'data', '.admin-setup-credentials');
+      try {
+        fs.writeFileSync(setupFile, 
+          `INITIAL ADMIN CREDENTIALS (DELETE THIS FILE AFTER USE)\n` +
+          `==========================================\n` +
+          `Username: admin\n` +
+          `Password: ${defaultPassword}\n` +
+          `==========================================\n` +
+          `⚠️ CHANGE THIS PASSWORD IMMEDIATELY!\n` +
+          `⚠️ DELETE THIS FILE AFTER READING!\n`,
+          { mode: 0o600 } // Only owner can read/write
+        );
+        console.log('🔐 INITIAL ADMIN: Credentials saved to data/.admin-setup-credentials (DELETE AFTER USE)');
+      } catch {
+        // If file write fails, at least don't expose password in logs
+        console.log('🔐 INITIAL ADMIN: Set ADMIN_DEFAULT_PASSWORD env var or check database directly');
+      }
     }
   }
 

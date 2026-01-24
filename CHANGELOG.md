@@ -2,6 +2,50 @@
 
 All notable changes to the NGÀN CÂY ANH ĐÀO campaign website.
 
+## [v10.0] - 2026-01-24
+
+### Security 🔐
+- **Critical Security Hardening** after breach incident
+  - All admin API routes now require authentication (`isAuthenticated()`)
+  - Removed hardcoded credentials from database seeding
+  - Password logging moved from console to secure file (`data/.admin-setup-credentials`)
+  - Security logs only output in development mode, always persist to DB
+  - JWT token expiry reduced to 8 hours
+  - Cookie security: `httpOnly: true, secure: true, sameSite: 'strict'`
+
+- **Rate Limiting** (Edge Middleware)
+  - Login: 5 attempts/minute per IP
+  - Public donations: 10 submissions/minute per IP
+  - Webhook: 30 calls/minute per IP
+  - Admin APIs: 100 requests/minute per IP
+
+- **Account Lockout**
+  - 15-minute lockout after 5 failed login attempts
+  - Persistent security audit trail in `security_logs` table
+
+- **Attack Path Blocking**
+  - Blocked common attack paths: `/.env`, `/.git`, `/wp-admin`, `/phpmyadmin`, etc.
+
+### Added
+- 📊 **Code Quality Audit Report** (`plans/reports/code_quality_audit_2026_01_24.md`)
+  - IEEE 730/1016/829 compliance assessment
+  - OWASP Top 10 checklist
+  - Clean Code Principles evaluation
+  - Health Score: 96/100
+
+### Changed
+- 📦 **Dependencies Updated** to latest versions
+  - `next`: 16.1.2 → 16.1.4
+  - `eslint-config-next`: 16.1.2 → 16.1.4
+  - `lucide-react`: 0.562.0 → 0.563.0
+  - 0 vulnerabilities in npm audit
+
+### Fixed
+- 🐛 Console.log exposing admin password → Now writes to secure file
+- 🐛 Security logs always in console → Now only in development mode
+
+---
+
 ## [v9.12] - 2026-01-21
 
 ### Added
