@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { isAuthenticated } from '@/lib/auth';
 
 interface Setting {
     key: string;
@@ -9,6 +10,11 @@ interface Setting {
 
 // GET /api/admin/settings - Get all settings
 export async function GET() {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const settings = db.prepare('SELECT key, value FROM settings').all() as Setting[];
 
@@ -30,6 +36,11 @@ export async function GET() {
 
 // PUT /api/admin/settings - Update settings
 export async function PUT(request: Request) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { settings } = body;

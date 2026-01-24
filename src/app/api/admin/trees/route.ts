@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { isAuthenticated } from '@/lib/auth';
 
 // POST /api/admin/trees - Create new tree
 export async function POST(request: Request) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     try {
         const body = await request.json();
         const { code, zone, lat, lng } = body;
@@ -51,6 +57,11 @@ export async function POST(request: Request) {
 
 // PUT /api/admin/trees - Update tree
 export async function PUT(request: Request) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { id, code, zone, lat, lng, images } = body;
@@ -92,6 +103,11 @@ export async function PUT(request: Request) {
 
 // GET /api/admin/trees - Get all trees with admin details
 export async function GET() {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const trees = db.prepare(`
             SELECT t.*, 

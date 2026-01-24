@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { isAuthenticated } from '@/lib/auth';
 
 interface Donation {
     id: string;
@@ -55,6 +56,11 @@ function updateTreeStatus(treeId: string) {
 
 // GET /api/admin/donations - Get all donations (for admin)
 export async function GET(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
@@ -104,6 +110,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/donations - Create new donation
 export async function POST(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { name, phone, email, amount, message, logo_url, is_organization, is_sponsor, status, tree_id, tree_ids, tier } = body;
@@ -168,6 +179,11 @@ export async function POST(request: NextRequest) {
 
 // PUT /api/admin/donations - Update donation
 export async function PUT(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { id, name, phone, email, amount, message, logo_url, is_organization, status, tree_id, tree_ids, tier } = body;
@@ -270,6 +286,11 @@ export async function PUT(request: NextRequest) {
 
 // DELETE /api/admin/donations - Delete donation
 export async function DELETE(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

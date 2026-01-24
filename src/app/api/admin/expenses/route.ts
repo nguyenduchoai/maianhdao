@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { isAuthenticated } from '@/lib/auth';
 
 // GET /api/admin/expenses - Get all expenses
 export async function GET(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     try {
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category');
@@ -47,6 +53,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/expenses - Create new expense
 export async function POST(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { date, title, category, amount, payment_method, vendor, note, invoice_url } = body;
@@ -82,6 +93,11 @@ export async function POST(request: NextRequest) {
 
 // PUT /api/admin/expenses - Update expense
 export async function PUT(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { id, date, title, category, amount, payment_method, vendor, note, invoice_url } = body;
@@ -117,6 +133,11 @@ export async function PUT(request: NextRequest) {
 
 // DELETE /api/admin/expenses - Delete expense
 export async function DELETE(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

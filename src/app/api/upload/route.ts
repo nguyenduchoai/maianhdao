@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import db from '@/lib/db';
+import { isAuthenticated } from '@/lib/auth';
 
-// POST /api/upload - Upload file
+// POST /api/upload - Upload file (REQUIRES AUTH)
 export async function POST(request: NextRequest) {
+    // 🔐 Auth Check - Only authenticated users can upload
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized - Login required to upload files' }, { status: 401 });
+    }
+
     try {
         const formData = await request.formData();
         const file = formData.get('file') as File;
@@ -27,12 +33,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'File quá lớn (tối đa 5MB)' }, { status: 400 });
         }
 
+        // Sanitize type to prevent path traversal
+        const allowedUploadTypes = ['donors', 'sponsors', 'trees', 'gallery', 'invoices'];
+        const safeType = allowedUploadTypes.includes(type) ? type : 'donors';
+
         // Create directory if not exists
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads', type);
+        const uploadDir = path.join(process.cwd(), 'public', 'uploads', safeType);
         await mkdir(uploadDir, { recursive: true });
 
-        // Generate unique filename
-        const ext = file.name.split('.').pop() || 'jpg';
+        // Generate unique filename (sanitized)
+        const ext = (file.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '');
         const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
         const filepath = path.join(uploadDir, filename);
 
@@ -42,10 +52,10 @@ export async function POST(request: NextRequest) {
         await writeFile(filepath, buffer);
 
         // Return public URL
-        const publicUrl = `/uploads/${type}/${filename}`;
+        const publicUrl = `/uploads/${safeType}/${filename}`;
 
         // If gallery type, also add to gallery database
-        if (type === 'gallery') {
+        if (safeType === 'gallery') {
             try {
                 // Ensure table exists
                 db.exec(`

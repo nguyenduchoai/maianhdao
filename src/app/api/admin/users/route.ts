@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'maianhdao-secret-2026';
+import { isAdmin } from '@/lib/auth';
 
 interface AdminUser {
     id: string;
@@ -13,21 +10,6 @@ interface AdminUser {
     role: string;
     is_active: number;
     created_at: string;
-}
-
-// Check if requester is admin
-async function isAdmin(): Promise<boolean> {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('admin_token')?.value;
-    if (!token) return false;
-
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-        const user = db.prepare('SELECT role FROM admin_users WHERE id = ?').get(decoded.id) as { role: string } | undefined;
-        return user?.role === 'admin';
-    } catch {
-        return false;
-    }
 }
 
 // GET - List all users (admin only)

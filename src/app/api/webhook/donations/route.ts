@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import crypto from 'crypto';
+
+// Webhook secret for signature verification
+// Should be set via environment variable in production
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || null;
 
 // Auto-assign tier based on amount
 function getTierByAmount(amount: number): string {
@@ -15,9 +20,9 @@ function generateId(): string {
 }
 
 // Parse donation data
-function parseDonation(donation: any) {
-    const name = donation['Người gửi'] || donation.name || donation.sender || '';
-    const message = donation['Nội dung ghi chú'] || donation.message || donation.note || '';
+function parseDonation(donation: Record<string, unknown>) {
+    const name = (donation['Người gửi'] || donation.name || donation.sender || '') as string;
+    const message = (donation['Nội dung ghi chú'] || donation.message || donation.note || '') as string;
     const rawAmount = donation['Số tiền (VND)'] || donation.amount || donation['Số tiền'] || 0;
 
     const amount = typeof rawAmount === 'string'
@@ -34,10 +39,56 @@ function parseDonation(donation: any) {
     return { name, message, amount, tier, isOrganization };
 }
 
+// Verify webhook signature (if configured)
+function verifySignature(request: NextRequest, body: string): boolean {
+    if (!WEBHOOK_SECRET) {
+        // If no secret configured, log warning and allow (for backward compatibility)
+        console.warn('⚠️ WEBHOOK_SECRET not configured - webhook verification disabled');
+        return true;
+    }
+
+    const signature = request.headers.get('x-webhook-signature') || 
+                      request.headers.get('x-signature') ||
+                      request.headers.get('authorization');
+
+    if (!signature) {
+        console.error('❌ Webhook request missing signature header');
+        return false;
+    }
+
+    // Simple HMAC verification
+    const expectedSignature = crypto
+        .createHmac('sha256', WEBHOOK_SECRET)
+        .update(body)
+        .digest('hex');
+
+    // Constant time comparison to prevent timing attacks
+    try {
+        return crypto.timingSafeEqual(
+            Buffer.from(signature),
+            Buffer.from(expectedSignature)
+        );
+    } catch {
+        return false;
+    }
+}
+
 // POST /api/webhook/donations - Receive donation from Google Sheets
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        // Get raw body for signature verification
+        const rawBody = await request.text();
+        
+        // Verify signature if WEBHOOK_SECRET is configured
+        if (!verifySignature(request, rawBody)) {
+            console.error('❌ Webhook signature verification failed');
+            return NextResponse.json(
+                { ok: false, error: 'Invalid webhook signature' },
+                { status: 401 }
+            );
+        }
+
+        const body = JSON.parse(rawBody);
 
         // Check action type
         const action = body.action || 'sync'; // sync | update | new
@@ -57,7 +108,7 @@ export async function POST(request: NextRequest) {
                     if (!parsed.name) continue;
 
                     // Check if exists by name
-                    const existing = db.prepare('SELECT id FROM donations WHERE name = ?').get(parsed.name) as any;
+                    const existing = db.prepare('SELECT id FROM donations WHERE name = ?').get(parsed.name) as { id: string } | undefined;
 
                     if (existing) {
                         // Update existing
@@ -74,9 +125,9 @@ export async function POST(request: NextRequest) {
                         `).run(generateId(), parsed.name, parsed.amount, parsed.message, parsed.tier, parsed.isOrganization);
                         results.inserted++;
                     }
-                } catch (err: any) {
+                } catch (err: unknown) {
                     results.failed++;
-                    results.errors.push(err.message);
+                    results.errors.push(err instanceof Error ? err.message : 'Unknown error');
                 }
             }
         } else if (action === 'update') {
@@ -86,7 +137,7 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ ok: false, error: 'Missing name' }, { status: 400 });
             }
 
-            const existing = db.prepare('SELECT id FROM donations WHERE name = ?').get(parsed.name) as any;
+            const existing = db.prepare('SELECT id FROM donations WHERE name = ?').get(parsed.name) as { id: string } | undefined;
             if (existing) {
                 db.prepare(`
                     UPDATE donations SET amount = ?, message = ?, tier = ?, is_organization = ?
@@ -118,10 +169,10 @@ export async function POST(request: NextRequest) {
             failed: results.failed,
             errors: results.errors
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Webhook error:', error);
         return NextResponse.json(
-            { ok: false, error: error.message || 'Server error' },
+            { ok: false, error: error instanceof Error ? error.message : 'Server error' },
             { status: 500 }
         );
     }
@@ -133,6 +184,11 @@ export async function GET() {
         success: true,
         webhook: '/api/webhook/donations',
         method: 'POST',
+        security: {
+            note: 'Set WEBHOOK_SECRET environment variable and include x-webhook-signature header for secure webhooks',
+            signatureHeader: 'x-webhook-signature',
+            algorithm: 'HMAC-SHA256'
+        },
         actions: {
             'sync': 'Đồng bộ toàn bộ dữ liệu (update existing, insert new)',
             'update': 'Cập nhật 1 dòng',

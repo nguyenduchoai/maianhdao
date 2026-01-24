@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { isAuthenticated } from '@/lib/auth';
 
 interface SponsorRow {
     id: string;
@@ -13,6 +14,11 @@ interface SponsorRow {
 
 // GET /api/admin/sponsors - Get all sponsors (including inactive)
 export async function GET() {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const sponsors = db.prepare(`
             SELECT * FROM sponsors 
@@ -35,6 +41,11 @@ export async function GET() {
 
 // POST /api/admin/sponsors - Create new sponsor
 export async function POST(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { name, logo_url, website, tier, display_order, is_active } = body;
@@ -59,6 +70,11 @@ export async function POST(request: NextRequest) {
 
 // PUT /api/admin/sponsors - Update sponsor
 export async function PUT(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { id, name, logo_url, website, tier, display_order, is_active } = body;
@@ -97,6 +113,11 @@ export async function PUT(request: NextRequest) {
 
 // DELETE /api/admin/sponsors - Delete sponsor
 export async function DELETE(request: NextRequest) {
+    // 🔐 Auth Check
+    if (!await isAuthenticated()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
